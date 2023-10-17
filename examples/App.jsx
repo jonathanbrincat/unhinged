@@ -29,7 +29,6 @@ class PivotTableUISmartWrapper extends React.PureComponent {
         )}
         {...this.state.pivotState}
         onChange={s => this.setState({pivotState: s})}
-        unusedOrientationCutoff={Infinity}
       />
     );
   }

@@ -486,15 +486,10 @@ class PivotTableUI extends React.PureComponent {
       )
       .sort(sortAs(this.state.unusedOrder));
 
-    const unusedLength = unusedAttrs.reduce((r, e) => r + e.length, 0);
-    const horizUnused = unusedLength < this.props.unusedOrientationCutoff;
-
     const unusedAttrsCell = this.makeDnDCell(
       unusedAttrs,
       order => this.setState({unusedOrder: order}),
-      `pvtAxisContainer pvtUnused ${
-        horizUnused ? 'pvtHorizList' : 'pvtVertList'
-      }`
+      'pvtAxisContainer pvtUnused pvtHorizList'
     );
 
     const colAttrs = this.props.cols.filter(
@@ -514,11 +509,13 @@ class PivotTableUI extends React.PureComponent {
         !this.props.hiddenAttributes.includes(e) &&
         !this.props.hiddenFromDragDrop.includes(e)
     );
+
     const rowAttrsCell = this.makeDnDCell(
       rowAttrs,
       this.propUpdater('rows'),
       'pvtAxisContainer pvtVertList pvtRows'
     );
+
     const outputCell = (
       <td className="pvtOutput">
         <PivotTable
@@ -529,37 +526,18 @@ class PivotTableUI extends React.PureComponent {
       </td>
     );
 
-    if (horizUnused) {
-      return (
-        <table className="pvtUi">
-          <tbody onClick={() => this.setState({openDropdown: false})}>
-            <tr>
-              {rendererCell}
-              {unusedAttrsCell}
-            </tr>
-            <tr>
-              {aggregatorCell}
-              {colAttrsCell}
-            </tr>
-            <tr>
-              {rowAttrsCell}
-              {outputCell}
-            </tr>
-          </tbody>
-        </table>
-      );
-    }
-
     return (
       <table className="pvtUi">
         <tbody onClick={() => this.setState({openDropdown: false})}>
           <tr>
             {rendererCell}
+            {unusedAttrsCell}
+          </tr>
+          <tr>
             {aggregatorCell}
             {colAttrsCell}
           </tr>
           <tr>
-            {unusedAttrsCell}
             {rowAttrsCell}
             {outputCell}
           </tr>
@@ -574,7 +552,6 @@ PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
   hiddenAttributes: PropTypes.arrayOf(PropTypes.string),
   hiddenFromAggregators: PropTypes.arrayOf(PropTypes.string),
   hiddenFromDragDrop: PropTypes.arrayOf(PropTypes.string),
-  unusedOrientationCutoff: PropTypes.number,
   menuLimit: PropTypes.number,
 });
 
@@ -582,7 +559,6 @@ PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
   hiddenAttributes: [],
   hiddenFromAggregators: [],
   hiddenFromDragDrop: [],
-  unusedOrientationCutoff: 85,
   menuLimit: 500,
 });
 
