@@ -1,36 +1,44 @@
-import React from 'react';
-import PivotTableUI from '../src/PivotTableUI';
-import TableRenderers from '../src/TableRenderers';
-import createPlotlyComponent from 'react-plotly.js/factory';
-import createPlotlyRenderers from '../src/PlotlyRenderers';
-import {sortAs} from '../src/Utilities';
-import tips from './tips';
-import '../src/pivottable.css';
+import React from 'react'
+import PivotTableUI from '../src/PivotTableUI'
+import TableRenderers from '../src/TableRenderers'
+// import createPlotlyComponent from 'react-plotly.js/factory'
+// import Chart from 'chart.js/auto'
+// import { Chart as ChartJS } from 'chart.js'
+// import { Chart } from 'react-chartjs-2'
+// import createPlotlyRenderers from '../src/PlotlyRenderers'
+import createMyRenderers from '../src/MyRenderers'
+import {sortAs} from '../src/Utilities'
+import tips from './tips'
+import '../src/pivottable.css'
 
-const PlotlyComponent = createPlotlyComponent(window.Plotly);
+// const PlotlyComponent = createPlotlyComponent(window.Plotly) // JB: create instance of Plotly
+// const ChartjsComponent = new Chart(window.Plotly) // JB: create instance of chart.js
 
 class PivotTableUISmartWrapper extends React.PureComponent {
   constructor(props) {
-    super(props);
-    this.state = {pivotState: props};
+    super(props)
+    this.state = {pivotState: props}
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({pivotState: nextProps});
+    this.setState({pivotState: nextProps})
   }
 
   render() {
     return (
-      <PivotTableUI
-        renderers={Object.assign(
-          {},
-          TableRenderers,
-          createPlotlyRenderers(PlotlyComponent)
-        )}
-        {...this.state.pivotState}
-        onChange={s => this.setState({pivotState: s})}
-      />
-    );
+      <div>
+        <PivotTableUI
+          renderers={Object.assign(
+            {},
+            TableRenderers,
+            // createPlotlyRenderers(PlotlyComponent),
+            createMyRenderers(),
+          )}
+          {...this.state.pivotState}
+          onChange={s => this.setState({pivotState: s})}
+        />
+      </div>
+    )
   }
 }
 
@@ -57,22 +65,22 @@ export default class App extends React.Component {
         plotlyConfig: {},
         tableOptions: {
           clickCallback: function(e, value, filters, pivotData) {
-            var names = [];
+            var names = []
             pivotData.forEachMatchingRecord(filters, function(
               record
             ) {
-              names.push(record.Meal);
-            });
-            alert(names.join('\n'));
+              names.push(record.Meal)
+            })
+            alert(names.join('\n'))
           },
         },
       },
-    });
+    })
   }
 
   render() {
     return (
       <PivotTableUISmartWrapper {...this.state.pivotState} />
-    );
+    )
   }
 }

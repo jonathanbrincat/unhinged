@@ -1,6 +1,6 @@
 {
   "name": "react-pivottable",
-  "version": "0.12.0.JB",
+  "version": "0.11.0",
   "description": "A React-based pivot table",
   "author": "Nicolas Kruchten <nicolas@kruchten.com>",
   "license": "MIT",
@@ -19,7 +19,7 @@
     "pivottable.css"
   ],
   "scripts": {
-    "start": "webpack-dev-server --mode=development",
+    "start": "webpack-dev-server",
     "test:eslint": "eslint src/*.js* && echo 'eslint: \\033[0;32m'PASS'\\033[0m'",
     "test:eslint:fix": "eslint src/*.js* --fix",
     "test:prettier": "prettier -l \"src/*.js*\" && echo 'prettier: \\033[0;32m'PASS'\\033[0m'",
@@ -44,34 +44,41 @@
     "url": "https://github.com/plotly/react-pivottable/issues"
   },
   "homepage": "https://github.com/plotly/react-pivottable#readme",
-  "devDependencies": {
-    "@babel/core": "^7.23.2",
-    "@babel/preset-env": "^7.23.2",
-    "@babel/preset-react": "^7.22.15",
-    "babel-loader": "^9.1.3",
-    "css-loader": "^6.8.1",
-    "eslint": "^8.51.0",
-    "jest": "^29.7.0",
-    "prettier": "^3.0.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "style-loader": "^3.3.3",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1"
-  },
-  "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
   "dependencies": {
     "chart.js": "^4.4.0",
-    "immutability-helper": "^3.1.1",
-    "prop-types": "^15.8.1",
+    "immutability-helper": "^2.3.1",
+    "prop-types": "^15.5.10",
     "react-chartjs-2": "^5.2.0",
-    "react-draggable": "^4.4.6",
-    "react-plotly.js": "^2.6.0",
-    "react-sortablejs": "^6.1.4",
-    "sortablejs": "^1.15.0"
+    "react-draggable": "^3.0.3",
+    "react-sortablejs": "^1.3.4",
+    "sortablejs": "^1.6.1"
+  },
+  "peerDependencies": {
+    "react": ">=15.0.0",
+    "react-dom": ">=15.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^7.2.3",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.7",
+    "eslint": "^4.5.0",
+    "eslint-config-prettier": "^2.8.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-react": "^7.3.0",
+    "jest": "^21.2.1",
+    "papaparse": "^4.3.6",
+    "prettier": "^1.8.2",
+    "react": ">=15.0.0",
+    "react-dom": ">=15.0.0",
+    "react-dropzone": "^4.2.1",
+    "react-hot-loader": "^3.1.1",
+    "react-plotly.js": "^2.0.0",
+    "style-loader": "^0.19.0",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.3"
   }
 }
