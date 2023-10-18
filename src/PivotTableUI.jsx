@@ -356,7 +356,8 @@ class PivotTableUI extends React.PureComponent {
         className={`dimension__list ${classes}`}
         onChange={onChange}
       >
-        {items.map(x => (
+        {/* JB: broken required prop attrValues */}
+        {/* {items.map(x => (
           <DraggableAttribute
             name={x}
             key={x}
@@ -370,156 +371,156 @@ class PivotTableUI extends React.PureComponent {
             removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
             zIndex={this.state.zIndices[x] || this.state.maxZIndex}
           />
-        ))}
+        ))} */}
       </Sortable>
     )
   }
 
   render() {
-    // const numValsAllowed =
-    //   this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0
+    const numValsAllowed = this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0
 
-    // const aggregatorCellOutlet = this.props.aggregators[
-    //   this.props.aggregatorName
-    // ]([])().outlet
+    const aggregatorCellOutlet = this.props.aggregators[this.props.aggregatorName]([])().outlet
 
-    // const rendererName =
-    //   this.props.rendererName in this.props.renderers
-    //     ? this.props.rendererName
-    //     : Object.keys(this.props.renderers)[0]
+    const rendererName =
+      this.props.rendererName in this.props.renderers
+        ? this.props.rendererName
+        : Object.keys(this.props.renderers)[0]
 
-    // const createRendererSelector = (
-    //   <div className="pivot__renderer">
-    //     <Dropdown
-    //       current={rendererName}
-    //       values={Object.keys(this.props.renderers)}
-    //       open={this.isOpen('renderer')}
-    //       zIndex={this.isOpen('renderer') ? this.state.maxZIndex + 1 : 1}
-    //       toggle={() =>
-    //         this.setState({
-    //           openDropdown: this.isOpen('renderer') ? false : 'renderer',
-    //         })
-    //       }
-    //       setValue={this.propUpdater('rendererName')}
-    //     />
-    //   </div>
-    // )
+    const createRendererSelector = (
+      <div className="pivot__renderer">
+        <Dropdown
+          current={rendererName}
+          values={Object.keys(this.props.renderers)}
+          open={this.isOpen('renderer')}
+          zIndex={this.isOpen('renderer') ? this.state.maxZIndex + 1 : 1}
+          toggle={() =>
+            this.setState({
+              openDropdown: this.isOpen('renderer') ? false : 'renderer',
+            })
+          }
+          setValue={this.propUpdater('rendererName')}
+        />
+      </div>
+    )
 
-    // const sortIcons = {
-    //   key_a_to_z: {
-    //     rowSymbol: '↕',
-    //     colSymbol: '↔',
-    //     next: 'value_a_to_z',
-    //   },
-    //   value_a_to_z: {
-    //     rowSymbol: '↓',
-    //     colSymbol: '→',
-    //     next: 'value_z_to_a',
-    //   },
-    //   value_z_to_a: {rowSymbol: '↑', colSymbol: '←', next: 'key_a_to_z'},
-    // }
+    const sortIcons = {
+      key_a_to_z: {
+        rowSymbol: '↕',
+        colSymbol: '↔',
+        next: 'value_a_to_z',
+      },
+      value_a_to_z: {
+        rowSymbol: '↓',
+        colSymbol: '→',
+        next: 'value_z_to_a',
+      },
+      value_z_to_a: {rowSymbol: '↑', colSymbol: '←', next: 'key_a_to_z'},
+    }
 
-    // const createCriterionSelector = (
-    //   <aside className="pivot__dimensions">
+    const createCriterionSelector = (
+      <aside className="pivot__dimensions">
 
-    //     <div className="rowAndColumnOrder">
-    //       {/* Should be input type radio buttons */}
-    //       <button
-    //         onClick={() =>
-    //           this.propUpdater('rowOrder')(sortIcons[this.props.rowOrder].next)
-    //         }
-    //       >
-    //         {sortIcons[this.props.rowOrder].rowSymbol}
-    //       </button>
-    //       <button
-    //         onClick={() =>
-    //           this.propUpdater('colOrder')(sortIcons[this.props.colOrder].next)
-    //         }
-    //       >
-    //         {sortIcons[this.props.colOrder].colSymbol}
-    //       </button>
-    //     </div>
+        <div className="rowAndColumnOrder">
+          {/* Should be input type radio buttons */}
+          <button
+            onClick={() =>
+              this.propUpdater('rowOrder')(sortIcons[this.props.rowOrder].next)
+            }
+          >
+            {sortIcons[this.props.rowOrder].rowSymbol}
+          </button>
+          <button
+            onClick={() =>
+              this.propUpdater('colOrder')(sortIcons[this.props.colOrder].next)
+            }
+          >
+            {sortIcons[this.props.colOrder].colSymbol}
+          </button>
+        </div>
 
-    //     <div className="dimension__selection">
-    //       <Dropdown
-    //         current={this.props.aggregatorName}
-    //         values={Object.keys(this.props.aggregators)}
-    //         open={this.isOpen('aggregators')}
-    //         zIndex={this.isOpen('aggregators') ? this.state.maxZIndex + 1 : 1}
-    //         toggle={() =>
-    //           this.setState({
-    //             openDropdown: this.isOpen('aggregators') ? false : 'aggregators',
-    //           })
-    //         }
-    //         setValue={this.propUpdater('aggregatorName')}
-    //       />
+        <div className="dimension__selection">
+          <Dropdown
+            current={this.props.aggregatorName}
+            values={Object.keys(this.props.aggregators)}
+            open={this.isOpen('aggregators')}
+            zIndex={this.isOpen('aggregators') ? this.state.maxZIndex + 1 : 1}
+            toggle={() =>
+              this.setState({
+                openDropdown: this.isOpen('aggregators') ? false : 'aggregators',
+              })
+            }
+            setValue={this.propUpdater('aggregatorName')}
+          />
           
-    //       {/* {numValsAllowed > 0 && <br />} */}
+          {/* {numValsAllowed > 0 && <br />} */}
           
-    //       {new Array(numValsAllowed).fill().map((n, i) => [
-    //         <Dropdown
-    //           key={i}
-    //           current={this.props.vals[i]}
-    //           values={Object.keys(this.state.attrValues).filter(
-    //             e =>
-    //               !this.props.hiddenAttributes.includes(e) &&
-    //               !this.props.hiddenFromAggregators.includes(e)
-    //           )}
-    //           open={this.isOpen(`val${i}`)}
-    //           zIndex={this.isOpen(`val${i}`) ? this.state.maxZIndex + 1 : 1}
-    //           toggle={() =>
-    //             this.setState({
-    //               openDropdown: this.isOpen(`val${i}`) ? false : `val${i}`,
-    //             })
-    //           }
-    //           setValue={value =>
-    //             this.sendPropUpdate({
-    //               vals: {$splice: [[i, 1, value]]},
-    //             })
-    //           }
-    //         />,
-    //         // i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
-    //       ])}
+          {new Array(numValsAllowed).fill().map((n, i) => [
+            <Dropdown
+              key={i}
+              current={this.props.vals[i]}
+              values={Object.keys(this.state.attrValues).filter(
+                e =>
+                  !this.props.hiddenAttributes.includes(e) &&
+                  !this.props.hiddenFromAggregators.includes(e)
+              )}
+              open={this.isOpen(`val${i}`)}
+              zIndex={this.isOpen(`val${i}`) ? this.state.maxZIndex + 1 : 1}
+              toggle={() =>
+                this.setState({
+                  openDropdown: this.isOpen(`val${i}`) ? false : `val${i}`,
+                })
+              }
+              setValue={value =>
+                this.sendPropUpdate({
+                  vals: {$splice: [[i, 1, value]]},
+                })
+              }
+            />,
+            // i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
+          ])}
 
-    //       {aggregatorCellOutlet && aggregatorCellOutlet(this.props.data)}
-    //     </div>
-    //   </aside>
-    // )
+          {aggregatorCellOutlet && aggregatorCellOutlet(this.props.data)}
+        </div>
+      </aside>
+    )
 
-    // const unusedAttrs = Object.keys(this.state.attrValues)
-    //   .filter(
-    //     e =>
-    //       !this.props.rows.includes(e) &&
-    //       !this.props.cols.includes(e) &&
-    //       !this.props.hiddenAttributes.includes(e) &&
-    //       !this.props.hiddenFromDragDrop.includes(e)
-    //   )
-    //   .sort(sortAs(this.state.unusedOrder))
+    const unusedAttrs = Object.keys(this.state.attrValues)
+      .filter(
+        e =>
+          !this.props.rows.includes(e) &&
+          !this.props.cols.includes(e) &&
+          !this.props.hiddenAttributes.includes(e) &&
+          !this.props.hiddenFromDragDrop.includes(e)
+      )
+      .sort(sortAs(this.state.unusedOrder))
 
+    // JB: broken
     // const unusedAttrsCell = this.makeDnDCell(
     //   unusedAttrs,
     //   order => this.setState({unusedOrder: order}),
     //   'pvtHorizList'
     // )
 
-    // const colAttrs = this.props.cols.filter(
-    //   e =>
-    //     !this.props.hiddenAttributes.includes(e) &&
-    //     !this.props.hiddenFromDragDrop.includes(e)
-    // )
+    const colAttrs = this.props.cols.filter(
+      e =>
+        !this.props.hiddenAttributes.includes(e) &&
+        !this.props.hiddenFromDragDrop.includes(e)
+    )
 
+    // JB: broken
     // const colAttrsCell = this.makeDnDCell(
     //   colAttrs,
     //   this.propUpdater('cols'),
     //   'pvtHorizList pvtCols'
     // )
 
-    // const rowAttrs = this.props.rows.filter(
-    //   e =>
-    //     !this.props.hiddenAttributes.includes(e) &&
-    //     !this.props.hiddenFromDragDrop.includes(e)
-    // )
+    const rowAttrs = this.props.rows.filter(
+      e =>
+        !this.props.hiddenAttributes.includes(e) &&
+        !this.props.hiddenFromDragDrop.includes(e)
+    )
 
+    // JB: broken
     // const rowAttrsCell = this.makeDnDCell(
     //   rowAttrs,
     //   this.propUpdater('rows'),
@@ -528,18 +529,18 @@ class PivotTableUI extends React.PureComponent {
 
     return (
       <div className="pivot__ui" onClick={() => this.setState({ openDropdown: false })}>
-        {/* {createRendererSelector}
+        {createRendererSelector}
         <div className="pivot__criterion">
-          {unusedAttrsCell}
+          {/* {unusedAttrsCell} */}
         </div>
 
         {createCriterionSelector}
         <div className="pivot__axis">
-          {colAttrsCell}
+          {/* {colAttrsCell} */}
         </div>
 
         <div className="pivot__axis">
-          {rowAttrsCell}
+          {/* {rowAttrsCell} */}
         </div>
 
         <article className="pivot__output">
@@ -550,7 +551,7 @@ class PivotTableUI extends React.PureComponent {
           />
 
           <pre style={{ fontSize: '10px' }}>{JSON.stringify(this.state.materializedInput, null, 2)}</pre>
-        </article> */}
+        </article>
       </div>
     )
   }

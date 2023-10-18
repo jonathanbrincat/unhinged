@@ -6,43 +6,10 @@ import { PivotData } from './Utilities'
 // eslint can't see inherited propTypes!
 
 // ERROR in ./node_modules/chart.js/dist/chart.js Module parse failed: Unexpected token(567: 17). You may need an appropriate loader to handle this file type.
-// import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-// import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Pie } from 'react-chartjs-2';
 
-// ChartJS.register(ArcElement, Tooltip, Legend);
-
-export const data = {
-  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-  datasets: [
-    {
-      label: '# of Votes',
-      /* eslint-disable no-magic-numbers */
-      data: [12, 19, 3, 5, 2, 3],
-      backgroundColor: [
-        'rgba(255, 99, 132, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(255, 206, 86, 0.2)',
-        'rgba(75, 192, 192, 0.2)',
-        'rgba(153, 102, 255, 0.2)',
-        'rgba(255, 159, 64, 0.2)',
-      ],
-      borderColor: [
-        'rgba(255, 99, 132, 1)',
-        'rgba(54, 162, 235, 1)',
-        'rgba(255, 206, 86, 1)',
-        'rgba(75, 192, 192, 1)',
-        'rgba(153, 102, 255, 1)',
-        'rgba(255, 159, 64, 1)',
-      ],
-      borderWidth: 1,
-    },
-  ],
-};
-
-// export function App() {
-//   return <Pie data={data} />;
-// }
-
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 function makeRenderer(
   PlotlyComponent,
@@ -52,6 +19,37 @@ function makeRenderer(
 ) {
   class Renderer extends React.PureComponent {
     render() {
+      //
+      const fuckfuck = {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [
+          {
+            label: '# of Votes',
+            /* eslint-disable no-magic-numbers */
+            data: [12, 19, 3, 5, 2, 3],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+            ],
+            borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)',
+            ],
+            borderWidth: 1,
+          },
+        ],
+      };
+      //
+
+
       const pivotData = new PivotData(this.props)
       const rowKeys = pivotData.getRowKeys()
       const colKeys = pivotData.getColKeys()
@@ -155,8 +153,10 @@ function makeRenderer(
       }
 
       return (
-        // <Pie data={data} />
-        <h1>Neverending shit. Just one problem after another.</h1>
+        <>
+          <Pie data={fuckfuck} />
+          <h1>Neverending shit. Just one problem after another.</h1>
+        </>
       )
 
       // return (
