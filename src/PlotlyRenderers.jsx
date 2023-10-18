@@ -16,25 +16,27 @@ function makeRenderer(
       const pivotData = new PivotData(this.props)
       const rowKeys = pivotData.getRowKeys()
       const colKeys = pivotData.getColKeys()
+
       const traceKeys = transpose ? colKeys : rowKeys
       if (traceKeys.length === 0) {
         traceKeys.push([]);
       }
+
       const datumKeys = transpose ? rowKeys : colKeys
       if (datumKeys.length === 0) {
         datumKeys.push([]);
       }
 
       let fullAggName = this.props.aggregatorName;
-      const numInputs =
-        this.props.aggregators[fullAggName]([])().numInputs || 0;
+      const numInputs = this.props.aggregators[fullAggName]([])().numInputs || 0
       if (numInputs !== 0) {
-        fullAggName += ` of ${this.props.vals.slice(0, numInputs).join(', ')}`;
+        fullAggName += ` of ${this.props.vals.slice(0, numInputs).join(', ')}`
       }
 
       const data = traceKeys.map(traceKey => {
-        const values = [];
-        const labels = [];
+        const values = []
+        const labels = []
+
         for (const datumKey of datumKeys) {
           const val = parseFloat(
             pivotData
@@ -43,18 +45,20 @@ function makeRenderer(
                 transpose ? traceKey : datumKey
               )
               .value()
-          );
-          values.push(isFinite(val) ? val : null);
-          labels.push(datumKey.join('-') || ' ');
+          )
+
+          values.push(isFinite(val) ? val : null)
+          labels.push(datumKey.join('-') || ' ')
         }
 
-        const trace = {name: traceKey.join('-') || fullAggName};
+        const trace = {name: traceKey.join('-') || fullAggName}
         if (traceOptions.type === 'pie') {
-          trace.values = values;
-          trace.labels = labels.length > 1 ? labels : [fullAggName];
-        } else {
-          trace.x = transpose ? values : labels;
-          trace.y = transpose ? labels : values;
+          trace.values = values
+          trace.labels = labels.length > 1 ? labels : [fullAggName]
+        }
+        else {
+          trace.x = transpose ? values : labels
+          trace.y = transpose ? labels : values
         }
 
         return Object.assign(trace, traceOptions)
@@ -217,36 +221,36 @@ export default function createPlotlyRenderers(PlotlyComponent) {
       {barmode: 'group'}
     ),
 
-    'Stacked Column Chart': makeRenderer(
-      PlotlyComponent,
-      {type: 'bar'},
-      {barmode: 'relative'}
-    ),
+    // 'Stacked Column Chart': makeRenderer(
+    //   PlotlyComponent,
+    //   {type: 'bar'},
+    //   {barmode: 'relative'}
+    // ),
 
-    'Grouped Bar Chart': makeRenderer(
-      PlotlyComponent,
-      {type: 'bar', orientation: 'h'},
-      {barmode: 'group'},
-      true
-    ),
+    // 'Grouped Bar Chart': makeRenderer(
+    //   PlotlyComponent,
+    //   {type: 'bar', orientation: 'h'},
+    //   {barmode: 'group'},
+    //   true
+    // ),
 
-    'Stacked Bar Chart': makeRenderer(
-      PlotlyComponent,
-      {type: 'bar', orientation: 'h'},
-      {barmode: 'relative'},
-      true
-    ),
+    // 'Stacked Bar Chart': makeRenderer(
+    //   PlotlyComponent,
+    //   {type: 'bar', orientation: 'h'},
+    //   {barmode: 'relative'},
+    //   true
+    // ),
 
-    'Line Chart': makeRenderer(PlotlyComponent),
-    'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true),
-    'Area Chart': makeRenderer(PlotlyComponent, {stackgroup: 1}),
-    'Scatter Chart': makeScatterRenderer(PlotlyComponent),
+    // 'Line Chart': makeRenderer(PlotlyComponent),
+    // 'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true),
+    // 'Area Chart': makeRenderer(PlotlyComponent, {stackgroup: 1}),
+    // 'Scatter Chart': makeScatterRenderer(PlotlyComponent),
 
-    'Multiple Pie Chart': makeRenderer(
-      PlotlyComponent,
-      {type: 'pie', scalegroup: 1, hoverinfo: 'label+value', textinfo: 'none'},
-      {},
-      true
-    ),
+    // 'Multiple Pie Chart': makeRenderer(
+    //   PlotlyComponent,
+    //   {type: 'pie', scalegroup: 1, hoverinfo: 'label+value', textinfo: 'none'},
+    //   {},
+    //   true
+    // ),
   }
 }

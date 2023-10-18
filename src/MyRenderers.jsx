@@ -1,15 +1,16 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { faker } from '@faker-js/faker'
 import { PivotData } from './Utilities'
 
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
 
 // ERROR in ./node_modules/chart.js/dist/chart.js Module parse failed: Unexpected token(567: 17). You may need an appropriate loader to handle this file type.
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, LineElement, BarElement, PointElement, LineController, BarController } from 'chart.js';
+import { Chart, Pie, Bar, Line } from 'react-chartjs-2';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, LineElement, BarElement, PointElement, LineController, BarController);
 
 function makeRenderer(
   PlotlyComponent,
@@ -20,8 +21,11 @@ function makeRenderer(
   class Renderer extends React.PureComponent {
     render() {
       //
-      const fuckfuck = {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      const labels = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'];
+      const palette = ['rgba(255, 99, 132, 0.9)', 'rgba(54, 162, 235, 0.9)', 'rgba(255, 206, 86, 0.9)', 'rgba(75, 192, 192, 0.9)']
+
+      const mockPieData = {
+        labels,
         datasets: [
           {
             label: '# of Votes',
@@ -47,12 +51,72 @@ function makeRenderer(
           },
         ],
       };
+
+      const mockLineData = {
+        labels,
+        datasets: [
+          {
+            label: 'Dataset 1',
+            data: labels.map(() => faker.number.int({ min: -1000, max: 1000 })),
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          },
+          {
+            label: 'Dataset 2',
+            data: labels.map(() => faker.number.int({ min: -1000, max: 1000 })),
+            borderColor: 'rgb(53, 162, 235)',
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+          },
+        ],
+      };
+
+      const mockChartData = {
+        labels,
+        datasets: [
+          {
+            type: 'line',
+            label: 'Dataset 1',
+            data: labels.map(() => faker.number.int({ min: -1000, max: 1000 })),
+            borderColor: 'rgb(255, 99, 132)',
+            borderWidth: 2,
+            fill: false,
+          },
+          {
+            type: 'bar',
+            label: 'Dataset 2',
+            data: labels.map(() => faker.number.int({ min: -1000, max: 1000 })),
+            backgroundColor: 'rgb(75, 192, 192)',
+            borderColor: 'white',
+            borderWidth: 2,
+          },
+        ],
+      };
+
+      console.log('testing ', labels.map(() => faker.number.int({ min: -1000, max: 1000 })))
+
+      const mockBarData = {
+        labels: ['1', '2', '3', '4', '5', '6'], // [0].x
+        datasets: [
+          {
+            label: 'Female', // [0].name
+            data: [0.1878371750858264, 0.1648326945340512, 0.15083206258701848, 0.13280246596455175, 0.1721943048576214, 0.16182937554969215], // [0].y
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          },
+          {
+            label: 'Male', // [1].name
+            data: [0.22377622377622378, 0.1528397565922921, 0.14314879308274286, 0.14859003548760477, 0.12449165905884305, 0.1418697708257548],
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+          },
+        ],
+      };
       //
 
 
       const pivotData = new PivotData(this.props)
       const rowKeys = pivotData.getRowKeys()
       const colKeys = pivotData.getColKeys()
+      console.log(JSON.stringify(rowKeys), ' :: ', JSON.stringify(colKeys))
+      console.log(' => ', pivotData)
       
       const traceKeys = transpose ? colKeys : rowKeys
       if (traceKeys.length === 0) {
@@ -65,14 +129,17 @@ function makeRenderer(
       }
 
       let fullAggName = this.props.aggregatorName;
+
       const numInputs = this.props.aggregators[fullAggName]([])().numInputs || 0
       if (numInputs !== 0) {
         fullAggName += ` of ${this.props.vals.slice(0, numInputs).join(', ')}`
       }
 
+      // Compose data - START
       const data = traceKeys.map(traceKey => {
         const values = []
         const labels = []
+
         for (const datumKey of datumKeys) {
           const val = parseFloat(
             pivotData
@@ -81,7 +148,7 @@ function makeRenderer(
                 transpose ? traceKey : datumKey
               )
               .value()
-          );
+          )
           values.push(isFinite(val) ? val : null)
           labels.push(datumKey.join('-') || ' ')
         }
@@ -90,7 +157,8 @@ function makeRenderer(
         if (traceOptions.type === 'pie') {
           trace.values = values
           trace.labels = labels.length > 1 ? labels : [fullAggName]
-        } else {
+        }
+        else {
           trace.x = transpose ? values : labels
           trace.y = transpose ? labels : values
         }
@@ -98,7 +166,50 @@ function makeRenderer(
         return Object.assign(trace, traceOptions)
       })
 
+      const dataNew = traceKeys.map((traceKey, i) => {
+        console.log('yo >> ', traceKey)
+
+        const values = []
+        const labels = []
+
+        for (const datumKey of datumKeys) {
+          const val = parseFloat(
+            pivotData
+              .getAggregator(
+                transpose ? datumKey : traceKey,
+                transpose ? traceKey : datumKey
+              )
+              .value()
+          )
+          values.push(isFinite(val) ? val : null)
+          labels.push(datumKey.join('-') || ' ')
+        }
+        console.log('values => ', values)
+        console.log('labels => ', labels)
+        console.log('name => ', traceKey.join('-') || fullAggName)
+
+        const trace = {
+          label: traceKey.join('-') || fullAggName,
+          data: transpose ? labels : values,
+          backgroundColor: palette[i],
+        }
+
+        trace.labels = transpose ? values : labels
+
+        return Object.assign(trace, traceOptions)
+      })
+
+      const dataFoo = {
+        labels: dataNew[0].labels,
+        datasets: [...dataNew],
+      }
+      
+      console.log('data = ', dataFoo)
+      // Compose data - END
+
+      // Compose title - START
       let titleText = fullAggName
+
       const hAxisTitle = transpose
         ? this.props.rows.join('-')
         : this.props.cols.join('-')
@@ -115,13 +226,28 @@ function makeRenderer(
         titleText += ` by ${groupByTitle}`
       }
 
+      console.log('titleText = ', titleText)
+      // Compose title - END
+
       const layout = {
         title: titleText,
-        hovermode: 'closest',
         /* eslint-disable no-magic-numbers */
         width: window.innerWidth / 1.5,
         height: window.innerHeight / 1.4 - 50,
         /* eslint-enable no-magic-numbers */
+      }
+
+      const options = {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: true,
+            text: titleText,
+          },
+        },
       }
 
       if (traceOptions.type === 'pie') {
@@ -154,8 +280,14 @@ function makeRenderer(
 
       return (
         <>
-          <Pie data={fuckfuck} />
-          <h1>Neverending shit. Just one problem after another.</h1>
+          <Bar data={dataFoo} options={options} />
+          {/* <Bar data={mockBarData} options={options} /> */}
+          {/* <Chart type="bar" data={mockChartData} options={options} />
+          <Pie data={mockPieData} options={options} />
+          <Line data={mockLineData} options={options} /> */}
+
+          <h3>Neverending shit. Just one problem after another.</h3>
+          <pre style={{ fontSize: '10px' }}>{JSON.stringify(data, null, 2)}</pre>
         </>
       )
 
@@ -257,12 +389,14 @@ function makeScatterRenderer(PlotlyComponent) {
 
 export default function createMyRenderers(PlotlyComponent) {
   return {
-    'Foobar': makeRenderer(
-      PlotlyComponent,
-      {type: 'pie', scalegroup: 1, hoverinfo: 'label+value', textinfo: 'none'},
-      {},
-      true
-    ),
+    'Chartjs Grouped Column Chart': makeRenderer(PlotlyComponent),
+
+    // 'Chartjs Pie Chart': makeRenderer(
+    //   PlotlyComponent,
+    //   {type: 'pie', scalegroup: 1, hoverinfo: 'label+value', textinfo: 'none'},
+    //   {},
+    //   true
+    // ),
 
     // 'Grouped Column Chart': makeRenderer(
     //   PlotlyComponent,
