@@ -548,6 +548,8 @@ class PivotTableUI extends React.PureComponent {
               data: { $set: this.state.materializedInput },
             })}
           />
+
+          <pre style={{ fontSize: '10px' }}>{JSON.stringify(this.state.materializedInput, null, 2)}</pre>
         </article>
       </div>
     )

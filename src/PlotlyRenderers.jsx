@@ -115,16 +115,21 @@ function makeRenderer(
       }
 
       return (
-        <PlotlyComponent
-          data={data}
-          layout={Object.assign(
-            layout,
-            layoutOptions,
-            this.props.plotlyOptions
-          )}
-          config={this.props.plotlyConfig}
-          onUpdate={this.props.onRendererUpdate}
-        />
+        <div>
+          <PlotlyComponent
+            data={data}
+            layout={Object.assign(
+              layout,
+              layoutOptions,
+              this.props.plotlyOptions
+            )}
+            config={this.props.plotlyConfig}
+            onUpdate={this.props.onRendererUpdate}
+          />
+
+          <h3>Plotly Renderer</h3>
+          <pre style={{ fontSize: '10px'}}>{JSON.stringify(data, null, 2)}</pre>
+        </div>
       )
     }
   }
