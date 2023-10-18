@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {PivotData} from './Utilities';
+import React from 'react'
+import PropTypes from 'prop-types'
+import {PivotData} from './Utilities'
 
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
@@ -13,14 +13,14 @@ function makeRenderer(
 ) {
   class Renderer extends React.PureComponent {
     render() {
-      const pivotData = new PivotData(this.props);
-      const rowKeys = pivotData.getRowKeys();
-      const colKeys = pivotData.getColKeys();
-      const traceKeys = transpose ? colKeys : rowKeys;
+      const pivotData = new PivotData(this.props)
+      const rowKeys = pivotData.getRowKeys()
+      const colKeys = pivotData.getColKeys()
+      const traceKeys = transpose ? colKeys : rowKeys
       if (traceKeys.length === 0) {
         traceKeys.push([]);
       }
-      const datumKeys = transpose ? rowKeys : colKeys;
+      const datumKeys = transpose ? rowKeys : colKeys
       if (datumKeys.length === 0) {
         datumKeys.push([]);
       }
@@ -47,6 +47,7 @@ function makeRenderer(
           values.push(isFinite(val) ? val : null);
           labels.push(datumKey.join('-') || ' ');
         }
+
         const trace = {name: traceKey.join('-') || fullAggName};
         if (traceOptions.type === 'pie') {
           trace.values = values;
@@ -55,19 +56,23 @@ function makeRenderer(
           trace.x = transpose ? values : labels;
           trace.y = transpose ? labels : values;
         }
-        return Object.assign(trace, traceOptions);
-      });
 
-      let titleText = fullAggName;
+        return Object.assign(trace, traceOptions)
+      })
+
+      let titleText = fullAggName
       const hAxisTitle = transpose
         ? this.props.rows.join('-')
-        : this.props.cols.join('-');
+        : this.props.cols.join('-')
+      
       const groupByTitle = transpose
         ? this.props.cols.join('-')
-        : this.props.rows.join('-');
+        : this.props.rows.join('-')
+      
       if (hAxisTitle !== '') {
         titleText += ` vs ${hAxisTitle}`;
       }
+
       if (groupByTitle !== '') {
         titleText += ` by ${groupByTitle}`;
       }
@@ -79,7 +84,7 @@ function makeRenderer(
         width: window.innerWidth / 1.5,
         height: window.innerHeight / 1.4 - 50,
         /* eslint-enable no-magic-numbers */
-      };
+      }
 
       if (traceOptions.type === 'pie') {
         const columns = Math.ceil(Math.sqrt(data.length));
@@ -93,7 +98,8 @@ function makeRenderer(
           if (data.length > 1) {
             d.title = d.name;
           }
-        });
+        })
+
         if (data[0].labels.length === 1) {
           layout.showlegend = false;
         }
@@ -119,19 +125,20 @@ function makeRenderer(
           config={this.props.plotlyConfig}
           onUpdate={this.props.onRendererUpdate}
         />
-      );
+      )
     }
   }
 
   Renderer.defaultProps = Object.assign({}, PivotData.defaultProps, {
     plotlyOptions: {},
     plotlyConfig: {},
-  });
+  })
+
   Renderer.propTypes = Object.assign({}, PivotData.propTypes, {
     plotlyOptions: PropTypes.object,
     plotlyConfig: PropTypes.object,
     onRendererUpdate: PropTypes.func,
-  });
+  })
 
   return Renderer;
 }
@@ -204,32 +211,37 @@ export default function createPlotlyRenderers(PlotlyComponent) {
       {type: 'bar'},
       {barmode: 'group'}
     ),
+
     'Stacked Column Chart': makeRenderer(
       PlotlyComponent,
       {type: 'bar'},
       {barmode: 'relative'}
     ),
+
     'Grouped Bar Chart': makeRenderer(
       PlotlyComponent,
       {type: 'bar', orientation: 'h'},
       {barmode: 'group'},
       true
     ),
+
     'Stacked Bar Chart': makeRenderer(
       PlotlyComponent,
       {type: 'bar', orientation: 'h'},
       {barmode: 'relative'},
       true
     ),
+
     'Line Chart': makeRenderer(PlotlyComponent),
     'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true),
     'Area Chart': makeRenderer(PlotlyComponent, {stackgroup: 1}),
     'Scatter Chart': makeScatterRenderer(PlotlyComponent),
+
     'Multiple Pie Chart': makeRenderer(
       PlotlyComponent,
       {type: 'pie', scalegroup: 1, hoverinfo: 'label+value', textinfo: 'none'},
       {},
       true
     ),
-  };
+  }
 }

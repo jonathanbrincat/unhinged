@@ -7,7 +7,7 @@ import {sortAs} from '../src/Utilities';
 import tips from './tips';
 import '../src/pivottable.css';
 
-const Plot = createPlotlyComponent(window.Plotly);
+const PlotlyComponent = createPlotlyComponent(window.Plotly);
 
 class PivotTableUISmartWrapper extends React.PureComponent {
   constructor(props) {
@@ -25,7 +25,7 @@ class PivotTableUISmartWrapper extends React.PureComponent {
         renderers={Object.assign(
           {},
           TableRenderers,
-          createPlotlyRenderers(Plot)
+          createPlotlyRenderers(PlotlyComponent)
         )}
         {...this.state.pivotState}
         onChange={s => this.setState({pivotState: s})}

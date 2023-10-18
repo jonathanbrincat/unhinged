@@ -1,101 +1,151 @@
-.pvtUi {
-  color: #2a3f5f;
-  font-family: Verdana;
-  border-collapse: collapse;
+.pivot__ui {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 1rem 0;
+
+  background: whitesmoke;
 }
 
-.pvtUi select {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -ms-user-select: none;
+  .pivot__renderer {}
+
+  .pivot__criterion {
+    background-color: silver;
+  }
+
+  .pivot__axis,
+  .pivot__dimensions {
+    background: #f2f5fa;
+  }
+
+  .pivot__dimensions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* .pvtRows {} */
+  /* .pvtCols {} */
+
+  .pivot__axis--x,
+  .pvtHorizList {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .pivot__axis--y,
+  .pvtVertList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+/**/
+.dimension__list {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
 }
 
-.pvtUi td.pvtOutput {
-  vertical-align: top;
+.dimension__list-item {
+  position: relative;
 }
 
-table.pvtTable {
-  font-size: 8pt;
-  text-align: left;
-  border-collapse: collapse;
-  margin-top: 3px;
-  margin-left: 3px;
-  font-family: Verdana;
-}
-
-table.pvtTable thead tr th,
-table.pvtTable tbody tr th {
-  background-color: #ebf0f8;
+.pvtAttr {
+  background-color: transparent;
   border: 1px solid #c8d4e3;
-  font-size: 8pt;
-  padding: 5px;
+  border-radius: 5px;
+  white-space: nowrap;
+  display: inline-flex;
+  gap: 6px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0 6px 6px;
 }
 
-table.pvtTable .pvtColLabel {
-  text-align: center;
-}
-table.pvtTable .pvtTotalLabel {
-  text-align: right;
+.pivot__axis .pvtAttr {
+  background-color: #26A69A;
+  border-color: #148F77;
 }
 
-table.pvtTable tbody tr td {
-  color: #2a3f5f;
-  padding: 5px;
-  background-color: #fff;
-  border: 1px solid #c8d4e3;
-  vertical-align: top;
-  text-align: right;
+.pivot__axis .dropdown-toggle {
+  border-color: #148F77;
 }
 
-.pvtTotal,
-.pvtGrandTotal {
-  font-weight: bold;
-}
-
-.pvtRowOrder,
-.pvtColOrder {
+.dropdown-toggle {
+  background: none transparent;
+  border-width: 0;
+  border-left: 1px solid #c8d4e3;
+  font-size: 20px;
+  line-height: 1;
+  /* width: 34px; */
+  /* height: 34px; */
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  margin: -6px 0;
   cursor: pointer;
-  width: 15px;
-  margin-left: 5px;
-  display: inline-block;
-  user-select: none;
-  text-decoration: none !important;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -ms-user-select: none;
 }
 
-.pvtAxisContainer,
-.pvtVals {
-  border: 1px solid #a2b1c6;
-  background: #f2f5fa;
-  padding: 5px;
-  min-width: 20px;
-  min-height: 20px;
+.pivot__dimension .pvtAttr {
+  padding-right: 6px;
 }
 
-.pvtRenderers {
-  padding-left: 5px;
+.pivot__dimension .dropdown-toggle {
+  display: none;
+}
+
+.draggable {
   user-select: none;
+  cursor: move;
+}
+
+.dimension__list .pvtPlaceholder {
+  padding: 3px 15px;
+  border-radius: 5px;
+  border: 1px dashed #a2b1c6;
+
+  background: cyan;
+}
+
+.dimension__list .pvtPlaceholder .pvtAttr {
+  display: none;
+}
+
+/* dropdown/select ui */
+.dimension__selection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .pvtDropdown {
   display: inline-block;
   position: relative;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -ms-user-select: none;
-  margin: 3px;
+  user-select: none;
+}
+
+.pvtDropdown:not(:first-of-type) {
+  margin-left: 18px;
 }
 
 .pvtDropdownIcon {
+  font-size: 20px;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   float: right;
-  color: #a2b1c6;
 }
+
 .pvtDropdownCurrent {
   text-align: left;
   border: 1px solid #a2b1c6;
@@ -123,210 +173,184 @@ table.pvtTable tbody tr td {
 }
 
 .pvtDropdownValue {
-  padding: 2px 5px;
-  font-size: 12px;
+  padding: 6px;
   text-align: left;
 }
+
 .pvtDropdownActiveValue {
   background: #ebf0f8;
-}
-
-.pvtVals {
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: top;
-  padding-bottom: 12px;
-}
-
-.pvtRows {
-  height: 35px;
-}
-
-.pvtAxisContainer li {
-  padding: 8px 6px;
-  list-style-type: none;
-  cursor: move;
-}
-
-.pvtAxisContainer li.pvtPlaceholder {
-  -webkit-border-radius: 5px;
-  padding: 3px 15px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  border: 1px dashed #a2b1c6;
-}
-
-.pvtAxisContainer li.pvtPlaceholder span.pvtAttr {
-  display: none;
-}
-
-.pvtAxisContainer li span.pvtAttr {
-  -webkit-text-size-adjust: 100%;
-  background: #f3f6fa;
-  border: 1px solid #c8d4e3;
-  padding: 2px 5px;
-  white-space: nowrap;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -ms-user-select: none;
-}
-
-.pvtTriangle {
-  cursor: pointer;
-  color: #506784;
-}
-
-.pvtHorizList li {
-  display: inline-block;
-}
-
-.pvtVertList {
-  vertical-align: top;
 }
 
 .pvtFilteredAttribute {
   font-style: italic;
 }
 
-.sortable-chosen .pvtFilterBox {
+.rowAndColumnOrder {
+  display: flex;
+}
+
+/* should be radio buttons */
+.rowAndColumnOrder button {
+  font-size: 20px;
+  line-height: 1;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* filters UI */
+.criterion__filters-pane {
+  border: 1px solid #148F77;
+  border-radius: 5px;
+  border-top-left-radius: 0;
+  background-color: #26A69A;
+  min-height: 100px;
+  min-width: 300px;
+  max-width: 500px;
+  position: absolute;
+  z-index: 1;
+  user-select: none;
+}
+
+.sortable-chosen .criterion__filters-pane {
   display: none !important;
 }
 
-.pvtCloseX {
+.criterion__filters-pane header {
+  padding: 6px 26px 0;
+  position: relative;
+}
+
+.pvtCloseX,
+.pvtDragHandle {
+  font-size: 20px;
+  line-height: 1;
   position: absolute;
-  right: 5px;
-  top: 5px;
-  font-size: 18px;
+  top: 0px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pvtCloseX {
+  right: 0px;
   cursor: pointer;
-  text-decoration: none !important;
 }
 
 .pvtDragHandle {
-  position: absolute;
-  left: 5px;
-  top: 5px;
-  font-size: 18px;
+  left: 0px;
   cursor: move;
-  color: #a2b1c6;
 }
 
-.pvtButton {
-  color: #506784;
-  border-radius: 5px;
-  padding: 3px 6px;
-  background: #f2f5fa;
-  border: 1px solid;
-  border-color: #c8d4e3;
-  font-size: 14px;
-  margin: 3px;
-  transition: 0.34s all cubic-bezier(0.19, 1, 0.22, 1);
-  text-decoration: none !important;
+.criterion__filters-pane h4 {}
+
+.criterion__filters-pane .controlThings {
+  display: flex;
+  gap: 6px;
 }
 
-.pvtButton:hover {
-  background: #e2e8f0;
-  border-color: #a2b1c6;
-}
+.criterion__filters-pane input[type='text'] {}
 
-.pvtButton:active {
-  background: #d1dae6;
-}
-
-.pvtFilterBox input {
+.criterion__filters-pane input {
   border: 1px solid #c8d4e3;
   border-radius: 5px;
-  color: #506784;
-  padding: 0 3px;
-  font-size: 14px;
+  padding: 6px;
 }
 
-.pvtFilterBox input:focus {
-  border-color: #119dff;
+.criterion__filters-pane input:focus {
+  border-color: #26A69A;
   outline: none;
 }
 
-.pvtFilterBox {
-  z-index: 100;
-  width: 300px;
-  border: 1px solid #506784;
-  background-color: #fff;
-  position: absolute;
-  text-align: center;
-  user-select: none;
-  min-height: 100px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -ms-user-select: none;
+/* should be toggle switch UI + checkbox */
+.pvtButton {
+  background: none transparent;
+  border-width: 0;
+  font-size: 0.75em;
+  padding: 0;
+  white-space: nowrap;
 }
 
-.pvtFilterBox h4 {
-  margin: 15px;
-}
-
-.pvtFilterBox p {
-  margin: 10px auto;
-}
-
-.pvtFilterBox button {
-  color: #2a3f5f;
-}
-
-.pvtFilterBox input[type='text'] {
-  width: 230px;
-  color: #2a3f5f;
-  margin-bottom: 5px;
+.pvtButton:hover,
+.pvtButton:focus {
+  text-decoration: underline;
 }
 
 .pvtCheckContainer {
-  text-align: left;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow-y: scroll;
+  list-style-type: none;
   width: 100%;
   max-height: 30vh;
-  border-top: 1px solid #dfe8f3;
+  padding-left: 0;
+  margin: 0;
+  overflow-y: scroll;
 }
 
-.pvtCheckContainer p {
-  margin: 0;
-  margin-bottom: 1px;
-  padding: 3px;
+.pvtCheckContainer li {
+  margin: 6px 0;
+  padding: 6px;
+  white-space: nowrap;
   cursor: default;
 }
 
-.pvtCheckContainer p.selected {
+.pvtCheckContainer li.selected {
   background: #ebf0f8;
 }
 
 .pvtOnly {
-  display: none;
-  width: 35px;
-  float: left;
-  font-size: 12px;
-  padding-left: 5px;
+  display: inline-block;
+  margin-right: 6px;
+  visibility: hidden;
   cursor: pointer;
 }
 
-.pvtOnlySpacer {
-  display: block;
-  width: 35px;
-  float: left;
+.pvtCheckContainer li:hover .pvtOnly {
+  visibility: visible;
 }
 
-.pvtCheckContainer p:hover .pvtOnly {
-  display: block;
-}
+/**/
+.pivot__output {
 
-.pvtCheckContainer p:hover .pvtOnlySpacer {
-  display: none;
 }
 
 .pvtRendererArea {
   padding: 5px;
+}
+
+table.pvtTable {
+  border-collapse: collapse;
+}
+
+table.pvtTable thead tr th,
+table.pvtTable tbody tr th {
+  background-color: #ebf0f8;
+  border: 1px solid #c8d4e3;
+  padding: 5px;
+}
+
+table.pvtTable .pvtColLabel {
+  text-align: center;
+}
+
+table.pvtTable .pvtTotalLabel {
+  text-align: right;
+}
+
+table.pvtTable tbody tr td {
+  color: #2a3f5f;
+  padding: 5px;
+  background-color: #fff;
+  border: 1px solid #c8d4e3;
+  vertical-align: top;
+  text-align: right;
+}
+
+.pvtTotal,
+.pvtGrandTotal {
+  font-weight: bold;
 }
