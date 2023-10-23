@@ -226,6 +226,8 @@ export class Dropdown extends React.PureComponent {
 }
 
 class PivotTableUI extends React.PureComponent {
+  // const[activeRenderer, setActiveRenderer] = useState('Grouped Column Chart');
+
   constructor(props) {
     super(props)
     this.state = {
@@ -235,6 +237,9 @@ class PivotTableUI extends React.PureComponent {
       openDropdown: false,
       attrValues: {},
       materializedInput: [],
+      activeRenderer: props.rendererName in props.renderers
+        ? props.rendererName
+        : Object.keys(props.renderers)[0],
     }
   }
 
@@ -293,6 +298,8 @@ class PivotTableUI extends React.PureComponent {
   }
 
   propUpdater(key) {
+    console.log('HERE => ', key)
+    
     return value => this.sendPropUpdate({[key]: {$set: value}})
   }
 
@@ -380,26 +387,20 @@ class PivotTableUI extends React.PureComponent {
     const numValsAllowed = this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0
 
     const aggregatorCellOutlet = this.props.aggregators[this.props.aggregatorName]([])().outlet
-
-    const rendererName =
-      this.props.rendererName in this.props.renderers
-        ? this.props.rendererName
-        : Object.keys(this.props.renderers)[0]
-
+    
     const createRendererSelector = (
       <div className="pivot__renderer">
-        <Dropdown
-          current={rendererName}
-          values={Object.keys(this.props.renderers)}
-          open={this.isOpen('renderer')}
-          zIndex={this.isOpen('renderer') ? this.state.maxZIndex + 1 : 1}
-          toggle={() =>
-            this.setState({
-              openDropdown: this.isOpen('renderer') ? false : 'renderer',
-            })
+        <select value={this.state.activeRenderer} onChange={(event) => { this.setState({ activeRenderer: event.target.value }); this.propUpdater('rendererName')(event.target.value) } }>
+          {
+            Object.keys(this.props.renderers).map(
+              (item, index) => (
+                <option value={item} key={index}>{item}</option>
+              )
+            )
           }
-          setValue={this.propUpdater('rendererName')}
-        />
+        </select>
+
+        {/* <p>selected fruit = {this.state.activeRenderer}</p> */}
       </div>
     )
 
@@ -439,6 +440,7 @@ class PivotTableUI extends React.PureComponent {
         </div>
 
         <div className="dimension__selection">
+          {/* Scheulded for demolition - replace with native control */}
           <Dropdown
             current={this.props.aggregatorName}
             values={Object.keys(this.props.aggregators)}
@@ -454,6 +456,7 @@ class PivotTableUI extends React.PureComponent {
           
           {/* {numValsAllowed > 0 && <br />} */}
           
+          {/* Scheulded for demolition - replace with native control */}
           {new Array(numValsAllowed).fill().map((n, i) => [
             <Dropdown
               key={i}
