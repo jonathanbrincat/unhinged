@@ -195,7 +195,7 @@ select:not(:first-of-type),
 
 .criterion__filters-pane h4 {}
 
-.criterion__filters-pane .controlThings {
+.criterion__filters-pane .controls {
   display: flex;
   gap: 6px;
 }
@@ -214,7 +214,7 @@ select:not(:first-of-type),
 }
 
 /* should be toggle switch UI + checkbox */
-.pvtButton {
+.controls button {
   background: none transparent;
   border-width: 0;
   font-size: 0.75em;
@@ -222,8 +222,8 @@ select:not(:first-of-type),
   white-space: nowrap;
 }
 
-.pvtButton:hover,
-.pvtButton:focus {
+.controls button:hover,
+.controls button:focus {
   text-decoration: underline;
 }
 

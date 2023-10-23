@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
 import update from 'immutability-helper'
 import { PivotData, sortAs, getSort } from './Utilities'
@@ -8,101 +8,115 @@ import { ReactSortable } from 'react-sortablejs'
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
 
-export class Filter extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      isOpen: false,
-      filterText: ''
-    }
-  }
+export function Dimension(props) {
+  const [ isOpen, setIsOpen ] = useState(false)
+  const [ filterText, setFilterText ] = useState('')
+  const [ foo, setFoo ] = useState(true)
 
-  toggleValue(value) {
-    if (value in this.props.valueFilter) {
-      this.props.removeValuesFromFilter(this.props.name, [value])
+  useEffect(() => {
+    console.log('hello ', foo, props?.attrValues)
+
+    if (props?.attrValues) {
+      console.log('should not be here ', Object.keys(props?.attrValues).filter(matchesFilter))
+
+      if (foo) {
+        // props.removeValuesFromFilter(
+        //   props.name,
+        //   Object.keys(props?.attrValues).filter(matchesFilter)
+        // )
+      }
+      else {
+        // props.addValuesToFilter(
+        //   props.name,
+        //   Object.keys(props?.attrValues).filter(matchesFilter)
+        // )
+      }
+    }
+  }, [foo])
+
+  function toggleValue(value) {
+    if (value in props.valueFilter) {
+      props.removeValuesFromFilter(props.name, [value])
     } else {
-      this.props.addValuesToFilter(this.props.name, [value])
+      props.addValuesToFilter(props.name, [value])
     }
   }
 
-  matchesFilter(x) {
+  function matchesFilter(x) {
     return x
       .toLowerCase()
       .trim()
-      .includes(this.state.filterText.toLowerCase().trim())
+      .includes(filterText.toLowerCase().trim())
   }
 
-  selectOnly(event, value) {
+  function selectOnly(event, value) {
     event.stopPropagation()
-    this.props.setValuesInFilter(
-      this.props.name,
-      Object.keys(this.props.attrValues).filter(y => y !== value)
+    props.setValuesInFilter(
+      props.name,
+      Object.keys(props?.attrValues).filter(y => y !== value)
     )
   }
 
-  toggleFilterPane() {
-    this.setState({ isOpen: !this.state.isOpen })
+  function toggleFilterPane() {
+    setIsOpen(!isOpen)
   }
 
-  getFilterPane() {
-    const showMenu = Object.keys(this.props.attrValues).length < this.props.menuLimit
+  function getFilterPane() {
+    const showMenu = Object.keys(props?.attrValues).length < props.menuLimit
 
-    const values = Object.keys(this.props.attrValues)
+    const values = Object.keys(props?.attrValues)
     const shown = values
-      .filter(this.matchesFilter.bind(this))
-      .sort(this.props.sorter)
+      .filter(matchesFilter.bind(this))
+      .sort(props.sorter)
 
     return (
       <div className="criterion__filters-pane">
         <header>
-          <button onClick={() => this.setState({ isOpen: false })} className="pvtCloseX">&#10799;</button>
+          <button onClick={() => setOpen(false)} className="pvtCloseX">&#10799;</button>
           
-          <h4>{this.props.name}</h4>
+          <h4>{props.name}</h4>
         </header>
 
         {showMenu || <p>(too many values to show)</p>}
 
         {showMenu && (
-          <div className="controlThings">
+          <div className="controls">
             <input
               type="text"
-              placeholder="Filter values"
               className="pvtSearch"
-              value={this.state.filterText}
-              onChange={e =>
-                this.setState({
-                  filterText: e.target.value,
-                })
-              }
+              placeholder="Filter values"
+              value={filterText}
+              onChange={event => setFilterText(event.target.value)}
             />
 
-            {/* Should be a toggle switch UI allied to a checkbox input. */}
+            <label>
+              <input type="checkbox" checked={foo} onChange={(event) => setFoo(event.target.checked)} /> Select All
+            </label>
+
             <button
-              className="pvtButton"
               onClick={() =>
-                this.props.removeValuesFromFilter(
-                  this.props.name,
-                  Object.keys(this.props.attrValues).filter(
-                    this.matchesFilter.bind(this)
+                props.removeValuesFromFilter(
+                  props.name,
+                  Object.keys(props?.attrValues).filter(
+                    matchesFilter.bind(this)
                   )
                 )
               }
             >
-              {`Select ${values.length === shown.length ? 'All' : shown.length}`}
+              Select All
             </button>
 
             <button
-              className="pvtButton"
               onClick={() =>
-                this.props.addValuesToFilter(
-                  this.props.name,
-                  Object.keys(this.props.attrValues).filter(
-                    this.matchesFilter.bind(this)
+                props.addValuesToFilter(
+                  props.name,
+                  Object.keys(props?.attrValues).filter(
+                    matchesFilter.bind(this)
                   )
                 )
               }
             >
-              {`Deselect ${values.length === shown.length ? 'All' : shown.length}`}
+              Deselect All
             </button>
           </div>
         )}
@@ -112,10 +126,10 @@ export class Filter extends React.Component {
             {shown.map(x => (
               <li
                 key={x}
-                onClick={() => this.toggleValue(x)}
-                className={x in this.props.valueFilter ? '' : 'selected'}
+                onClick={() => toggleValue(x)}
+                className={x in props.valueFilter ? '' : 'selected'}
               >
-                <a className="pvtOnly" onClick={e => this.selectOnly(e, x)}>
+                <a className="pvtOnly" onClick={e => selectOnly(e, x)}>
                   only
                 </a>
 
@@ -128,33 +142,32 @@ export class Filter extends React.Component {
     )
   }
 
-  render() {
-    const filtered =
-      Object.keys(this.props.valueFilter).length !== 0
-        ? 'pvtFilteredAttribute'
-        : ''
+  const filtered =
+    Object.keys(props.valueFilter).length !== 0
+      ? 'pvtFilteredAttribute'
+      : ''
 
-    return (
-      <li className={'dimension__list-item'} data-id={this.props.name}>
-        <div className={`pvtAttr draggable ${filtered}`}>
-          <span>{this.props.name}</span>
-          <button
-            className="dropdown-toggle"
-            onClick={this.toggleFilterPane.bind(this)}
-          >&#9662;</button>
-        </div>
+  return (
+    <li className={'dimension__list-item'} data-id={props.name}>
+      <div className={`pvtAttr draggable ${filtered}`}>
+        <span>{props.name}</span>
+        <button
+          className="dropdown-toggle"
+          onClick={toggleFilterPane.bind(this)}
+        >&#9662;</button>
+      </div>
 
-        {this.state.isOpen ? this.getFilterPane() : null}
-      </li>
-    )
-  }
+      {isOpen ? getFilterPane() : null}
+    </li>
+  )
 }
 
-Filter.defaultProps = {
+Dimension.defaultProps = {
+  attrValues: {},
   valueFilter: {},
 }
 
-Filter.propTypes = {
+Dimension.propTypes = {
   name: PropTypes.string.isRequired,
   addValuesToFilter: PropTypes.func.isRequired,
   removeValuesFromFilter: PropTypes.func.isRequired,
@@ -171,8 +184,6 @@ class PivotTableUI extends React.PureComponent {
     super(props)
     this.state = {
       unusedOrder: [],
-      // zIndices: {},
-      // maxZIndex: 1000,
       attrValues: {},
       materializedInput: [],
       activeRenderer: props.rendererName in props.renderers
@@ -181,6 +192,8 @@ class PivotTableUI extends React.PureComponent {
       activeAggregator: props.aggregatorName,
       activeDimensions: [...props.vals],
       fooList: [{ id: '1', name: 'shrek' }, { id: '2', name: 'donkey' }],
+      foo: 'value_a_to_z',
+      bar: 'value_z_to_a',
     }
   }
 
@@ -289,17 +302,17 @@ class PivotTableUI extends React.PureComponent {
           filter: '.criterion__filters-pane',
           preventOnFilter: false,
         }}        
-        onChange={onChange}
+        // onChange={onChange} // JB: broken.
 
-        list={items}
-        setList={() => null}
+        // list={items}
+        // setList={() => null}
         // setList={(newState) => this.setState({ fooList: newState })}
       >
 
         <li>wtf :: {JSON.stringify(items)}</li>
         
         {items.map(x => (
-          <Filter
+          <Dimension
             name={x}
             key={x}
             attrValues={this.state.attrValues[x]}
@@ -356,6 +369,22 @@ class PivotTableUI extends React.PureComponent {
 
         <div className="rowAndColumnOrder">
           {/* Should be input type radio buttons */}
+          <p>Row</p>
+          <label>
+            <input type="radio" name="sort-row" value="key_a_to_z" checked={this.state.foo === 'key_a_to_z'} onChange={event => this.setState({ foo: event.target.value })} /> Option 1 key_a_to_z ↕
+            <input type="radio" name="sort-row" value="value_a_to_z" checked={this.state.foo === 'value_a_to_z'} onChange={event => this.setState({ foo: event.target.value })} /> Option 2 value_a_to_z ↓
+            <input type="radio" name="sort-row" value="value_z_to_a" checked={this.state.foo === 'value_z_to_a'} onChange={event => this.setState({ foo: event.target.value })} /> Option 3 value_z_to_a ↑
+          </label>
+          <p>output :: {this.state.foo}</p>
+
+          <p>Column</p>
+          <label>
+            <input type="radio" name="sort-column" value="key_a_to_z" checked={this.state.bar === 'key_a_to_z'} onChange={event => this.setState({ bar: event.target.value })} /> Option 1 key_a_to_z ↔
+            <input type="radio" name="sort-column" value="value_a_to_z" checked={this.state.bar === 'value_a_to_z'} onChange={event => this.setState({ bar: event.target.value })} /> Option 2 value_a_to_z →
+            <input type="radio" name="sort-column" value="value_z_to_a" checked={this.state.bar === 'value_z_to_a'} onChange={event => this.setState({ bar: event.target.value })} /> Option 3 value_z_to_a ←
+          </label>
+          <p>output :: {this.state.bar}</p>
+
           <button
             onClick={() =>
               this.propUpdater('rowOrder')(sortIcons[this.props.rowOrder].next)
@@ -363,6 +392,7 @@ class PivotTableUI extends React.PureComponent {
           >
             {sortIcons[this.props.rowOrder].rowSymbol}
           </button>
+          
           <button
             onClick={() =>
               this.propUpdater('colOrder')(sortIcons[this.props.colOrder].next)
@@ -407,7 +437,7 @@ class PivotTableUI extends React.PureComponent {
       </aside>
     )
 
-    const unusedAttrs = Object.keys(this.state.attrValues)
+    const unusedAttrs = Object.keys(this.state?.attrValues)
       .filter(
         e =>
           !this.props.rows.includes(e) &&
@@ -490,6 +520,8 @@ PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
   hiddenFromAggregators: [],
   hiddenFromDragDrop: [],
   menuLimit: 500,
+  rows: [],
+  cols: [],
 })
 
 export default PivotTableUI
