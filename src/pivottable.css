@@ -178,8 +178,7 @@ select:not(:first-of-type),
   position: relative;
 }
 
-.pvtCloseX,
-.ui__drag-handle {
+.pvtCloseX {
   font-size: 20px;
   line-height: 1;
   position: absolute;
@@ -190,16 +189,8 @@ select:not(:first-of-type),
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-.pvtCloseX {
   right: 0px;
   cursor: pointer;
-}
-
-.ui__drag-handle {
-  left: 0px;
-  cursor: move;
 }
 
 .criterion__filters-pane h4 {}
