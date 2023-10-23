@@ -16,7 +16,8 @@ function makeRenderer(
   PlotlyComponent,
   traceOptions = {},
   layoutOptions = {},
-  transpose = false
+  transpose = false,
+  foobar = 'bar',
 ) {
   class Renderer extends React.PureComponent {
     render() {
@@ -279,15 +280,24 @@ function makeRenderer(
       }
 
       return (
+        
         <>
-          <Bar data={dataFoo} options={options} />
+          <p>Chart type = {foobar}</p>
+          {
+            foobar === 'bar' ? (
+              <Bar data={dataFoo} options={options} />
+            ) : (
+              <Line data={dataFoo} options={options} />
+            )
+          }
+
+          
           {/* <Bar data={mockBarData} options={options} /> */}
           {/* <Chart type="bar" data={mockChartData} options={options} />
-          <Pie data={mockPieData} options={options} />
-          <Line data={mockLineData} options={options} /> */}
+          <Pie data={mockPieData} options={options} /> */}
 
-          <h3>Neverending shit. Just one problem after another.</h3>
-          <pre style={{ fontSize: '10px' }}>{JSON.stringify(data, null, 2)}</pre>
+          <h3>Chartjs Renderer</h3>
+          <pre style={{ fontSize: '10px' }}>{JSON.stringify(dataFoo, null, 2)}</pre>
         </>
       )
 
@@ -389,7 +399,9 @@ function makeScatterRenderer(PlotlyComponent) {
 
 export default function createMyRenderers(PlotlyComponent) {
   return {
-    'Chartjs Grouped Column Chart': makeRenderer(PlotlyComponent),
+    'Chartjs Grouped Column Chart': makeRenderer(PlotlyComponent, {}, {}, null, 'bar'),
+
+    'Chartjs Line Chart': makeRenderer(PlotlyComponent, {}, {}, null, 'line'),
 
     // 'Chartjs Pie Chart': makeRenderer(
     //   PlotlyComponent,
@@ -424,7 +436,6 @@ export default function createMyRenderers(PlotlyComponent) {
     //   true
     // ),
 
-    // 'Line Chart': makeRenderer(PlotlyComponent),
     // 'Dot Chart': makeRenderer(PlotlyComponent, {mode: 'markers'}, {}, true),
     // 'Area Chart': makeRenderer(PlotlyComponent, {stackgroup: 1}),
     // 'Scatter Chart': makeScatterRenderer(PlotlyComponent),
