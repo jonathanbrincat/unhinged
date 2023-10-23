@@ -44,6 +44,14 @@
     "url": "https://github.com/plotly/react-pivottable/issues"
   },
   "homepage": "https://github.com/plotly/react-pivottable#readme",
+  "dependencies": {
+    "immutability-helper": "^3.1.1",
+    "prop-types": "^15.8.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-draggable": "^4.4.6",
+    "react-plotly.js": "^2.6.0",
+    "react-sortablejs": "^6.1.4"
+  },
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@babel/preset-env": "^7.23.2",
@@ -62,17 +70,9 @@
     "webpack-dev-server": "^4.15.1"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "dependencies": {
     "chart.js": "^4.4.0",
-    "immutability-helper": "^3.1.1",
-    "prop-types": "^15.8.1",
-    "react-chartjs-2": "^5.2.0",
-    "react-draggable": "^4.4.6",
-    "react-plotly.js": "^2.6.0",
-    "react-sortablejs": "^6.1.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "sortablejs": "^1.15.0"
   }
 }

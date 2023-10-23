@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import update from 'immutability-helper'
 import { PivotData, sortAs, getSort } from './Utilities'
 import PivotTable from './PivotTable'
-import Sortable from 'react-sortablejs'
+import { ReactSortable } from 'react-sortablejs'
 import Draggable from 'react-draggable'
 
 /* eslint-disable react/prop-types */
@@ -38,6 +38,11 @@ export class DraggableAttribute extends React.Component {
     )
   }
 
+  toggleFilterPane() {
+    this.setState({ open: !this.state.open })
+    this.props.moveFilterBoxToTop(this.props.name)
+  }
+
   getFilterPane() {
     const showMenu =
       Object.keys(this.props.attrValues).length < this.props.menuLimit
@@ -48,7 +53,7 @@ export class DraggableAttribute extends React.Component {
       .sort(this.props.sorter)
 
     return (
-      <Draggable handle=".pvtDragHandle">
+      <Draggable handle=".ui__drag-handle">
         <div
           className="criterion__filters-pane"
           style={{
@@ -60,7 +65,7 @@ export class DraggableAttribute extends React.Component {
         >
           <header>
             <button onClick={() => this.setState({ open: false })} className="pvtCloseX">&#10799;</button>
-            <span className="pvtDragHandle">☰</span>
+            <span className="ui__drag-handle">☰</span>
             
             <h4>{this.props.name}</h4>
           </header>
@@ -134,11 +139,6 @@ export class DraggableAttribute extends React.Component {
     )
   }
 
-  toggleFilterBox() {
-    this.setState({open: !this.state.open})
-    this.props.moveFilterBoxToTop(this.props.name)
-  }
-
   render() {
     const filtered =
       Object.keys(this.props.valueFilter).length !== 0
@@ -151,7 +151,7 @@ export class DraggableAttribute extends React.Component {
           <span>{this.props.name}</span>
           <button
             className="dropdown-toggle"
-            onClick={this.toggleFilterBox.bind(this)}
+            onClick={this.toggleFilterPane.bind(this)}
           >&#9662;</button>
         </div>
 
@@ -169,7 +169,7 @@ DraggableAttribute.propTypes = {
   name: PropTypes.string.isRequired,
   addValuesToFilter: PropTypes.func.isRequired,
   removeValuesFromFilter: PropTypes.func.isRequired,
-  attrValues: PropTypes.objectOf(PropTypes.number).isRequired,
+  attrValues: PropTypes.objectOf(PropTypes.number),
   valueFilter: PropTypes.objectOf(PropTypes.bool),
   moveFilterBoxToTop: PropTypes.func.isRequired,
   sorter: PropTypes.func.isRequired,
@@ -186,7 +186,6 @@ class PivotTableUI extends React.PureComponent {
       unusedOrder: [],
       zIndices: {},
       maxZIndex: 1000,
-      openDropdown: false,
       attrValues: {},
       materializedInput: [],
       activeRenderer: props.rendererName in props.renderers
@@ -194,6 +193,7 @@ class PivotTableUI extends React.PureComponent {
         : Object.keys(props.renderers)[0],
       activeAggregator: props.aggregatorName,
       activeDimensions: [...props.vals],
+      fooList: [{ id: '1', name: 'shrek' }, { id: '2', name: 'donkey' }],
     }
   }
 
@@ -300,25 +300,28 @@ class PivotTableUI extends React.PureComponent {
     )
   }
 
-  isOpen(dropdown) {
-    return this.state.openDropdown === dropdown
-  }
-
   makeDnDCell(items, onChange, classes) {
     return (
-      <Sortable
+      // JB: broken; React Sortable API changed + its actually got a disclaimer announcing unstable status; list and setList props appear mandatory; drag and drop has stopped working.
+      <ReactSortable
+        className={`dimension__list ${classes}`}
+        tag="ul"
         options={{
           group: 'shared',
           ghostClass: 'pvtPlaceholder',
           filter: '.criterion__filters-pane',
           preventOnFilter: false,
-        }}
-        tag="ul"
-        className={`dimension__list ${classes}`}
+        }}        
         onChange={onChange}
+
+        list={items}
+        setList={() => null}
+        // setList={(newState) => this.setState({ fooList: newState })}
       >
-        {/* JB: broken required prop attrValues */}
-        {/* {items.map(x => (
+
+        <p>wtf :: {JSON.stringify(items)}</p>
+        
+        {items.map(x => (
           <DraggableAttribute
             name={x}
             key={x}
@@ -332,8 +335,8 @@ class PivotTableUI extends React.PureComponent {
             removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
             zIndex={this.state.zIndices[x] || this.state.maxZIndex}
           />
-        ))} */}
-      </Sortable>
+        ))}
+      </ReactSortable>
     )
   }
 
@@ -438,12 +441,11 @@ class PivotTableUI extends React.PureComponent {
       )
       .sort(sortAs(this.state.unusedOrder))
 
-    // JB: broken
-    // const unusedAttrsCell = this.makeDnDCell(
-    //   unusedAttrs,
-    //   order => this.setState({unusedOrder: order}),
-    //   'pvtHorizList'
-    // )
+    const unusedAttrsCell = this.makeDnDCell(
+      unusedAttrs,
+      order => this.setState({unusedOrder: order}),
+      'pvtHorizList'
+    )
 
     const colAttrs = this.props.cols.filter(
       e =>
@@ -451,12 +453,11 @@ class PivotTableUI extends React.PureComponent {
         !this.props.hiddenFromDragDrop.includes(e)
     )
 
-    // JB: broken
-    // const colAttrsCell = this.makeDnDCell(
-    //   colAttrs,
-    //   this.propUpdater('cols'),
-    //   'pvtHorizList pvtCols'
-    // )
+    const colAttrsCell = this.makeDnDCell(
+      colAttrs,
+      this.propUpdater('cols'),
+      'pvtHorizList pvtCols'
+    )
 
     const rowAttrs = this.props.rows.filter(
       e =>
@@ -464,27 +465,26 @@ class PivotTableUI extends React.PureComponent {
         !this.props.hiddenFromDragDrop.includes(e)
     )
 
-    // JB: broken
-    // const rowAttrsCell = this.makeDnDCell(
-    //   rowAttrs,
-    //   this.propUpdater('rows'),
-    //   'pvtVertList pvtRows'
-    // )
+    const rowAttrsCell = this.makeDnDCell(
+      rowAttrs,
+      this.propUpdater('rows'),
+      'pvtVertList pvtRows'
+    )
 
     return (
-      <div className="pivot__ui" onClick={() => this.setState({ openDropdown: false })}>
+      <div className="pivot__ui">
         {createRendererSelector}
         <div className="pivot__criterion">
-          {/* {unusedAttrsCell} */}
+          {unusedAttrsCell}
         </div>
 
         {createCriterionSelector}
         <div className="pivot__axis">
-          {/* {colAttrsCell} */}
+          {colAttrsCell}
         </div>
 
         <div className="pivot__axis">
-          {/* {rowAttrsCell} */}
+          {rowAttrsCell}
         </div>
 
         <article className="pivot__output">

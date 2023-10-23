@@ -179,7 +179,7 @@ select:not(:first-of-type),
 }
 
 .pvtCloseX,
-.pvtDragHandle {
+.ui__drag-handle {
   font-size: 20px;
   line-height: 1;
   position: absolute;
@@ -197,7 +197,7 @@ select:not(:first-of-type),
   cursor: pointer;
 }
 
-.pvtDragHandle {
+.ui__drag-handle {
   left: 0px;
   cursor: move;
 }
