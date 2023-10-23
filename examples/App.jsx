@@ -47,7 +47,7 @@ export default class App extends React.Component {
         data: tips,
         rows: ['Payer Gender'],
         cols: ['Party Size'],
-        aggregatorName: 'Sum over Sum',
+        // aggregatorName: 'Sum over Sum',
         vals: ['Tip', 'Total Bill'],
         rendererName: 'Grouped Column Chart',
         sorters: {

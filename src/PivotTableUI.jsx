@@ -240,6 +240,8 @@ class PivotTableUI extends React.PureComponent {
       activeRenderer: props.rendererName in props.renderers
         ? props.rendererName
         : Object.keys(props.renderers)[0],
+      activeAggregator: props.aggregatorName,
+      activeDimensions: [...props.vals],
     }
   }
 
@@ -441,7 +443,17 @@ class PivotTableUI extends React.PureComponent {
 
         <div className="dimension__selection">
           {/* Scheulded for demolition - replace with native control */}
-          <Dropdown
+          <select value={this.state.activeAggregator} onChange={(event) => { this.setState({ activeAggregator: event.target.value }); this.propUpdater('aggregatorName')(event.target.value) }}>
+            {
+              Object.keys(this.props.aggregators).map(
+                (item, index) => (
+                  <option value={item} key={index}>{item}</option>
+                )
+              )
+            }
+          </select>
+
+          {/* <Dropdown
             current={this.props.aggregatorName}
             values={Object.keys(this.props.aggregators)}
             open={this.isOpen('aggregators')}
@@ -452,33 +464,49 @@ class PivotTableUI extends React.PureComponent {
               })
             }
             setValue={this.propUpdater('aggregatorName')}
-          />
+          /> */}
           
           {/* {numValsAllowed > 0 && <br />} */}
           
           {/* Scheulded for demolition - replace with native control */}
           {new Array(numValsAllowed).fill().map((n, i) => [
-            <Dropdown
-              key={i}
-              current={this.props.vals[i]}
-              values={Object.keys(this.state.attrValues).filter(
-                e =>
-                  !this.props.hiddenAttributes.includes(e) &&
-                  !this.props.hiddenFromAggregators.includes(e)
-              )}
-              open={this.isOpen(`val${i}`)}
-              zIndex={this.isOpen(`val${i}`) ? this.state.maxZIndex + 1 : 1}
-              toggle={() =>
-                this.setState({
-                  openDropdown: this.isOpen(`val${i}`) ? false : `val${i}`,
-                })
+            <select value={this.state.activeDimensions[i]} onChange={(event) => {
+              this.setState({ activeDimensions: this.state.activeDimensions.toSpliced(i, 1, event.target.value) }); this.sendPropUpdate({ vals: { $splice: [[i, 1, event.target.value]] } })
+            }} key={i}>
+              {
+                Object.keys(this.state.attrValues).map(
+                  (item, index) => (
+                    !this.props.hiddenAttributes.includes(item) &&
+                    !this.props.hiddenFromAggregators.includes(item) &&
+                    <option value={item} key={index}>{item}</option>
+                  )
+                )
               }
-              setValue={value =>
-                this.sendPropUpdate({
-                  vals: {$splice: [[i, 1, value]]},
-                })
-              }
-            />,
+            </select>
+          ])}
+
+          {new Array(numValsAllowed).fill().map((n, i) => [
+            // <Dropdown
+            //   key={`foo-${i}`}
+            //   current={this.props.vals[i]}
+            //   values={Object.keys(this.state.attrValues).filter(
+            //     e =>
+            //       !this.props.hiddenAttributes.includes(e) &&
+            //       !this.props.hiddenFromAggregators.includes(e)
+            //   )}
+            //   open={this.isOpen(`val${i}`)}
+            //   zIndex={this.isOpen(`val${i}`) ? this.state.maxZIndex + 1 : 1}
+            //   toggle={() =>
+            //     this.setState({
+            //       openDropdown: this.isOpen(`val${i}`) ? false : `val${i}`,
+            //     })
+            //   }
+            //   setValue={value =>
+            //     this.sendPropUpdate({
+            //       vals: {$splice: [[i, 1, value]]},
+            //     })
+            //   }
+            // />,
             // i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
           ])}
 
