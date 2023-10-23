@@ -392,7 +392,7 @@ class PivotTableUI extends React.PureComponent {
     
     const createRendererSelector = (
       <div className="pivot__renderer">
-        <select value={this.state.activeRenderer} onChange={(event) => { this.setState({ activeRenderer: event.target.value }); this.propUpdater('rendererName')(event.target.value) } }>
+        <select className="pvtDropdown" value={this.state.activeRenderer} onChange={(event) => { this.setState({ activeRenderer: event.target.value }); this.propUpdater('rendererName')(event.target.value) } }>
           {
             Object.keys(this.props.renderers).map(
               (item, index) => (
@@ -442,8 +442,7 @@ class PivotTableUI extends React.PureComponent {
         </div>
 
         <div className="dimension__selection">
-          {/* Scheulded for demolition - replace with native control */}
-          <select value={this.state.activeAggregator} onChange={(event) => { this.setState({ activeAggregator: event.target.value }); this.propUpdater('aggregatorName')(event.target.value) }}>
+          <select className="pvtDropdown" value={this.state.activeAggregator} onChange={(event) => { this.setState({ activeAggregator: event.target.value }); this.propUpdater('aggregatorName')(event.target.value) }}>
             {
               Object.keys(this.props.aggregators).map(
                 (item, index) => (
@@ -452,25 +451,11 @@ class PivotTableUI extends React.PureComponent {
               )
             }
           </select>
-
-          {/* <Dropdown
-            current={this.props.aggregatorName}
-            values={Object.keys(this.props.aggregators)}
-            open={this.isOpen('aggregators')}
-            zIndex={this.isOpen('aggregators') ? this.state.maxZIndex + 1 : 1}
-            toggle={() =>
-              this.setState({
-                openDropdown: this.isOpen('aggregators') ? false : 'aggregators',
-              })
-            }
-            setValue={this.propUpdater('aggregatorName')}
-          /> */}
           
           {/* {numValsAllowed > 0 && <br />} */}
           
-          {/* Scheulded for demolition - replace with native control */}
           {new Array(numValsAllowed).fill().map((n, i) => [
-            <select value={this.state.activeDimensions[i]} onChange={(event) => {
+            <select className="pvtDropdown" value={this.state.activeDimensions[i]} onChange={(event) => {
               this.setState({ activeDimensions: this.state.activeDimensions.toSpliced(i, 1, event.target.value) }); this.sendPropUpdate({ vals: { $splice: [[i, 1, event.target.value]] } })
             }} key={i}>
               {
@@ -482,31 +467,7 @@ class PivotTableUI extends React.PureComponent {
                   )
                 )
               }
-            </select>
-          ])}
-
-          {new Array(numValsAllowed).fill().map((n, i) => [
-            // <Dropdown
-            //   key={`foo-${i}`}
-            //   current={this.props.vals[i]}
-            //   values={Object.keys(this.state.attrValues).filter(
-            //     e =>
-            //       !this.props.hiddenAttributes.includes(e) &&
-            //       !this.props.hiddenFromAggregators.includes(e)
-            //   )}
-            //   open={this.isOpen(`val${i}`)}
-            //   zIndex={this.isOpen(`val${i}`) ? this.state.maxZIndex + 1 : 1}
-            //   toggle={() =>
-            //     this.setState({
-            //       openDropdown: this.isOpen(`val${i}`) ? false : `val${i}`,
-            //     })
-            //   }
-            //   setValue={value =>
-            //     this.sendPropUpdate({
-            //       vals: {$splice: [[i, 1, value]]},
-            //     })
-            //   }
-            // />,
+            </select>,
             // i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
           ])}
 
