@@ -14,10 +14,10 @@ export function Dimension(props) {
   const [ foo, setFoo ] = useState(true)
 
   useEffect(() => {
-    console.log('hello ', foo, props?.attrValues)
+    // console.log('hello ', foo, props?.attrValues)
 
     if (props?.attrValues) {
-      console.log('should not be here ', Object.keys(props?.attrValues).filter(matchesFilter))
+      // console.log('should not be here ', Object.keys(props?.attrValues).filter(matchesFilter))
 
       if (foo) {
         // props.removeValuesFromFilter(
@@ -289,7 +289,7 @@ class PivotTableUI extends React.PureComponent {
     })
   }
 
-  makeDnDCell(items, onChange, classes) {
+  createCell(items, onChange, classes) {
     return (
       // JB: broken; React Sortable API changed + its actually got a disclaimer announcing unstable status; list and setList props appear mandatory; drag and drop has stopped working. It appears sortable is hijacking all pointer events.
       // <ReactSortable
@@ -447,7 +447,7 @@ class PivotTableUI extends React.PureComponent {
       )
       .sort(sortAs(this.state.unusedOrder))
 
-    const unusedAttrsCell = this.makeDnDCell(
+    const unusedAttrsCell = this.createCell(
       unusedAttrs,
       order => this.setState({unusedOrder: order}),
       'pvtHorizList'
@@ -459,7 +459,7 @@ class PivotTableUI extends React.PureComponent {
         !this.props.hiddenFromDragDrop.includes(e)
     )
 
-    const colAttrsCell = this.makeDnDCell(
+    const colAttrsCell = this.createCell(
       colAttrs,
       this.propUpdater('cols'),
       'pvtHorizList pvtCols'
@@ -471,7 +471,7 @@ class PivotTableUI extends React.PureComponent {
         !this.props.hiddenFromDragDrop.includes(e)
     )
 
-    const rowAttrsCell = this.makeDnDCell(
+    const rowAttrsCell = this.createCell(
       rowAttrs,
       this.propUpdater('rows'),
       'pvtVertList pvtRows'

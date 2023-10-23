@@ -1,32 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>React Pivot Table</title>
-
-    <!-- Bootstrap core CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Dosis|Open+Sans" rel="stylesheet">
     
-    <!-- Custom styles for this template -->
     <style>
-      body { min-height: 100vh }
+      body {
+        font-family: helvetica, sans-serif;
+        min-height: 100vh
+      }
+
+      #root {
+        width: 1170px;
+        margin: 0 auto;
+        padding: 24px;
+      }
     </style>
+    
     <script src="https://cdn.plot.ly/plotly-basic-latest.min.js"></script>
   </head>
 
   <body>
-    <div class="container">
-      <div id="app" />
+    <div id="root" />
 
-      <script src="bundle.js" type="text/javascript"></script>
-    </div>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="bundle.js" type="text/javascript"></script>
   </body>
 </html>
