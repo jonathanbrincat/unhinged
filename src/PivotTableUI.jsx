@@ -177,54 +177,6 @@ DraggableAttribute.propTypes = {
   zIndex: PropTypes.number,
 }
 
-export class Dropdown extends React.PureComponent {
-  render() {
-    return (
-      <div className="pvtDropdown" style={{zIndex: this.props.zIndex}}>
-        <div
-          onClick={e => {
-            e.stopPropagation()
-            this.props.toggle()
-          }}
-          className={
-            'pvtDropdownValue pvtDropdownCurrent ' +
-            (this.props.open ? 'pvtDropdownCurrentOpen' : '')
-          }
-          role="button"
-        >
-          <span className="pvtDropdownIcon">{this.props.open ? '\u2A2F' : '\u25BE'}</span>
-          {this.props.current || <span>&nbsp;</span>}
-        </div>
-
-        {this.props.open && (
-          <div className="pvtDropdownMenu">
-            {this.props.values.map(r => (
-              <div
-                key={r}
-                role="button"
-                onClick={e => {
-                  e.stopPropagation()
-                  if (this.props.current === r) {
-                    this.props.toggle()
-                  } else {
-                    this.props.setValue(r)
-                  }
-                }}
-                className={
-                  'pvtDropdownValue ' +
-                  (r === this.props.current ? 'pvtDropdownActiveValue' : '')
-                }
-              >
-                {r}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
-}
-
 class PivotTableUI extends React.PureComponent {
   // const[activeRenderer, setActiveRenderer] = useState('Grouped Column Chart');
 

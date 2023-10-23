@@ -66,6 +66,10 @@
   padding: 6px 0 6px 6px;
 }
 
+.pvtFilteredAttribute {
+  font-style: italic;
+}
+
 .pivot__axis .pvtAttr {
   background-color: #26A69A;
   border-color: #148F77;
@@ -133,57 +137,6 @@
 select:not(:first-of-type),
 .pvtDropdown:not(:first-of-type) {
   margin-left: 18px;
-}
-
-.pvtDropdownIcon {
-  font-size: 20px;
-  line-height: 1;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  float: right;
-}
-
-.pvtDropdownCurrent {
-  text-align: left;
-  border: 1px solid #a2b1c6;
-  border-radius: 4px;
-  display: inline-block;
-  position: relative;
-  width: 210px;
-  box-sizing: border-box;
-  background: white;
-}
-
-.pvtDropdownCurrentOpen {
-  border-radius: 4px 4px 0 0;
-}
-
-.pvtDropdownMenu {
-  background: white;
-  position: absolute;
-  width: 100%;
-  margin-top: -1px;
-  border-radius: 0 0 4px 4px;
-  border: 1px solid #a2b1c6;
-  border-top: 1px solid #dfe8f3;
-  box-sizing: border-box;
-}
-
-.pvtDropdownValue {
-  padding: 6px;
-  text-align: left;
-}
-
-.pvtDropdownActiveValue {
-  background: #ebf0f8;
-}
-
-.pvtFilteredAttribute {
-  font-style: italic;
 }
 
 .rowAndColumnOrder {
