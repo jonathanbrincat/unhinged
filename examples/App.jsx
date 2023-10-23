@@ -2,8 +2,6 @@ import React from 'react'
 import PivotTableUI from '../src/PivotTableUI'
 import TableRenderers from '../src/TableRenderers'
 import createPlotlyComponent from 'react-plotly.js/factory'
-// import Chart from 'chart.js/auto'
-// import { Chart as ChartJS } from 'chart.js'
 // import { Chart } from 'react-chartjs-2'
 import createPlotlyRenderers from '../src/PlotlyRenderers'
 import createMyRenderers from '../src/MyRenderers'
@@ -12,7 +10,7 @@ import tips from './tips'
 import '../src/pivottable.css'
 
 const PlotlyComponent = createPlotlyComponent(window.Plotly) // JB: create instance of Plotly
-// const ChartjsComponent = new Chart(window.Plotly) // JB: create instance of chart.js
+// const ChartjsComponent = new Chart() // JB: create instance of chart.js
 
 class PivotTableUISmartWrapper extends React.PureComponent {
   constructor(props) {
