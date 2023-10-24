@@ -216,15 +216,14 @@ class PivotTableUI extends React.PureComponent {
       unusedOrder: [],
       attrValues: {},
       materializedInput: [], // JB: this is bizarre. this state appears to be being used as a placeholder for generated data; begs the question why? state is ephemeral
-      // activeRenderer: props.rendererName in props.renderers
-      //   ? props.rendererName
-      //   : Object.keys(props.renderers)[0],
-      activeRenderer: props.rendererName,
+      activeRenderer: props.rendererName in props.renderers
+        ? props.rendererName
+        : Object.keys(props.renderers)[0],
       activeAggregator: props.aggregatorName,
       activeDimensions: [...props.vals],
+      sortByRow: 'value_a_to_z',
+      sortByColumn: 'value_z_to_a',
       fooList: [{ id: '1', name: 'shrek' }, { id: '2', name: 'donkey' }],
-      foo: 'value_a_to_z',
-      bar: 'value_z_to_a',
     }
   }
 
@@ -300,11 +299,13 @@ class PivotTableUI extends React.PureComponent {
   propUpdater(key) {    
     return value => this.sendPropUpdate({[key]: {$set: value}})
 
+    // JB - start
     // const test = (value) => this.sendPropUpdate({[key]: {$set: value}})
     // console.log('propUpdater() => ', test('rendererName')(event.target.value))
     // propUpdater('rendererName')(event.target.value)
 
     // return test
+    // end
   }
 
   setValuesInFilter(attribute, values) {
@@ -354,7 +355,7 @@ class PivotTableUI extends React.PureComponent {
 
   createCell(items, onChange, classes) {
     return (
-      // JB: broken; React Sortable API changed + its actually got a disclaimer announcing unstable status; list and setList props appear mandatory; drag and drop has stopped working. It appears sortable is hijacking all pointer events.
+      // JB: broken; Need to investigate. React Sortable API changed + its actually got a disclaimer announcing unstable status; list and setList props appear mandatory; drag and drop has stopped working. It appears sortable is hijacking all pointer events.
       // <ReactSortable
       <ul
         className={`dimension__list`}
@@ -401,7 +402,7 @@ class PivotTableUI extends React.PureComponent {
           onChange={
             (event) => this.setState(
               { activeRenderer: event.target.value },
-              // this.propUpdater('rendererName')(event.target.value)
+              // this.propUpdater('rendererName')(event.target.value)  // JB: REMOVE
             )
           }
         >
@@ -435,13 +436,13 @@ class PivotTableUI extends React.PureComponent {
                 <label key={index}>
                   <input
                     type="radio"
-                    name="sort-row"
+                    name="sort-by-row"
                     value={item.value}
-                    checked={this.state.foo === item.value}
+                    checked={this.state.sortByRow === item.value}
                     onChange={event =>
                       this.setState(
-                        { foo: event.target.value },
-                        this.propUpdater('rowOrder')(this.state.foo)
+                        { sortByRow: event.target.value },
+                        // this.propUpdater('rowOrder')(this.state.sortByRow) // JB: REMOVE
                       )
                     }
                   />
@@ -458,13 +459,13 @@ class PivotTableUI extends React.PureComponent {
                 <label key={index}>
                   <input
                     type="radio"
-                    name="sort-column"
+                    name="sort-by-column"
                     value={item.value}
-                    checked={this.state.bar === item.value}
+                    checked={this.state.sortByColumn === item.value}
                     onChange={event =>
                       this.setState(
-                        { bar: event.target.value },
-                        this.propUpdater('colOrder')(this.state.bar)
+                        { sortByColumn: event.target.value },
+                        // this.propUpdater('colOrder')(this.state.sortByColumn) // JB: REMOVE
                       )
                     }
                   />
@@ -482,7 +483,7 @@ class PivotTableUI extends React.PureComponent {
             onChange={
               (event) => this.setState(
                 { activeAggregator: event.target.value },
-                this.propUpdater('aggregatorName')(event.target.value)
+                // this.propUpdater('aggregatorName')(event.target.value) // JB: REMOVE
               )
             }
           >
@@ -606,14 +607,23 @@ class PivotTableUI extends React.PureComponent {
           {/* Confirmed what is being done. props are being recirculated for the purpose to then pump them into the <PivotTable /> business end. This is stupid. Should be using parent state... as it's already there. but I guess author didn't know any better, doesn't understand reactivity, wanted to keep UI state sandboxed for whatever reason or lazy or combination of all */}
           
           <PivotTable
-            data={this.state.materializedInput}
-            renderers={this.props.renderers}
-            aggregators={this.props.aggregators}
-            rows={this.props.rows}
-            cols={this.props.cols}
-            vals={this.props.vals}
-            rendererName={this.state.activeRenderer}
-            valueFilter={this.props.valueFilter}
+            data={this.state.materializedInput} // not options
+            renderers={this.props.renderers} // not really options
+            aggregators={this.props.aggregators} // not really options
+            rendererName={this.state.activeRenderer} // propUpdater YES // REPLACED WITH STATE
+            aggregatorName={this.state.activeAggregator} // propUpdater YES // REPLACED WITH STATE
+            rowOrder={this.state.sortByRow} // unused // propUpdater YES // REPLACED WITH STATE
+            colOrder={this.state.sortByColumn} // unused // propUpdater YES // REPLACED WITH STATE
+            rows={this.props.rows} // propUpdater YES
+            cols={this.props.cols} // propUpdater YES
+            vals={this.props.vals} // related to dimensions and aggregators
+            sorters={this.props.sorters}
+            valueFilter={this.props.valueFilter} // doesn't actually exist; used by filters component
+            derivedAttributes={this.props.derivedAttributes} // unused
+            menuLimit={this.props.menuLimit} // unused
+            plotlyOptions={this.props.plotlyOptions}
+            plotlyConfig={this.props.plotlyConfig} // empty
+            tableOptions={this.props.tableOptions} // empty
           />
 
           {/* JB: whats going on here with this silly update() method?? should be passing state as props not spreading props!! */}
