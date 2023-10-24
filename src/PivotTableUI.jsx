@@ -209,8 +209,32 @@ class PivotTableUI extends React.PureComponent {
   constructor(props) {
     super(props)
 
-    // console.log('props => ', props)
+    console.log('props => ', props)
     // console.log(props.rendererName, props.renderers) // maps to state.activeRenderer; then remapped to props.rendererName every time this changes
+    /*
+    aggregatorName: "Count"
+    aggregators: {Count: ƒ, Count Unique Values: ƒ, List Unique Values: ƒ, Sum: ƒ, Integer Sum: ƒ, …}
+    colOrder: "key_a_to_z"
+    cols: ['Party Size']
+    rows: ['Payer Gender']
+    rowOrder: "key_a_to_z"
+    data: (245) [Array(7), Array(7), Array(7), Array(7), …]
+    derivedAttributes: {}
+    hiddenAttributes: []
+    hiddenFromAggregators: []
+    hiddenFromDragDrop: []
+    menuLimit: 500
+    onChange: ƒ onChange(state)
+    plotlyConfig: {}
+    plotlyOptions: {width: 900, height: 500}
+    rendererName: "Grouped Column Chart"
+    renderers: {Table: ƒ, Table Heatmap: ƒ, Table Col Heatmap: ƒ, Table Row Heatmap: ƒ, Exportable TSV: ƒ, …}
+    sorters: {Meal: ƒ, Day of Week: ƒ}
+    tableColorScaleGenerator: ƒ redColorScaleGenerator(values)
+    tableOptions: {}
+    vals: (2) ['Tip', 'Total Bill']
+    valueFilter: {}
+    */
 
     this.state = {
       unusedOrder: [],
@@ -224,6 +248,8 @@ class PivotTableUI extends React.PureComponent {
       sortByRow: 'value_a_to_z',
       sortByColumn: 'value_z_to_a',
       fooList: [{ id: '1', name: 'shrek' }, { id: '2', name: 'donkey' }],
+      fooRows: this.whitelist(props.rows),
+      fooCols: this.whitelist(props.cols),
     }
   }
 
@@ -277,25 +303,18 @@ class PivotTableUI extends React.PureComponent {
     this.setState(newState)
   }
 
-  // JB: send Prop update?? what a curious name. why are we doing this? YOU DON'T UPDATE PROPS (especially in React)!! this isn't reactivity. this is effectively circumvernting the one-way data flow by sending state back up to the root node via props. props should flow from parent to child and remain stateless. we are breaking both these rules, albeit in a way that undermines the React warnings by sending hoisting state to the top to trickle back down. Really yucky. Nothing clever and nothing perdictable about this. Lots of sleight hand movement of state. Proper nasty anti-pattern. Wonder if this is being done to use this state as some sort of crude single-source of truth by continuously circulating and pumping it back to the top like the water cascading down waterfalls in a pond. Props are said to be read-only. This mechanisms turns that concept on it's head by re-spreading the props from the top of the node tree whenever selective state from the lower branches has changed.
-
-  // Okay so I should be able to resolve this using(without using mobx or redux); in vue you'd just emit a custom event.
-  // i) passing a function down the prop chain that will set parent state; <MyChildComponent setState={(s,c)=>{this.setState(s, c)}} />; this is frowned upon because it couples the parent to the child. however this is the original React way prior to hooks and context. The alternative was to use HoC which is again, now frowned upon because of their complexity and abstraction.
-  // ii) The other new 'old skool' alternative is an approach mindset change. You lift state to the parent where it's needed and perform all the business logic operations there too. That way props flow as intended and you don't need to project state back up the tree. I think this is a little idealistic, unpractical and convoluted.
-  // iii) custom hook. using useEffect combined with useState
-  // iv) React context
-
+  // Have to deal with this too; propUpdater was essentially a proxy function to this
+  // props.valueFilter and props.val being recirculated
+  // 0/4 usages shutdown
   sendPropUpdate(command) {
     console.log('sendPropUpdate() :: ', this.props, ' => ', command)
     // console.log('sendPropUpdate() :: ', update(this.props, command)) // <= confirmation it is something off with this library. https://www.npmjs.com/package/immutability-helper
 
-    // JB: I don't like this mechanism. it is really smelly. I'm going to comment it out and see what actually happens. Likewise with the callback function.
     this.props.onChange(update(this.props, command))
-
-    // Yes I reckon he was using this as some sort of mickey mouse global state - valueFilter is initially an empty object {}. This is going to update it to reflect what the user has just choosen and reapply as a prop so it trickles back down.
-    // vals(array) is another one that uses this silly mechanism. that keep track of the dimension available against the aggregator in the dynamic dropdowns
   }
 
+  // 6/6 usages shutdown - SUNSETTED
+  /*
   propUpdater(key) {    
     return value => this.sendPropUpdate({[key]: {$set: value}})
 
@@ -303,10 +322,10 @@ class PivotTableUI extends React.PureComponent {
     // const test = (value) => this.sendPropUpdate({[key]: {$set: value}})
     // console.log('propUpdater() => ', test('rendererName')(event.target.value))
     // propUpdater('rendererName')(event.target.value)
-
     // return test
     // end
   }
+  */
 
   setValuesInFilter(attribute, values) {
     this.sendPropUpdate({
@@ -340,8 +359,8 @@ class PivotTableUI extends React.PureComponent {
   }
 
   removeValuesFromFilter(attribute, values) {
-    console.log('down ', this.props)
-    console.log('down ', attribute, { $unset: values })
+    // console.log('down ', this.props)
+    // console.log('down ', attribute, { $unset: values })
 
     // JB - start
     // const command = { valueFilter: { [attribute]: { $unset: values } }  } //$unset to remove. $set to add.
@@ -353,7 +372,7 @@ class PivotTableUI extends React.PureComponent {
     })
   }
 
-  createCell(items, onChange, classes) {
+  createCluster(items, onSortableChangeHandler) {
     return (
       // JB: broken; Need to investigate. React Sortable API changed + its actually got a disclaimer announcing unstable status; list and setList props appear mandatory; drag and drop has stopped working. It appears sortable is hijacking all pointer events.
       // <ReactSortable
@@ -366,7 +385,7 @@ class PivotTableUI extends React.PureComponent {
           filter: '.criterion__filters-pane',
           preventOnFilter: false,
         }}        
-        // onChange={onChange} // JB: broken. Need to investigate.
+        onChange={onSortableChangeHandler} // JB: broken. Need to investigate. related to the issues experienced with using propUpdater(), the immutability-helper library and the funkiness with recirculating props. No longer throwing errors now I've adjusted this implementation
 
         // list={items}
         // setList={() => null}
@@ -402,7 +421,7 @@ class PivotTableUI extends React.PureComponent {
           onChange={
             (event) => this.setState(
               { activeRenderer: event.target.value },
-              // this.propUpdater('rendererName')(event.target.value)  // JB: REMOVE
+              // this.propUpdater('rendererName')(event.target.value) // JB: REMOVE
             )
           }
         >
@@ -499,9 +518,17 @@ class PivotTableUI extends React.PureComponent {
           {/* {numValsAllowed > 0 && <br />} */}
 
           {new Array(numValsAllowed).fill().map((n, i) => [
-            <select className="ui__select" value={this.state.activeDimensions[i]} onChange={(event) => {
-              this.setState({ activeDimensions: this.state.activeDimensions.toSpliced(i, 1, event.target.value) }); this.sendPropUpdate({ vals: { $splice: [[i, 1, event.target.value]] } })
-            }} key={i}>
+            <select
+              className="ui__select"
+              value={this.state.activeDimensions[i]}
+              onChange={
+                (event) => {
+                  this.setState({ activeDimensions: this.state.activeDimensions.toSpliced(i, 1, event.target.value) })
+                  this.sendPropUpdate({ vals: { $splice: [[i, 1, event.target.value]] } })
+                }
+              }
+              key={i}
+            >
               {
                 Object.keys(this.state.attrValues).map(
                   (item, index) => (
@@ -521,42 +548,40 @@ class PivotTableUI extends React.PureComponent {
     )
   }
 
+  whitelist(collection) {
+    return collection.filter(
+      (item) =>
+        !this.props.hiddenAttributes.includes(item) &&
+        !this.props.hiddenFromDragDrop.includes(item)
+    )
+  }
+
   render() {
     const criterionCollection = Object.keys(this.state?.attrValues)
       .filter(
-        e =>
-          !this.props.rows.includes(e) &&
-          !this.props.cols.includes(e) &&
-          !this.props.hiddenAttributes.includes(e) &&
-          !this.props.hiddenFromDragDrop.includes(e)
+        (item) =>
+          !this.props.rows.includes(item) &&
+          !this.props.cols.includes(item) &&
+          !this.props.hiddenAttributes.includes(item) &&
+          !this.props.hiddenFromDragDrop.includes(item)
       )
       .sort(sortAs(this.state.unusedOrder))
 
-    const criterion = this.createCell(
+    const criterion = this.createCluster(
       criterionCollection,
       order => this.setState({ unusedOrder: order }),
     )
 
-    const axisXCollection = this.props.cols.filter(
-      e =>
-        !this.props.hiddenAttributes.includes(e) &&
-        !this.props.hiddenFromDragDrop.includes(e)
+    const axisX = this.createCluster(
+      this.state.fooCols,
+      cols => this.setState({ fooCols: cols }),
+      // this.propUpdater('cols'), // JB: REMOVE
     )
 
-    const axisX = this.createCell(
-      axisXCollection,
-      this.propUpdater('cols'),
-    )
-
-    const axisYCollection = this.props.rows.filter(
-      e =>
-        !this.props.hiddenAttributes.includes(e) &&
-        !this.props.hiddenFromDragDrop.includes(e)
-    )
-
-    const axisY = this.createCell(
-      axisYCollection,
-      this.propUpdater('rows'),
+    const axisY = this.createCluster(
+      this.state.fooRows,
+      rows => this.setState({ fooRows: rows }),
+      // this.propUpdater('rows'), // JB: REMOVE
     )
     
     return (
@@ -604,27 +629,39 @@ class PivotTableUI extends React.PureComponent {
             }
           </pre>
 
-          {/* Confirmed what is being done. props are being recirculated for the purpose to then pump them into the <PivotTable /> business end. This is stupid. Should be using parent state... as it's already there. but I guess author didn't know any better, doesn't understand reactivity, wanted to keep UI state sandboxed for whatever reason or lazy or combination of all */}
+          {/* Confirmed what is being done. props are being recirculated for the purpose to then pump them into the <PivotTable /> business end. */}
           
           <PivotTable
-            data={this.state.materializedInput} // not options
+            data={this.state.materializedInput} // not really options // separated from props
             renderers={this.props.renderers} // not really options
             aggregators={this.props.aggregators} // not really options
-            rendererName={this.state.activeRenderer} // propUpdater YES // REPLACED WITH STATE
-            aggregatorName={this.state.activeAggregator} // propUpdater YES // REPLACED WITH STATE
-            rowOrder={this.state.sortByRow} // unused // propUpdater YES // REPLACED WITH STATE
-            colOrder={this.state.sortByColumn} // unused // propUpdater YES // REPLACED WITH STATE
-            rows={this.props.rows} // propUpdater YES
-            cols={this.props.cols} // propUpdater YES
-            vals={this.props.vals} // related to dimensions and aggregators
+            rendererName={this.state.activeRenderer} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            aggregatorName={this.state.activeAggregator} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            rowOrder={this.state.sortByRow} // unused // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            colOrder={this.state.sortByColumn} // unused // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            rows={this.props.rows} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            cols={this.props.cols} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            vals={this.props.vals} // sendPropUpdate YES // keep track of the dimension available against the aggregator in the dynamic dropdowns
             sorters={this.props.sorters}
-            valueFilter={this.props.valueFilter} // doesn't actually exist; used by filters component
+            valueFilter={this.props.valueFilter} // sendPropUpdate YES // doesn't actually exist; used by filters component
             derivedAttributes={this.props.derivedAttributes} // unused
             menuLimit={this.props.menuLimit} // unused
             plotlyOptions={this.props.plotlyOptions}
             plotlyConfig={this.props.plotlyConfig} // empty
             tableOptions={this.props.tableOptions} // empty
+            // tableColorScaleGenerator={this.props.tableColorScaleGenerator} // unused
           />
+          {/* 
+          onChange
+          hiddenAttributes
+          hiddenFromAggregators
+          hiddenFromDragDrop
+          menuLimit
+
+          USED ONLY BY UI. Arguably there are more props that could be included rows? cols? vals? valueFilter?
+
+          we still need to spread props however in combination with state ...{...this.props, data: this.state.data, renderName: this.state.activeRenderer}
+          */}
 
           {/* JB: whats going on here with this silly update() method?? should be passing state as props not spreading props!! */}
           <PivotTable
