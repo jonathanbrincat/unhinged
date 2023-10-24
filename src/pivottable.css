@@ -1,3 +1,15 @@
+:root {
+  --palette-primary: #bd0e85;
+  --palette-primary-lighten: #ec60c0;
+  --palette-primary-darken: #a01b66;
+  --palette-secondary: #27374D;
+  --palette-dark: #526D82;
+  --palette-neutral: #9DB2BF;
+  --palette-light: #DDE6ED;
+
+  --border-radius: 6px;
+}
+
 label {
   cursor: pointer;
 }
@@ -7,66 +19,76 @@ label {
   position: relative;
 }
 
+.ui__button {
+  background-color: var(--palette-primary-lighten);
+  border: 1px solid var(--palette-primary-darken);
+  border-radius: var(--border-radius);
+  white-space: nowrap;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px;
+}
+
 .pivot__ui {
   display: grid;
+  grid-template-areas:
+    'header none'
+    'aside none';
   grid-template-columns: auto 1fr;
   grid-template-rows: auto;
   width: 100%;
   max-width: 100%;
   margin: 1rem 0;
 
-  background: whitesmoke;
+  background: var(--palette-light);;
 }
 
-  .pivot__renderer {}
+  .pivot__renderer {
+    grid-area: header;
+  }
+
+  .pivot__plot {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    grid-area: aside;
+  }
 
   .pivot__criterion {
-    background-color: silver;
+    background-color: var(--palette-neutral);;
   }
 
   .pivot__axis,
   .pivot__plot {
-    background: #f2f5fa;
-  }
-
-  .pivot__plot {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  /* .pvtRows {} */
-  /* .pvtCols {} */
-
-  .pivot__axis--x,
-  .pvtHorizList {
-    display: flex;
-    flex-direction: row;
-    gap: 6px;
-  }
-
-  .pivot__axis--y,
-  .pvtVertList {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    background: var(--palette-dark);
   }
 
 /**/
 .dimension__list {
   list-style-type: none;
+  display: flex;
+  gap: 6px;
   padding-left: 0;
   margin: 0;
 }
+    .pivot__criterion .dimension__list,
+    .pivot__axis-x .dimension__list {      
+      flex-direction: row;
+    }
+  
+    .pivot__axis-y .dimension__list {
+      flex-direction: column;
+    }
 
 .dimension__list-item {
   position: relative;
 }
 
 .pivot__dimension {
-  background-color: transparent;
-  border: 1px solid #c8d4e3;
-  border-radius: 5px;
+  background-color: var(--palette-primary-lighten);
+  border: 1px solid var(--palette-primary-darken);
+  border-radius: var(--border-radius);
   white-space: nowrap;
   display: inline-flex;
   gap: 6px;
@@ -75,34 +97,17 @@ label {
   padding: 6px 0 6px 6px;
 }
 
-.pvtFilteredAttribute {
+.pivot__dimension--filter {
   font-style: italic;
 }
 
 .pivot__axis .pivot__dimension {
-  background-color: #26A69A;
-  border-color: #148F77;
+  background-color: var(--palette-primary);
+  border-color: var(--palette-primary-darken);
 }
 
 .pivot__axis .dropdown-toggle {
-  border-color: #148F77;
-}
-
-.dropdown-toggle {
-  background: none transparent;
-  border-width: 0;
-  border-left: 1px solid #c8d4e3;
-  font-size: 20px;
-  line-height: 1;
-  /* width: 34px; */
-  /* height: 34px; */
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px;
-  margin: -6px 0;
-  cursor: pointer;
+  border-color: var(--palette-primary-darken);
 }
 
 .draggable {
@@ -112,7 +117,7 @@ label {
 
 .dimension__list .draggable-ghost {
   padding: 3px 15px;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   border: 1px dashed #a2b1c6;
 
   background: cyan;
@@ -120,6 +125,21 @@ label {
 
 .dimension__list .draggable-ghost .pivot__dimension {
   display: none;
+}
+
+.dropdown-toggle {
+  background: none transparent;
+  border-width: 0;
+  border-left: 1px solid var(--palette-primary-darken);
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  margin: -6px 0;
+  cursor: pointer;
 }
 
 .plot__sortOrderBy {
@@ -142,7 +162,9 @@ label {
 }
 
 .plot__sortOrderBy label input[type="radio"] + span {
-  border: 1px solid #333;
+  border: 1px solid var(--palette-primary-darken);
+  border-right-width: 0;
+  background-color: var(--palette-primary-lighten);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -151,8 +173,17 @@ label {
   padding: 0;
 }
 
+.plot__sortOrderBy label:first-of-type input[type="radio"]+span {
+  border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.plot__sortOrderBy label:last-of-type input[type="radio"]+span {
+  border-right-width: 1px;
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
 .plot__sortOrderBy label input[type="radio"]:checked + span {
-  background-color: orange;
+  background-color: var(--palette-primary);
 }
 
 .plot__aggregator {
@@ -167,10 +198,10 @@ label {
 
 /* filters UI */
 .criterion__filters-pane {
-  border: 1px solid #148F77;
-  border-radius: 5px;
+  border: 1px solid var(--palette-primary-darken);
+  border-radius: var(--border-radius);
   border-top-left-radius: 0;
-  background-color: #26A69A;
+  background-color: var(--palette-primary);
   min-height: 100px;
   min-width: 300px;
   max-width: 500px;
@@ -214,12 +245,12 @@ label {
 
 .criterion__filters-pane input {
   border: 1px solid #c8d4e3;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   padding: 6px;
 }
 
 .criterion__filters-pane input:focus {
-  border-color: #26A69A;
+  border-color: var(--palette-primary);
   outline: none;
 }
 

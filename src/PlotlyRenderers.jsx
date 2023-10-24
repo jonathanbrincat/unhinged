@@ -131,8 +131,8 @@ function makeRenderer(
             onUpdate={this.props.onRendererUpdate}
           />
 
-          <h3>Plotly Renderer</h3>
-          <pre style={{ fontSize: '10px'}}>{JSON.stringify(data, null, 2)}</pre>
+          {/* <h3>Plotly Renderer</h3>
+          <pre style={{ fontSize: '10px'}}>{JSON.stringify(data, null, 2)}</pre> */}
         </div>
       )
     }

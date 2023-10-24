@@ -291,13 +291,11 @@ function makeRenderer(
             )
           }
 
-          
-          {/* <Bar data={mockBarData} options={options} /> */}
           {/* <Chart type="bar" data={mockChartData} options={options} />
           <Pie data={mockPieData} options={options} /> */}
 
-          <h3>Chartjs Renderer</h3>
-          <pre style={{ fontSize: '10px' }}>{JSON.stringify(dataFoo, null, 2)}</pre>
+          {/* <h3>Chartjs Renderer</h3>
+          <pre style={{ fontSize: '10px' }}>{JSON.stringify(dataFoo, null, 2)}</pre> */}
         </>
       )
 
