@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
-import update from 'immutability-helper'
+import update from 'immutability-helper' // JB: candidate for deletion now that I've identified what it is used for
 import { PivotData, sortAs, getSort } from './Utilities'
 import PivotTable from './PivotTable'
 import { ReactSortable } from 'react-sortablejs'
@@ -13,25 +13,26 @@ export function Dimension(props) {
   const [ filterText, setFilterText ] = useState('')
   const [ foo, setFoo ] = useState(true)
 
+  // JB: This is ultimately being used to update the valueFilter:[] prop on root node <App />. This should be a custom hook with setValueFilter({ ...valueFilter, [props.name]: Object.keys(props?.attrValues).filter(matchesFilter) })
   useEffect(() => {
     // console.log('hello ', foo, props?.attrValues)
 
-    if (props?.attrValues) {
-      // console.log('should not be here ', Object.keys(props?.attrValues).filter(matchesFilter))
+    // if (props?.attrValues) {
+    //   // console.log('should not be here ', Object.keys(props?.attrValues).filter(matchesFilter))
 
-      if (foo) {
-        // props.removeValuesFromFilter(
-        //   props.name,
-        //   Object.keys(props?.attrValues).filter(matchesFilter)
-        // )
-      }
-      else {
-        // props.addValuesToFilter(
-        //   props.name,
-        //   Object.keys(props?.attrValues).filter(matchesFilter)
-        // )
-      }
-    }
+    //   if (foo) {
+    //     props.removeValuesFromFilter(
+    //       props.name,
+    //       Object.keys(props?.attrValues).filter(matchesFilter)
+    //     )
+    //   }
+    //   else {
+    //     props.addValuesToFilter(
+    //       props.name,
+    //       Object.keys(props?.attrValues).filter(matchesFilter)
+    //     )
+    //   }
+    // }
   }, [foo])
 
   function toggleValue(value) {
@@ -72,7 +73,7 @@ export function Dimension(props) {
     return (
       <div className="criterion__filters-pane">
         <header>
-          <button onClick={() => setOpen(false)} className="pvtCloseX">&#10799;</button>
+          <button onClick={() => setIsOpen(false)} className="pvtCloseX">&#10799;</button>
           
           <h4>{props.name}</h4>
         </header>
@@ -149,7 +150,7 @@ export function Dimension(props) {
 
   return (
     <li className={'dimension__list-item'} data-id={props.name}>
-      <div className={`pvtAttr draggable ${filtered}`}>
+      <div className={`pivot__dimension draggable ${filtered}`}>
         <span>{props.name}</span>
         <button
           className="dropdown-toggle"
@@ -247,8 +248,23 @@ class PivotTableUI extends React.PureComponent {
     this.setState(newState)
   }
 
+  // JB: send Prop update?? what a curious name. why are we doing this? YOU DON'T UPDATE PROPS (especially in React)!! this isn't reactivity. this is effectively circumvernting the one-way data flow by sending state back up to the root node via props. props should flow from parent to child and remain stateless. we are breaking both these rules, albeit in a way that undermines the React warnings by sending hoisting state to the top to trickle back down. Really yucky. Nothing clever and nothing perdictable about this. Lots of sleight hand movement of state. Proper nasty anti-pattern. Wonder if this is being done to use this state as some sort of crude single-source of truth by continuously circulating and pumping it back to the top like the water cascading down waterfalls in a pond. Props are said to be read-only. This mechanisms turns that concept on it's head by re-spreading the props from the top of the node tree whenever selective state from the lower branches has changed.
+
+  // Okay so I should be able to resolve this using(without using mobx or redux); in vue you'd just emit a custom event.
+  // i) passing a function down the prop chain that will set parent state; <MyChildComponent setState={(s,c)=>{this.setState(s, c)}} />; this is frowned upon because it couples the parent to the child. however this is the original React way prior to hooks and context. The alternative was to use HoC which is again, now frowned upon because of their complexity and abstraction.
+  // ii) The other new 'old skool' alternative is an approach mindset change. You lift state to the parent where it's needed and perform all the business logic operations there too. That way props flow as intended and you don't need to project state back up the tree. I think this is a little idealistic, unpractical and convoluted.
+  // iii) custom hook. using useEffect combined with useState
+  // iv) React context
+
   sendPropUpdate(command) {
+    console.log('COMMANDO 1 ', this.props, ' :: ', command)
+    // console.log('COMMANDO 2 ', update(this.props, command)) // <= confirmation it is something off with this library. https://www.npmjs.com/package/immutability-helper
+
+    // JB: I don't like this mechanism. it is really smelly. I'm going to comment it out and see what actually happens. Likewise with the callback function.
     this.props.onChange(update(this.props, command))
+
+    // Yes I reckon he was using this as some sort of mickey mouse global state - valueFilter is initially an empty object {}. This is going to update it to reflect what the user has just choosen and reapply as a prop so it trickles back down.
+    // vals(array) is another one that uses this silly mechanism. that keep track of the dimension available against the aggregator in the dynamic dropdowns
   }
 
   propUpdater(key) {    
@@ -269,6 +285,9 @@ class PivotTableUI extends React.PureComponent {
   }
 
   addValuesToFilter(attribute, values) {
+    console.log('up ', attribute, values)
+
+    // JB: temp commented whilst troubleshoot
     if (attribute in this.props.valueFilter) {
       this.sendPropUpdate({
         valueFilter: {
@@ -284,8 +303,16 @@ class PivotTableUI extends React.PureComponent {
   }
 
   removeValuesFromFilter(attribute, values) {
+    console.log('down ', this.props)
+    console.log('down ', attribute, { $unset: values })
+
+    // JB - start
+    // const command = { valueFilter: { [attribute]: { $merge: values } }  }
+    // console.log('COMMANDO 2 ', update(this.props, command))
+    // end
+
     this.sendPropUpdate({
-      valueFilter: {[attribute]: {$unset: values}},
+      valueFilter: { [attribute]: { $unset: values } }, // $unset = remove the list of keys in array from the target object. is this actually appropiate? for empty array.
     })
   }
 
@@ -298,18 +325,18 @@ class PivotTableUI extends React.PureComponent {
         tag="ul"
         options={{
           group: 'shared',
-          ghostClass: 'pvtPlaceholder',
+          ghostClass: 'draggable-ghost',
           filter: '.criterion__filters-pane',
           preventOnFilter: false,
         }}        
-        // onChange={onChange} // JB: broken.
+        // onChange={onChange} // JB: broken. Need to investigate.
 
         // list={items}
         // setList={() => null}
         // setList={(newState) => this.setState({ fooList: newState })}
       >
 
-        <li>wtf :: {JSON.stringify(items)}</li>
+        {/* <li>wtf :: {JSON.stringify(items)}</li> */}
         
         {items.map(x => (
           <Dimension
@@ -336,7 +363,7 @@ class PivotTableUI extends React.PureComponent {
     
     const createRendererSelector = (
       <div className="pivot__renderer">
-        <select className="pvtDropdown" value={this.state.activeRenderer} onChange={(event) => { this.setState({ activeRenderer: event.target.value }); this.propUpdater('rendererName')(event.target.value) } }>
+        <select className="ui__select" value={this.state.activeRenderer} onChange={(event) => { this.setState({ activeRenderer: event.target.value }); this.propUpdater('rendererName')(event.target.value) } }>
           {
             Object.keys(this.props.renderers).map(
               (item, index) => (
@@ -350,60 +377,103 @@ class PivotTableUI extends React.PureComponent {
       </div>
     )
 
-    const sortIcons = {
-      key_a_to_z: {
-        rowSymbol: '↕',
-        colSymbol: '↔',
-        next: 'value_a_to_z',
-      },
-      value_a_to_z: {
-        rowSymbol: '↓',
-        colSymbol: '→',
-        next: 'value_z_to_a',
-      },
-      value_z_to_a: {rowSymbol: '↑', colSymbol: '←', next: 'key_a_to_z'},
+    // const sortIcons = {
+    //   key_a_to_z: {
+    //     rowSymbol: '↕',
+    //     colSymbol: '↔',
+    //     next: 'value_a_to_z',
+    //   },
+    //   value_a_to_z: {
+    //     rowSymbol: '↓',
+    //     colSymbol: '→',
+    //     next: 'value_z_to_a',
+    //   },
+    //   value_z_to_a: {rowSymbol: '↑', colSymbol: '←', next: 'key_a_to_z'},
+    // }
+
+    const sortBy = {
+      row: [
+        {
+          label: '↕',
+          value: 'key_a_to_z',
+        },
+        {
+          label: '↓',
+          value: 'value_a_to_z',
+        },
+        {
+          label: '↑',
+          value: 'value_z_to_a',
+        }
+      ],
+      column: [
+        {
+          label: '↔',
+          value: 'key_a_to_z',
+        },
+        {
+          label: '→',
+          value: 'value_a_to_z',
+        },
+        {
+          label: '←',
+          value: 'value_z_to_a',
+        }
+      ],
     }
 
     const createCriterionSelector = (
-      <aside className="pivot__dimensions">
-
-        <div className="rowAndColumnOrder">
-          {/* Should be input type radio buttons */}
-          <p>Row</p>
-          <label>
-            <input type="radio" name="sort-row" value="key_a_to_z" checked={this.state.foo === 'key_a_to_z'} onChange={event => this.setState({ foo: event.target.value })} /> Option 1 key_a_to_z ↕
-            <input type="radio" name="sort-row" value="value_a_to_z" checked={this.state.foo === 'value_a_to_z'} onChange={event => this.setState({ foo: event.target.value })} /> Option 2 value_a_to_z ↓
-            <input type="radio" name="sort-row" value="value_z_to_a" checked={this.state.foo === 'value_z_to_a'} onChange={event => this.setState({ foo: event.target.value })} /> Option 3 value_z_to_a ↑
-          </label>
-          <p>output :: {this.state.foo}</p>
-
-          <p>Column</p>
-          <label>
-            <input type="radio" name="sort-column" value="key_a_to_z" checked={this.state.bar === 'key_a_to_z'} onChange={event => this.setState({ bar: event.target.value })} /> Option 1 key_a_to_z ↔
-            <input type="radio" name="sort-column" value="value_a_to_z" checked={this.state.bar === 'value_a_to_z'} onChange={event => this.setState({ bar: event.target.value })} /> Option 2 value_a_to_z →
-            <input type="radio" name="sort-column" value="value_z_to_a" checked={this.state.bar === 'value_z_to_a'} onChange={event => this.setState({ bar: event.target.value })} /> Option 3 value_z_to_a ←
-          </label>
-          <p>output :: {this.state.bar}</p>
-
-          <button
-            onClick={() =>
-              this.propUpdater('rowOrder')(sortIcons[this.props.rowOrder].next)
+      <aside className="pivot__plot">
+        <div className="plot__sortOrderBy">
+          <div>
+            <h4>Sort by row / y-axis</h4>
+            {
+              sortBy.row.map((item, index) => (
+                <label key={index}>
+                  <input
+                    type="radio"
+                    name="sort-row"
+                    value={item.value}
+                    checked={this.state.foo === item.value}
+                    onChange={event =>
+                      this.setState(
+                        {foo: event.target.value },
+                        this.propUpdater('rowOrder')(this.state.foo)
+                      )
+                    }
+                  />
+                  <span>{item.label}</span>
+                </label>
+              ))
             }
-          >
-            {sortIcons[this.props.rowOrder].rowSymbol}
-          </button>
-          
-          <button
-            onClick={() =>
-              this.propUpdater('colOrder')(sortIcons[this.props.colOrder].next)
+          </div>
+
+          <div>
+            <h4>Sort by column / x-axis</h4>
+            {
+              sortBy.column.map((item, index) => (
+                <label key={index}>
+                  <input
+                    type="radio"
+                    name="sort-column"
+                    value={item.value}
+                    checked={this.state.bar === item.value}
+                    onChange={event =>
+                      this.setState(
+                        { bar: event.target.value },
+                        this.propUpdater('colOrder')(this.state.bar)
+                      )
+                    }
+                  />
+                  <span>{item.label}</span>
+                </label>
+              ))
             }
-          >
-            {sortIcons[this.props.colOrder].colSymbol}
-          </button>
+          </div>
         </div>
 
-        <div className="dimension__selection">
-          <select className="pvtDropdown" value={this.state.activeAggregator} onChange={(event) => { this.setState({ activeAggregator: event.target.value }); this.propUpdater('aggregatorName')(event.target.value) }}>
+        <div className="plot__aggregator">
+          <select className="ui__select" value={this.state.activeAggregator} onChange={(event) => { this.setState({ activeAggregator: event.target.value }); this.propUpdater('aggregatorName')(event.target.value) }}>
             {
               Object.keys(this.props.aggregators).map(
                 (item, index) => (
@@ -416,7 +486,7 @@ class PivotTableUI extends React.PureComponent {
           {/* {numValsAllowed > 0 && <br />} */}
           
           {new Array(numValsAllowed).fill().map((n, i) => [
-            <select className="pvtDropdown" value={this.state.activeDimensions[i]} onChange={(event) => {
+            <select className="ui__select" value={this.state.activeDimensions[i]} onChange={(event) => {
               this.setState({ activeDimensions: this.state.activeDimensions.toSpliced(i, 1, event.target.value) }); this.sendPropUpdate({ vals: { $splice: [[i, 1, event.target.value]] } })
             }} key={i}>
               {

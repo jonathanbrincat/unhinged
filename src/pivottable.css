@@ -1,3 +1,12 @@
+label {
+  cursor: pointer;
+}
+
+.ui__select {
+  display: inline-block;
+  position: relative;
+}
+
 .pivot__ui {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -16,11 +25,11 @@
   }
 
   .pivot__axis,
-  .pivot__dimensions {
+  .pivot__plot {
     background: #f2f5fa;
   }
 
-  .pivot__dimensions {
+  .pivot__plot {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -54,7 +63,7 @@
   position: relative;
 }
 
-.pvtAttr {
+.pivot__dimension {
   background-color: transparent;
   border: 1px solid #c8d4e3;
   border-radius: 5px;
@@ -70,7 +79,7 @@
   font-style: italic;
 }
 
-.pivot__axis .pvtAttr {
+.pivot__axis .pivot__dimension {
   background-color: #26A69A;
   border-color: #148F77;
 }
@@ -96,20 +105,12 @@
   cursor: pointer;
 }
 
-.pivot__dimension .pvtAttr {
-  padding-right: 6px;
-}
-
-.pivot__dimension .dropdown-toggle {
-  display: none;
-}
-
 .draggable {
   user-select: none;
   cursor: move;
 }
 
-.dimension__list .pvtPlaceholder {
+.dimension__list .draggable-ghost {
   padding: 3px 15px;
   border-radius: 5px;
   border: 1px dashed #a2b1c6;
@@ -117,42 +118,51 @@
   background: cyan;
 }
 
-.dimension__list .pvtPlaceholder .pvtAttr {
+.dimension__list .draggable-ghost .pivot__dimension {
   display: none;
 }
 
-/* dropdown/select ui */
-.dimension__selection {
+.plot__sortOrderBy {
+  display: flex;
+  flex-direction: column;
+}
+
+.plot__sortOrderBy h4 {
+  font-weight: 400;
+  margin: 0;
+}
+
+.plot__sortOrderBy label {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.plot__sortOrderBy label input[type="radio"] {
+  display: none;
+}
+
+.plot__sortOrderBy label input[type="radio"] + span {
+  border: 1px solid #333;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.plot__sortOrderBy label input[type="radio"]:checked + span {
+  background-color: orange;
+}
+
+.plot__aggregator {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.pvtDropdown {
-  display: inline-block;
-  position: relative;
-  user-select: none;
-}
-
-select:not(:first-of-type),
-.pvtDropdown:not(:first-of-type) {
+.plot__aggregator .ui__select:not(:first-of-type) {
   margin-left: 18px;
-}
-
-.rowAndColumnOrder {
-  display: flex;
-}
-
-/* should be radio buttons */
-.rowAndColumnOrder button {
-  font-size: 20px;
-  line-height: 1;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* filters UI */

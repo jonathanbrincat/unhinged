@@ -13,7 +13,7 @@ import '../src/pivottable.css'
 const PlotlyComponent = createPlotlyComponent(window.Plotly) // JB: create instance of Plotly
 // const ChartjsComponent = new Chart() // JB: create instance of chart.js
 
-const config = {
+const options = {
   rows: ['Payer Gender'],
   cols: ['Party Size'],
   // aggregatorName: 'Sum over Sum',
@@ -35,7 +35,7 @@ const config = {
 
 export default function App(props) {
   const [data, setData] = useState(tips)
-  const [options, setOptions] = useState(config)
+  const [pivotState, setPivotState] = useState({})
 
   return (
     <PivotTableUI
@@ -49,7 +49,13 @@ export default function App(props) {
         ...aggregators,
       }}
       {...options}
-      onChange={state => setOptions(state)}
+
+      // JB: i really don't understand the purpose of this callback; or in fact all these silly callbacks being passed down the component chain. it's like the author doesn't really understand reactivity and doesn't want to so he's just doing what he knows and thinks should work(seen this mentality many times before in those who come from the traditional software engineering backgrounds usually driven by arrogance) - there is a very good reason why they say you have to think in React!
+      onChange={(state) => {
+        // console.log('what the fuck ', state)
+        setPivotState(state)
+      }}
+      {...pivotState}
     />
   )
 }
