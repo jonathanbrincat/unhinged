@@ -8,6 +8,11 @@ import { ReactSortable } from 'react-sortablejs'
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
 
+const test = {
+    rows: ['Lion'],
+    cols: ['Cheetah'],
+}
+
 export function Dimension(props) {
   const [ isOpen, setIsOpen ] = useState(false)
   const [ filterText, setFilterText ] = useState('')
@@ -211,35 +216,11 @@ class PivotTableUI extends React.PureComponent {
 
     console.log('props => ', props)
     // console.log(props.rendererName, props.renderers) // maps to state.activeRenderer; then remapped to props.rendererName every time this changes
-    /*
-    aggregatorName: "Count"
-    aggregators: {Count: ƒ, Count Unique Values: ƒ, List Unique Values: ƒ, Sum: ƒ, Integer Sum: ƒ, …}
-    colOrder: "key_a_to_z"
-    cols: ['Party Size']
-    rows: ['Payer Gender']
-    rowOrder: "key_a_to_z"
-    data: (245) [Array(7), Array(7), Array(7), Array(7), …]
-    derivedAttributes: {}
-    hiddenAttributes: []
-    hiddenFromAggregators: []
-    hiddenFromDragDrop: []
-    menuLimit: 500
-    onChange: ƒ onChange(state)
-    plotlyConfig: {}
-    plotlyOptions: {width: 900, height: 500}
-    rendererName: "Grouped Column Chart"
-    renderers: {Table: ƒ, Table Heatmap: ƒ, Table Col Heatmap: ƒ, Table Row Heatmap: ƒ, Exportable TSV: ƒ, …}
-    sorters: {Meal: ƒ, Day of Week: ƒ}
-    tableColorScaleGenerator: ƒ redColorScaleGenerator(values)
-    tableOptions: {}
-    vals: (2) ['Tip', 'Total Bill']
-    valueFilter: {}
-    */
 
     this.state = {
-      unusedOrder: [],
-      attrValues: {},
-      materializedInput: [], // JB: this is bizarre. this state appears to be being used as a placeholder for generated data; begs the question why? state is ephemeral
+      unusedOrder: [], // JB: doesn't seem to serve a purpose
+      attrValues: {}, // JB: appears to get generated. related to materializeInput()
+      materializedInput: [], // JB: this is bizarre. this state appears to be being used as a placeholder for generated data; begs the question why? state is ephemeral // related to materializeInput() // equivalent to data
       activeRenderer: props.rendererName in props.renderers
         ? props.rendererName
         : Object.keys(props.renderers)[0],
@@ -247,23 +228,161 @@ class PivotTableUI extends React.PureComponent {
       activeDimensions: [...props.vals],
       sortByRow: 'value_a_to_z',
       sortByColumn: 'value_z_to_a',
-      fooRows: props.rows.map((item, index) => ({ id: `dimension${--index}`, name: item })), // this.whitelist(props.rows),
-      fooCols: props.cols.map((item, index) => ({ id: `dimension${++index}`, name: item })), // this.whitelist(props.cols),
-      fooList1: [{ id: 'bigcat-1', name: 'Lynx' }, { id: 'bigcat-2', name: 'Tiger' }, { id: 'bigcat-3', name: 'Tiger uppercut' }, { id: 'bigcat-4', name: 'Panther' }, { id: 'bigcat-5', name: 'Couger' }],
-      fooList2: [{ id: 'bigcat-6', name: 'Jaguar' }, { id: 'bigcat-7', name: 'Cheetah' }],
-      fooList3: [{ id: 'bigcat-8', name: 'Puma' }, { id: 'bigcat-9', name: 'Lion' }, { id: 'bigcat-10', name: 'Leopard' }],
+
+      // JB: tbh how these arrays are composed and distributed is stupid; in Vue I would just have the one array of all dimensions and then use computed functions to filter these down by criteria. I don't see point in having 3 separate states to manage for what essentially different flavours of the same pool of objects
+      fooCriterion: [],
+      fooRows: [], // this.whitelist(props.rows),
+      fooCols: [], // this.whitelist(props.cols),
+      
+      bigCats: [{ id: 'bigcat-1', name: 'Lynx' }, { id: 'bigcat-2', name: 'Tiger' }, { id: 'bigcat-3', name: 'Tiger uppercut' }, { id: 'bigcat-4', name: 'Panther' }, { id: 'bigcat-5', name: 'Couger' }, { id: 'bigcat-6', name: 'Jaguar' }, { id: 'bigcat-7', name: 'Cheetah' }, { id: 'bigcat-8', name: 'Puma' }, { id: 'bigcat-9', name: 'Lion' }, { id: 'bigcat-10', name: 'Leopard' }],
+      fooList1: [],
+      fooList2: [],
+      fooList3: [],
+
+      dimensions: (() => {
+        const foo = {}
+        let recordsProcessedTally = 0 // this is how the values are generated. by counting occurances
+
+        PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
+
+          // examine every key of every record
+          for (const attr of Object.keys(record)) {
+            
+            // if key doesn't exist yet
+            if (!(attr in foo)) {
+              // add the key to our dictionary // use Map()??
+              foo[attr] = {}
+
+              if (recordsProcessedTally > 0) {
+                foo[attr].null = recordsProcessedTally
+              }
+
+              // console.log(attr)
+            }
+          }
+
+          // for every key that exists on foo
+          for (const attr in foo) {
+            const value = attr in record ? record[attr] : 'null'
+
+            // if there isn't a value already assigned. zero the figure.
+            if (!(value in foo[attr])) {
+              foo[attr][value] = 0
+            }
+
+            // increment the occurance count/tally
+            foo[attr][value]++
+          }
+          
+          
+          recordsProcessedTally++
+        })
+
+        return foo
+      })(), // sort array??
+
+      newMaterializedInput: (() =>{
+        const foo = []
+
+        PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
+          foo.push(record)
+        })
+
+        return foo
+      })(),
     }
   }
 
+  // JB: stupid. should be using props.data to initialise state upon instantiation. not the lifecycle. then reactivity to maintain state thereafter. again not the lifecycle.
   componentDidMount() {
     this.materializeInput(this.props.data)
+
+    // const criterionCollection = Object.keys(this.state?.attrValues)
+    //   .filter(
+    //     (item) => {
+    //       return (
+    //         !this.props.rows.includes(item) &&
+    //         !this.props.cols.includes(item) &&
+    //         !this.props.hiddenAttributes.includes(item) &&
+    //         !this.props.hiddenFromDragDrop.includes(item)
+    //       )
+    //     }
+    //   )
+    //   .sort(sortAs(this.state.unusedOrder))
+
+    this.setState({
+      fooList1: this.state.bigCats
+        .filter(
+          ({ name }) => {
+            return !test.rows.includes(name) && !test.cols.includes(name)
+          }
+        ),
+      
+      fooList2: this.state.bigCats
+        .filter(
+          ({ name }) => {
+            return test.rows.includes(name)
+          }
+        ),
+      
+      fooList3: this.state.bigCats
+        .filter(
+          ({ name }) => {
+            return test.cols.includes(name)
+          }
+        ),
+
+      fooCriterion: Object.keys(this.state.dimensions)
+        .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
+        .filter(
+          ({name}) =>
+            !this.props.hiddenAttributes.includes(name) &&
+            !this.props.hiddenFromDragDrop.includes(name)
+        )
+        .filter(
+          ({name}) => 
+            !this.props.rows.includes(name) &&
+            !this.props.cols.includes(name)
+        ),
+      
+      fooRows: Object.keys(this.state.dimensions)
+        .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
+        .filter(
+          ({name}) =>
+            !this.props.hiddenAttributes.includes(name) &&
+            !this.props.hiddenFromDragDrop.includes(name)
+        )
+        .filter(
+          ({name}) =>
+            this.props.rows.includes(name)
+        ),
+
+      fooCols: Object.keys(this.state.dimensions)
+        .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
+        .filter(
+          ({name}) =>
+            !this.props.hiddenAttributes.includes(name) &&
+            !this.props.hiddenFromDragDrop.includes(name)
+        )
+        .filter(
+          ({name}) =>
+            this.props.cols.includes(name)
+        ),
+    })
+
+    // fooRows: props.rows.map((item, index) => ({ id: `dimension${--index}`, name: item })), // this.whitelist(props.rows),
+    // fooCols: props.cols.map((item, index) => ({ id: `dimension${++index}`, name: item })), // this.whitelist(props.cols),
   }
 
+  // JB: pointless. effectively forcibly reparsing the data every time the component renders. not reactivity. Seems weird. As far as I've discerned props.data never changes anyway from it's initial state ie. not being recirculated like other props
   componentDidUpdate() {
     this.materializeInput(this.props.data)
   }
 
   materializeInput(nextData) {
+
+    // JB: if the data is the same i.e. nothing is new dont do anything. isn't this what reactivity is for??
+    // also I don't really understand why the hydrating data would be expected to change like this
     if (this.state.data === nextData) {
       return
     }
@@ -278,9 +397,13 @@ class PivotTableUI extends React.PureComponent {
 
     PivotData.forEachRecord(
       newState.data,
-      this.props.derivedAttributes,
-      function(record) {
+      this.props.derivedAttributes, //  JB: derivedAttributes doesn't seem to serve any purpose. empty {}
+      function (record) { // JB: callback function; will be executed in the closure of PivotData utility
+        
+        // JB: is this some sort of masssaging of the data? I guess packaging it in the way pivottable.js understands?
         newState.materializedInput.push(record)
+
+        // JB: parsing for the attributes/values/dimensions
         for (const attr of Object.keys(record)) {
           if (!(attr in newState.attrValues)) {
             newState.attrValues[attr] = {}
@@ -302,7 +425,7 @@ class PivotTableUI extends React.PureComponent {
       }
     )
 
-    this.setState(newState)
+    this.setState(newState) // JB: overwrite the old with the new. data; attrValues; materializedInput
   }
 
   // Have to deal with this too; propUpdater was essentially a proxy function to this
@@ -384,7 +507,6 @@ class PivotTableUI extends React.PureComponent {
         group="pivot__dimensions"
       >
         {
-          // JB: reactsortable mutates the target iterable you pass to it. that means it gets transformed and the shape is not what expect. I was expecting item to be a string. instead it is an object with generated fields; name key/value pair has replaced the primitive and other key/value to represent state used by the library. i honestly do not know what it is doing or whats going on. its really fucking confusing.
           items.map(
             (item, index) => {
               return (
@@ -487,7 +609,7 @@ class PivotTableUI extends React.PureComponent {
           <Dimension
             name={x}
             key={x}
-            attrValues={this.state.attrValues[x]}
+            attrValues={this.state?.attrValues[x]}
             valueFilter={this.props.valueFilter[x] || {}}
             sorter={getSort(this.props.sorters, x)}
             menuLimit={this.props.menuLimit}
@@ -618,7 +740,7 @@ class PivotTableUI extends React.PureComponent {
               key={i}
             >
               {
-                Object.keys(this.state.attrValues).map(
+                Object.keys(this.state?.attrValues).map(
                   (item, index) => (
                     !this.props.hiddenAttributes.includes(item) &&
                     !this.props.hiddenFromAggregators.includes(item) &&
@@ -645,30 +767,44 @@ class PivotTableUI extends React.PureComponent {
   }
 
   render() {
-    const criterionCollection = Object.keys(this.state?.attrValues)
-      .filter(
-        (item) =>
-          !this.props.rows.includes(item) &&
-          !this.props.cols.includes(item) &&
-          !this.props.hiddenAttributes.includes(item) &&
-          !this.props.hiddenFromDragDrop.includes(item)
-      )
-      .sort(sortAs(this.state.unusedOrder))
+    // console.log('attrValues :state: ', this.state?.attrValues)
+    // console.log('dimensions :state: ', this.state.dimensions)
+    // console.log('materializedInput :state: ', this.state?.materializedInput)
+    // console.log('derivedAttributes :prop: ', this.props.derivedAttributes)
 
-    const criterion = this.createClusterFuck1()
-    // const criterion = this.createClusterFuck(
-    //   criterionCollection,
-    //   order => this.setState({ unusedOrder: order }),
-    // )
+    const allCollection = Object.keys(this.state.dimensions).map((item, index) => ({ id: `dimension-${++index}`, name: item })) // JB: attribute/dimension/criterion decide on naming and stick to the convention
+    const axisXCollection = []
+    const axisYCollection = []
 
-    const axisXX = this.createClusterFuck2()
+    // const criterionCollection = Object.keys(this.state?.attrValues)
+    //   .filter(
+    //     (item) => {
+    //       return (
+    //         !this.props.rows.includes(item) &&
+    //         !this.props.cols.includes(item) &&
+    //         !this.props.hiddenAttributes.includes(item) &&
+    //         !this.props.hiddenFromDragDrop.includes(item)
+    //       )
+    //     }
+    //   )
+    //   .sort(sortAs(this.state.unusedOrder))
+
+    const criterionFoo = this.createClusterFuck1()
+    const criterion = this.createClusterFuck(
+      this.state.fooCriterion,
+      collection => this.setState({ fooCriterion: collection }),
+      // criterionCollection,
+      // order => this.setState({ unusedOrder: order }),
+    )
+
+    const axisXFoo = this.createClusterFuck2()
     const axisX = this.createClusterFuck(
       this.state.fooCols,
       cols => this.setState({ fooCols: cols }),
       // this.propUpdater('cols'), // JB: REMOVE
     )
 
-    const axisYY = this.createClusterFuck3()
+    const axisYFoo = this.createClusterFuck3()
     const axisY = this.createClusterFuck(
       this.state.fooRows,
       rows => this.setState({ fooRows: rows }),
@@ -682,21 +818,26 @@ class PivotTableUI extends React.PureComponent {
         {this.createPlotSelector()}
         
         <div className="pivot__criterion">
-          {criterion}
+          {/* {criterion} */}
+          {criterionFoo}
+          {/* <pre style={{ fontSize: '8px' }}>All {JSON.stringify(allCollection, null, 2)}</pre> */}
+          {/* <pre style={{ fontSize: '8px' }}>FooCriterion {JSON.stringify(this.state.fooCriterion, null, 2)}</pre> */}
           <pre style={{ fontSize: '8px' }}>Foolist1 {JSON.stringify(this.state.fooList1, null, 2)}</pre>
         </div>
 
         <div className="pivot__axis pivot__axis-x">
-          {axisX}
-          {axisXX}
-          <pre style={{ fontSize: '8px' }}>fooCols = {JSON.stringify(this.state.fooCols, null, 2)}</pre>
+          {/* {axisX} */}
+          {axisXFoo}
+          {/* <pre style={{ fontSize: '8px' }}>Axis X = {JSON.stringify(axisXCollection, null, 2)}</pre> */}
+          {/* <pre style={{ fontSize: '8px' }}>fooCols = {JSON.stringify(this.state.fooCols, null, 2)}</pre> */}
           <pre style={{ fontSize: '8px' }}>Foolist2 = {JSON.stringify(this.state.fooList2, null, 2)}</pre>
         </div>
 
         <div className="pivot__axis pivot__axis-y">
-          {axisY}
-          {axisYY}
-          <pre style={{ fontSize: '8px' }}>fooRows = {JSON.stringify(this.state.fooRows, null, 2)}</pre>
+          {/* {axisY} */}
+          {axisYFoo}
+          {/* <pre style={{ fontSize: '8px' }}>Axis Y = {JSON.stringify(axisYCollection, null, 2)}</pre> */}
+          {/* <pre style={{ fontSize: '8px' }}>fooRows = {JSON.stringify(this.state.fooRows, null, 2)}</pre> */}
           <pre style={{ fontSize: '8px' }}>Foolist3 = {JSON.stringify(this.state.fooList3, null, 2)}</pre>
         </div>
 
@@ -711,13 +852,13 @@ class PivotTableUI extends React.PureComponent {
             }
           </pre>
 
-          <pre style={{ fontSize: '10px' }}>
-            prop :: {
+          {/* <pre style={{ fontSize: '10px' }}>
+            props being passed from parent :: {
               JSON.stringify(
                 Object.keys(this.props).filter((item) => item !== 'data'),
                 null, 2)
             }
-          </pre>
+          </pre> */}
 
           <pre style={{ fontSize: '10px' }}>
             state :: {
@@ -750,6 +891,8 @@ class PivotTableUI extends React.PureComponent {
             // tableColorScaleGenerator={this.props.tableColorScaleGenerator} // unused
           />
           {/* 
+          Unused Props
+          ===========
           onChange
           hiddenAttributes
           hiddenFromAggregators
@@ -759,6 +902,32 @@ class PivotTableUI extends React.PureComponent {
           USED ONLY BY UI. Arguably there are more props that could be included rows? cols? vals? valueFilter?
 
           we still need to spread props however in combination with state ...{...this.props, data: this.state.data, renderName: this.state.activeRenderer}
+
+          All Props
+          ===========
+          aggregators: {Count: ƒ, Count Unique Values: ƒ, List Unique Values: ƒ, Sum: ƒ, Integer Sum: ƒ, …}
+          aggregatorName: "Count"
+          rendererName: "Grouped Column Chart"
+          renderers: {Table: ƒ, Table Heatmap: ƒ, Table Col Heatmap: ƒ, Table Row Heatmap: ƒ, Exportable TSV: ƒ, …}
+          rows: ['Payer Gender']
+          cols: ['Party Size']
+          rowOrder: "key_a_to_z"
+          colOrder: "key_a_to_z"
+          data: (245) [Array(7), Array(7), Array(7), Array(7), …]
+          derivedAttributes: {}
+          hiddenAttributes: []
+          hiddenFromAggregators: []
+          hiddenFromDragDrop: []
+          menuLimit: 500
+          onChange: ƒ onChange(state)
+          plotlyConfig: {}
+          plotlyOptions: {width: 900, height: 500}
+          sorters: {Meal: ƒ, Day of Week: ƒ}
+          tableColorScaleGenerator: ƒ redColorScaleGenerator(values)
+          tableOptions: {}
+          vals: (2) ['Tip', 'Total Bill']
+          valueFilter: {}
+
           */}
 
           {/* JB: whats going on here with this silly update() method?? should be passing state as props not spreading props!! */}
@@ -776,7 +945,7 @@ class PivotTableUI extends React.PureComponent {
 }
 
 PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
-  onChange: PropTypes.func.isRequired,
+  // onChange: PropTypes.func.isRequired,
   hiddenAttributes: PropTypes.arrayOf(PropTypes.string),
   hiddenFromAggregators: PropTypes.arrayOf(PropTypes.string),
   hiddenFromDragDrop: PropTypes.arrayOf(PropTypes.string),
