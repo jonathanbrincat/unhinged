@@ -4,14 +4,10 @@ import update from 'immutability-helper' // JB: candidate for deletion now that 
 import { PivotData, sortAs, getSort } from './Utilities'
 import PivotTable from './PivotTable'
 import { ReactSortable } from 'react-sortablejs'
+import { sortBy } from './constants'
 
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
-
-const test = {
-    rows: ['Lion'],
-    cols: ['Cheetah'],
-}
 
 export function Dimension(props) {
   const [ isOpen, setIsOpen ] = useState(false)
@@ -177,36 +173,6 @@ Dimension.propTypes = {
   menuLimit: PropTypes.number,
 }
 
-const sortBy = {
-  row: [
-    {
-      label: '↕',
-      value: 'key_a_to_z',
-    },
-    {
-      label: '↓',
-      value: 'value_a_to_z',
-    },
-    {
-      label: '↑',
-      value: 'value_z_to_a',
-    }
-  ],
-  column: [
-    {
-      label: '↔',
-      value: 'key_a_to_z',
-    },
-    {
-      label: '→',
-      value: 'value_a_to_z',
-    },
-    {
-      label: '←',
-      value: 'value_z_to_a',
-    }
-  ],
-}
 
 class PivotTableUI extends React.PureComponent {
   // const[activeRenderer, setActiveRenderer] = useState('Grouped Column Chart');
@@ -229,16 +195,11 @@ class PivotTableUI extends React.PureComponent {
       sortByRow: 'value_a_to_z',
       sortByColumn: 'value_z_to_a',
 
-      // JB: tbh how these arrays are composed and distributed is stupid; in Vue I would just have the one array of all dimensions and then use computed functions to filter these down by criteria. I don't see point in having 3 separate states to manage for what essentially different flavours of the same pool of objects
+      // JB: attribute/dimension/criterion decide on naming and stick to the convention
       fooCriterion: [],
       fooRows: [], // this.whitelist(props.rows),
       fooCols: [], // this.whitelist(props.cols),
       
-      bigCats: [{ id: 'bigcat-1', name: 'Lynx' }, { id: 'bigcat-2', name: 'Tiger' }, { id: 'bigcat-3', name: 'Tiger uppercut' }, { id: 'bigcat-4', name: 'Panther' }, { id: 'bigcat-5', name: 'Couger' }, { id: 'bigcat-6', name: 'Jaguar' }, { id: 'bigcat-7', name: 'Cheetah' }, { id: 'bigcat-8', name: 'Puma' }, { id: 'bigcat-9', name: 'Lion' }, { id: 'bigcat-10', name: 'Leopard' }],
-      fooList1: [],
-      fooList2: [],
-      fooList3: [],
-
       dimensions: (() => {
         const foo = {}
         let recordsProcessedTally = 0 // this is how the values are generated. by counting occurances
@@ -295,43 +256,9 @@ class PivotTableUI extends React.PureComponent {
 
   // JB: stupid. should be using props.data to initialise state upon instantiation. not the lifecycle. then reactivity to maintain state thereafter. again not the lifecycle.
   componentDidMount() {
-    this.materializeInput(this.props.data)
-
-    // const criterionCollection = Object.keys(this.state?.attrValues)
-    //   .filter(
-    //     (item) => {
-    //       return (
-    //         !this.props.rows.includes(item) &&
-    //         !this.props.cols.includes(item) &&
-    //         !this.props.hiddenAttributes.includes(item) &&
-    //         !this.props.hiddenFromDragDrop.includes(item)
-    //       )
-    //     }
-    //   )
-    //   .sort(sortAs(this.state.unusedOrder))
+    this.materializeInput(this.props.data) // JB: REMOVE
 
     this.setState({
-      fooList1: this.state.bigCats
-        .filter(
-          ({ name }) => {
-            return !test.rows.includes(name) && !test.cols.includes(name)
-          }
-        ),
-      
-      fooList2: this.state.bigCats
-        .filter(
-          ({ name }) => {
-            return test.rows.includes(name)
-          }
-        ),
-      
-      fooList3: this.state.bigCats
-        .filter(
-          ({ name }) => {
-            return test.cols.includes(name)
-          }
-        ),
-
       fooCriterion: Object.keys(this.state.dimensions)
         .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
         .filter(
@@ -376,7 +303,7 @@ class PivotTableUI extends React.PureComponent {
 
   // JB: pointless. effectively forcibly reparsing the data every time the component renders. not reactivity. Seems weird. As far as I've discerned props.data never changes anyway from it's initial state ie. not being recirculated like other props
   componentDidUpdate() {
-    this.materializeInput(this.props.data)
+    this.materializeInput(this.props.data) // JB: REMOVE
   }
 
   materializeInput(nextData) {
@@ -497,14 +424,21 @@ class PivotTableUI extends React.PureComponent {
     })
   }
 
-  createClusterFuck(items, onSortableChangeHandler) {
+  createCluster(items, onSortableChangeHandler) {
     return (
       <ReactSortable
         className="dimension__list"
         tag="ul"
         list={items}
         setList={onSortableChangeHandler}
+        // list={this.state.fooList1}
+        // setList={(newState) => this.setState({ fooList1: newState })}
         group="pivot__dimensions"
+        ghostClass="sortable--ghost"
+        chosenClass="sortable--chosen"
+        dragClass="sortable--drag"
+        filter=".criterion__filters-pane"
+        preventOnFilter={false}
       >
         {
           items.map(
@@ -515,95 +449,7 @@ class PivotTableUI extends React.PureComponent {
             }
           )
         }
-      </ReactSortable>
-    )
-  }
 
-  createClusterFuck1() {
-    return (
-      <ReactSortable
-        className="dimension__list"
-        tag="ul"
-        list={this.state.fooList1}
-        setList={(newState) => this.setState({ fooList1: newState })}
-        group="pivot__dimensions"
-      >
-        {
-          this.state.fooList1.map(
-            (item, index) => {
-              return (
-                <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
-              )
-            }
-          )
-        }
-      </ReactSortable>
-    )
-  }
-
-  createClusterFuck2() {
-    return (
-      <ReactSortable
-        className="dimension__list"
-        tag="ul"
-        list={this.state.fooList2}
-        setList={(newState) => this.setState({ fooList2: newState })}
-        group="pivot__dimensions"
-      >
-        {
-          this.state.fooList2.map(
-            (item, index) => {
-              return (
-                <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
-              )
-            }
-          )
-        }
-      </ReactSortable>
-    )
-  }
-
-  createClusterFuck3() {
-    return (
-      <ReactSortable
-        className="dimension__list"
-        tag="ul"
-        list={this.state.fooList3}
-        setList={(newState) => this.setState({ fooList3: newState })}
-        group="pivot__dimensions"
-      >
-        {
-          this.state.fooList3.map(
-            (item, index) => {
-              return (
-                <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
-              )
-            }
-          )
-        }
-      </ReactSortable>
-    )
-  }
-
-  createCluster(items, onSortableChangeHandler) {
-    return (
-      // JB: broken; Need to investigate. React Sortable API changed + its actually got a disclaimer announcing unstable status; list and setList props appear mandatory; drag and drop has stopped working. It appears sortable is hijacking all pointer events.
-      <ReactSortable
-        className="dimension__list"
-        tag="ul"
-        options={{
-          group: 'pivot__dimensions',
-          ghostClass: 'sortable--ghost',
-          filter: '.criterion__filters-pane',
-          preventOnFilter: false,
-        }}        
-        onChange={onSortableChangeHandler} // JB: broken. Need to investigate. related to the issues experienced with using propUpdater(), the immutability-helper library and the funkiness with recirculating props. No longer throwing errors now I've adjusted this implementation
-
-        // list={items}
-        // setList={() => null}
-        // setList={(newState) => this.setState({ fooList: newState })}
-      >
-        
         {/* each items entry is being tranformed by ReactSortable. string to Object with flags; can't have the two in situ. breaks Dimensios proptypes + expectations */}
         {/* {items.map(x => (
           <Dimension
@@ -772,10 +618,6 @@ class PivotTableUI extends React.PureComponent {
     // console.log('materializedInput :state: ', this.state?.materializedInput)
     // console.log('derivedAttributes :prop: ', this.props.derivedAttributes)
 
-    const allCollection = Object.keys(this.state.dimensions).map((item, index) => ({ id: `dimension-${++index}`, name: item })) // JB: attribute/dimension/criterion decide on naming and stick to the convention
-    const axisXCollection = []
-    const axisYCollection = []
-
     // const criterionCollection = Object.keys(this.state?.attrValues)
     //   .filter(
     //     (item) => {
@@ -789,23 +631,20 @@ class PivotTableUI extends React.PureComponent {
     //   )
     //   .sort(sortAs(this.state.unusedOrder))
 
-    const criterionFoo = this.createClusterFuck1()
-    const criterion = this.createClusterFuck(
+    const criterion = this.createCluster(
       this.state.fooCriterion,
       collection => this.setState({ fooCriterion: collection }),
       // criterionCollection,
       // order => this.setState({ unusedOrder: order }),
     )
 
-    const axisXFoo = this.createClusterFuck2()
-    const axisX = this.createClusterFuck(
+    const axisX = this.createCluster(
       this.state.fooCols,
       cols => this.setState({ fooCols: cols }),
       // this.propUpdater('cols'), // JB: REMOVE
     )
 
-    const axisYFoo = this.createClusterFuck3()
-    const axisY = this.createClusterFuck(
+    const axisY = this.createCluster(
       this.state.fooRows,
       rows => this.setState({ fooRows: rows }),
       // this.propUpdater('rows'), // JB: REMOVE
@@ -818,27 +657,18 @@ class PivotTableUI extends React.PureComponent {
         {this.createPlotSelector()}
         
         <div className="pivot__criterion">
-          {/* {criterion} */}
-          {criterionFoo}
-          {/* <pre style={{ fontSize: '8px' }}>All {JSON.stringify(allCollection, null, 2)}</pre> */}
-          {/* <pre style={{ fontSize: '8px' }}>FooCriterion {JSON.stringify(this.state.fooCriterion, null, 2)}</pre> */}
-          <pre style={{ fontSize: '8px' }}>Foolist1 {JSON.stringify(this.state.fooList1, null, 2)}</pre>
+          {criterion}
+          <pre style={{ fontSize: '8px' }}>FooCriterion {JSON.stringify(this.state.fooCriterion, null, 2)}</pre>
         </div>
 
         <div className="pivot__axis pivot__axis-x">
-          {/* {axisX} */}
-          {axisXFoo}
-          {/* <pre style={{ fontSize: '8px' }}>Axis X = {JSON.stringify(axisXCollection, null, 2)}</pre> */}
-          {/* <pre style={{ fontSize: '8px' }}>fooCols = {JSON.stringify(this.state.fooCols, null, 2)}</pre> */}
-          <pre style={{ fontSize: '8px' }}>Foolist2 = {JSON.stringify(this.state.fooList2, null, 2)}</pre>
+          {axisX}
+          <pre style={{ fontSize: '8px' }}>fooCols = {JSON.stringify(this.state.fooCols, null, 2)}</pre>
         </div>
 
         <div className="pivot__axis pivot__axis-y">
-          {/* {axisY} */}
-          {axisYFoo}
-          {/* <pre style={{ fontSize: '8px' }}>Axis Y = {JSON.stringify(axisYCollection, null, 2)}</pre> */}
-          {/* <pre style={{ fontSize: '8px' }}>fooRows = {JSON.stringify(this.state.fooRows, null, 2)}</pre> */}
-          <pre style={{ fontSize: '8px' }}>Foolist3 = {JSON.stringify(this.state.fooList3, null, 2)}</pre>
+          {axisY}
+          <pre style={{ fontSize: '8px' }}>fooRows = {JSON.stringify(this.state.fooRows, null, 2)}</pre>
         </div>
 
         <article className="pivot__output">
