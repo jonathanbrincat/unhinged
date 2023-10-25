@@ -35,7 +35,7 @@ const options = {
 
 export default function App(props) {
   const [data, setData] = useState(tips)
-  // const [pivotState, setPivotState] = useState({})
+  const [pivotState, setPivotState] = useState({})
 
   return (
     <PivotTableUI
@@ -50,11 +50,11 @@ export default function App(props) {
       }}
       {...options}
 
-      // JB: i really don't understand the purpose of this callback; or in fact all these silly callbacks being passed down the component chain. it's like the author doesn't really understand reactivity and doesn't want to so he's just doing what he knows and thinks should work(seen this mentality many times before in those who come from the traditional software engineering backgrounds usually driven by arrogance) - there is a very good reason why they say you have to think in React!
-      // onChange={(state) => {
-      //   setPivotState(state)
-      // }}
-      // {...pivotState}
+      // JB: REMOVE
+      onChange={(state) => {
+        setPivotState(state)
+      }}
+      {...pivotState}
     />
   )
 }

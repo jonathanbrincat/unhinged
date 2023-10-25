@@ -179,9 +179,7 @@ class PivotTableUI extends React.PureComponent {
 
   constructor(props) {
     super(props)
-
     console.log('props => ', props)
-    // console.log(props.rendererName, props.renderers) // maps to state.activeRenderer; then remapped to props.rendererName every time this changes
 
     this.state = {
       unusedOrder: [], // JB: doesn't seem to serve a purpose
@@ -366,7 +364,6 @@ class PivotTableUI extends React.PureComponent {
   }
 
   // 6/6 usages shutdown - SUNSETTED
-  /*
   propUpdater(key) {    
     return value => this.sendPropUpdate({[key]: {$set: value}})
 
@@ -377,7 +374,6 @@ class PivotTableUI extends React.PureComponent {
     // return test
     // end
   }
-  */
 
   setValuesInFilter(attribute, values) {
     this.sendPropUpdate({
@@ -477,7 +473,7 @@ class PivotTableUI extends React.PureComponent {
           onChange={
             (event) => this.setState(
               { activeRenderer: event.target.value },
-              // this.propUpdater('rendererName')(event.target.value) // JB: REMOVE
+              this.propUpdater('rendererName')(event.target.value) // JB: REMOVE
             )
           }
         >
@@ -517,7 +513,7 @@ class PivotTableUI extends React.PureComponent {
                     onChange={event =>
                       this.setState(
                         { sortByRow: event.target.value },
-                        // this.propUpdater('rowOrder')(this.state.sortByRow) // JB: REMOVE
+                        this.propUpdater('rowOrder')(this.state.sortByRow) // JB: REMOVE
                       )
                     }
                   />
@@ -540,7 +536,7 @@ class PivotTableUI extends React.PureComponent {
                     onChange={event =>
                       this.setState(
                         { sortByColumn: event.target.value },
-                        // this.propUpdater('colOrder')(this.state.sortByColumn) // JB: REMOVE
+                        this.propUpdater('colOrder')(this.state.sortByColumn) // JB: REMOVE
                       )
                     }
                   />
@@ -558,7 +554,7 @@ class PivotTableUI extends React.PureComponent {
             onChange={
               (event) => this.setState(
                 { activeAggregator: event.target.value },
-                // this.propUpdater('aggregatorName')(event.target.value) // JB: REMOVE
+                this.propUpdater('aggregatorName')(event.target.value) // JB: REMOVE
               )
             }
           >
@@ -632,14 +628,18 @@ class PivotTableUI extends React.PureComponent {
 
     const axisX = this.createCluster(
       this.state.fooCols,
-      cols => this.setState({ fooCols: cols }),
-      // this.propUpdater('cols'), // JB: REMOVE
+      cols => {
+        this.setState({ fooCols: cols })
+        this.propUpdater('cols') // JB: REMOVE
+      },
     )
 
     const axisY = this.createCluster(
       this.state.fooRows,
-      rows => this.setState({ fooRows: rows }),
-      // this.propUpdater('rows'), // JB: REMOVE
+      rows => {
+        this.setState({ fooRows: rows })
+        this.propUpdater('rows') // JB: REMOVE
+      },
     )
     
     return (
@@ -665,12 +665,52 @@ class PivotTableUI extends React.PureComponent {
 
         <article className="pivot__output">
           <pre style={{ fontSize: '10px' }}>
-            original :: {
+            original :rendererName: {
               JSON.stringify(
                 {
                   ...update(this.props, { data: { $set: this.state.materializedInput } })
                 }.rendererName,
               null, 2)
+            }
+            <br/>
+            original :aggregatorName: {
+              JSON.stringify(
+                {
+                  ...update(this.props, { data: { $set: this.state.materializedInput } })
+                }.aggregatorName,
+                null, 2)
+            }
+            <br/>
+            original :rowOrder: {
+              JSON.stringify(
+                {
+                  ...update(this.props, { data: { $set: this.state.materializedInput } })
+                }.rowOrder,
+                null, 2)
+            }
+            <br />
+            original :colOrder: {
+              JSON.stringify(
+                {
+                  ...update(this.props, { data: { $set: this.state.materializedInput } })
+                }.colOrder,
+                null, 2)
+            }
+            <br />
+            original :rows: {
+              JSON.stringify(
+                {
+                  ...update(this.props, { data: { $set: this.state.materializedInput } })
+                }.rows,
+                null, 2)
+            }
+            <br />
+            original :cols: {
+              JSON.stringify(
+                {
+                  ...update(this.props, { data: { $set: this.state.materializedInput } })
+                }.cols,
+                null, 2)
             }
           </pre>
 
@@ -683,16 +723,34 @@ class PivotTableUI extends React.PureComponent {
           </pre> */}
 
           <pre style={{ fontSize: '10px' }}>
-            state :: {
+            state :activeRenderer => rendererName: {
               JSON.stringify(
                 this.state.activeRenderer,
                 null, 2)
             }
+            <br/>
+            state :activeAggregator => aggregatorName: {
+              JSON.stringify(
+                this.state.activeAggregator,
+                null, 2)
+            }
+            <br />
+            state :sortByRow => rowOrder: {
+              JSON.stringify(
+                this.state.sortByRow,
+                null, 2)
+            }
+            <br />
+            state :sortByColumn => colOrder: {
+              JSON.stringify(
+                this.state.sortByColumn,
+                null, 2)
+            }
           </pre>
 
-          {/* <pre>
-            {JSON.stringify(this.state.fooCols, null, 2)}
-          </pre> */}
+          <pre>
+            {JSON.stringify(this.props.rows, null, 2)}
+          </pre>
 
           {/* Confirmed what is being done. props are being recirculated for the purpose to then pump them into the <PivotTable /> business end. */}
           
