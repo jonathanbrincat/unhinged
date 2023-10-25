@@ -71,6 +71,7 @@ label {
   gap: 6px;
   padding-left: 0;
   margin: 0;
+  min-height: 1em;
 }
     .pivot__criterion .dimension__list,
     .pivot__axis-x .dimension__list {      

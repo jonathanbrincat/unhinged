@@ -14,20 +14,20 @@ const PlotlyComponent = createPlotlyComponent(window.Plotly) // JB: create insta
 // const ChartjsComponent = new Chart() // JB: create instance of chart.js
 
 const options = {
+  // rendererName: 'Grouped Column Chart',
+  // aggregatorName: 'Sum over Sum',
   rows: ['Payer Gender'],
   cols: ['Party Size'],
-  // aggregatorName: 'Sum over Sum',
-  vals: ['Tip', 'Total Bill'],
-  rendererName: 'Grouped Column Chart',
-  sorters: {
-    Meal: sortAs(['Lunch', 'Dinner']),
-    'Day of Week': sortAs([
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ]),
-  },
+  // vals: ['Tip', 'Total Bill'],
+  // sorters: {
+  //   Meal: sortAs(['Lunch', 'Dinner']),
+  //   'Day of Week': sortAs([
+  //     'Thursday',
+  //     'Friday',
+  //     'Saturday',
+  //     'Sunday',
+  //   ]),
+  // },
   plotlyOptions: { width: 900, height: 500 },
   plotlyConfig: {},
   tableOptions: {},

@@ -197,8 +197,8 @@ class PivotTableUI extends React.PureComponent {
 
       // JB: attribute/dimension/criterion decide on naming and stick to the convention
       fooCriterion: [],
-      fooRows: [], // this.whitelist(props.rows),
-      fooCols: [], // this.whitelist(props.cols),
+      fooRows: [],
+      fooCols: [],
       
       dimensions: (() => {
         const foo = {}
@@ -297,8 +297,8 @@ class PivotTableUI extends React.PureComponent {
         ),
     })
 
-    // fooRows: props.rows.map((item, index) => ({ id: `dimension${--index}`, name: item })), // this.whitelist(props.rows),
-    // fooCols: props.cols.map((item, index) => ({ id: `dimension${++index}`, name: item })), // this.whitelist(props.cols),
+    // fooRows: props.rows.map((item, index) => ({ id: `dimension${--index}`, name: item })),
+    // fooCols: props.cols.map((item, index) => ({ id: `dimension${++index}`, name: item })),
   }
 
   // JB: pointless. effectively forcibly reparsing the data every time the component renders. not reactivity. Seems weird. As far as I've discerned props.data never changes anyway from it's initial state ie. not being recirculated like other props
@@ -604,14 +604,6 @@ class PivotTableUI extends React.PureComponent {
     )
   }
 
-  whitelist(collection) {
-    return collection.filter(
-      (item) =>
-        !this.props.hiddenAttributes.includes(item) &&
-        !this.props.hiddenFromDragDrop.includes(item)
-    )
-  }
-
   render() {
     // console.log('attrValues :state: ', this.state?.attrValues)
     // console.log('dimensions :state: ', this.state.dimensions)
@@ -698,6 +690,10 @@ class PivotTableUI extends React.PureComponent {
             }
           </pre>
 
+          {/* <pre>
+            {JSON.stringify(this.state.fooCols, null, 2)}
+          </pre> */}
+
           {/* Confirmed what is being done. props are being recirculated for the purpose to then pump them into the <PivotTable /> business end. */}
           
           <PivotTable
@@ -708,8 +704,8 @@ class PivotTableUI extends React.PureComponent {
             aggregatorName={this.state.activeAggregator} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
             rowOrder={this.state.sortByRow} // unused // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
             colOrder={this.state.sortByColumn} // unused // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
-            rows={this.props.rows} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
-            cols={this.props.cols} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            rows={this.state.fooRows.map(({name}) => name)} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE this.props.rows
+            cols={this.state.fooCols.map(({ name }) => name)} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE this.props.cols
             vals={this.props.vals} // sendPropUpdate YES // keep track of the dimension available against the aggregator in the dynamic dropdowns
             sorters={this.props.sorters}
             valueFilter={this.props.valueFilter} // sendPropUpdate YES // doesn't actually exist; used by filters component
@@ -732,32 +728,6 @@ class PivotTableUI extends React.PureComponent {
           USED ONLY BY UI. Arguably there are more props that could be included rows? cols? vals? valueFilter?
 
           we still need to spread props however in combination with state ...{...this.props, data: this.state.data, renderName: this.state.activeRenderer}
-
-          All Props
-          ===========
-          aggregators: {Count: ƒ, Count Unique Values: ƒ, List Unique Values: ƒ, Sum: ƒ, Integer Sum: ƒ, …}
-          aggregatorName: "Count"
-          rendererName: "Grouped Column Chart"
-          renderers: {Table: ƒ, Table Heatmap: ƒ, Table Col Heatmap: ƒ, Table Row Heatmap: ƒ, Exportable TSV: ƒ, …}
-          rows: ['Payer Gender']
-          cols: ['Party Size']
-          rowOrder: "key_a_to_z"
-          colOrder: "key_a_to_z"
-          data: (245) [Array(7), Array(7), Array(7), Array(7), …]
-          derivedAttributes: {}
-          hiddenAttributes: []
-          hiddenFromAggregators: []
-          hiddenFromDragDrop: []
-          menuLimit: 500
-          onChange: ƒ onChange(state)
-          plotlyConfig: {}
-          plotlyOptions: {width: 900, height: 500}
-          sorters: {Meal: ƒ, Day of Week: ƒ}
-          tableColorScaleGenerator: ƒ redColorScaleGenerator(values)
-          tableOptions: {}
-          vals: (2) ['Tip', 'Total Bill']
-          valueFilter: {}
-
           */}
 
           {/* JB: whats going on here with this silly update() method?? should be passing state as props not spreading props!! */}
