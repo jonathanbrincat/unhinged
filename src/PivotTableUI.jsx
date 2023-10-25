@@ -144,7 +144,7 @@ export function Dimension(props) {
 
   return (
     <li className={'dimension__list-item'} data-id={props.name}>
-      <div className={`pivot__dimension draggable ${filteredClass}`}>
+      <div className={`pivot__dimension sortable ${filteredClass}`}>
         <span>{props.name}</span>
         <button
           className="dropdown-toggle"
@@ -247,9 +247,11 @@ class PivotTableUI extends React.PureComponent {
       activeDimensions: [...props.vals],
       sortByRow: 'value_a_to_z',
       sortByColumn: 'value_z_to_a',
-      fooList: [{ id: '1', name: 'shrek' }, { id: '2', name: 'donkey' }],
-      fooRows: this.whitelist(props.rows),
-      fooCols: this.whitelist(props.cols),
+      fooRows: props.rows.map((item, index) => ({ id: `dimension${--index}`, name: item })), // this.whitelist(props.rows),
+      fooCols: props.cols.map((item, index) => ({ id: `dimension${++index}`, name: item })), // this.whitelist(props.cols),
+      fooList1: [{ id: 'bigcat-1', name: 'Lynx' }, { id: 'bigcat-2', name: 'Tiger' }, { id: 'bigcat-3', name: 'Tiger uppercut' }, { id: 'bigcat-4', name: 'Panther' }, { id: 'bigcat-5', name: 'Couger' }],
+      fooList2: [{ id: 'bigcat-6', name: 'Jaguar' }, { id: 'bigcat-7', name: 'Cheetah' }],
+      fooList3: [{ id: 'bigcat-8', name: 'Puma' }, { id: 'bigcat-9', name: 'Lion' }, { id: 'bigcat-10', name: 'Leopard' }],
     }
   }
 
@@ -372,16 +374,104 @@ class PivotTableUI extends React.PureComponent {
     })
   }
 
+  createClusterFuck(items, onSortableChangeHandler) {
+    return (
+      <ReactSortable
+        className="dimension__list"
+        tag="ul"
+        list={items}
+        setList={onSortableChangeHandler}
+        group="pivot__dimensions"
+      >
+        {
+          // JB: reactsortable mutates the target iterable you pass to it. that means it gets transformed and the shape is not what expect. I was expecting item to be a string. instead it is an object with generated fields; name key/value pair has replaced the primitive and other key/value to represent state used by the library. i honestly do not know what it is doing or whats going on. its really fucking confusing.
+          items.map(
+            (item, index) => {
+              return (
+                <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
+              )
+            }
+          )
+        }
+      </ReactSortable>
+    )
+  }
+
+  createClusterFuck1() {
+    return (
+      <ReactSortable
+        className="dimension__list"
+        tag="ul"
+        list={this.state.fooList1}
+        setList={(newState) => this.setState({ fooList1: newState })}
+        group="pivot__dimensions"
+      >
+        {
+          this.state.fooList1.map(
+            (item, index) => {
+              return (
+                <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
+              )
+            }
+          )
+        }
+      </ReactSortable>
+    )
+  }
+
+  createClusterFuck2() {
+    return (
+      <ReactSortable
+        className="dimension__list"
+        tag="ul"
+        list={this.state.fooList2}
+        setList={(newState) => this.setState({ fooList2: newState })}
+        group="pivot__dimensions"
+      >
+        {
+          this.state.fooList2.map(
+            (item, index) => {
+              return (
+                <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
+              )
+            }
+          )
+        }
+      </ReactSortable>
+    )
+  }
+
+  createClusterFuck3() {
+    return (
+      <ReactSortable
+        className="dimension__list"
+        tag="ul"
+        list={this.state.fooList3}
+        setList={(newState) => this.setState({ fooList3: newState })}
+        group="pivot__dimensions"
+      >
+        {
+          this.state.fooList3.map(
+            (item, index) => {
+              return (
+                <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
+              )
+            }
+          )
+        }
+      </ReactSortable>
+    )
+  }
+
   createCluster(items, onSortableChangeHandler) {
     return (
       // JB: broken; Need to investigate. React Sortable API changed + its actually got a disclaimer announcing unstable status; list and setList props appear mandatory; drag and drop has stopped working. It appears sortable is hijacking all pointer events.
-      // <ReactSortable
-      <ul
-        className={`dimension__list`}
+      <ReactSortable
+        className="dimension__list"
         tag="ul"
         options={{
-          group: 'shared',
-          ghostClass: 'draggable-ghost',
+          group: 'pivot__dimensions',
+          ghostClass: 'sortable--ghost',
           filter: '.criterion__filters-pane',
           preventOnFilter: false,
         }}        
@@ -391,10 +481,9 @@ class PivotTableUI extends React.PureComponent {
         // setList={() => null}
         // setList={(newState) => this.setState({ fooList: newState })}
       >
-
-        {/* <li>wtf :: {JSON.stringify(items)}</li> */}
         
-        {items.map(x => (
+        {/* each items entry is being tranformed by ReactSortable. string to Object with flags; can't have the two in situ. breaks Dimensios proptypes + expectations */}
+        {/* {items.map(x => (
           <Dimension
             name={x}
             key={x}
@@ -406,9 +495,8 @@ class PivotTableUI extends React.PureComponent {
             addValuesToFilter={this.addValuesToFilter.bind(this)}
             removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
           />
-        ))}
-      </ul>
-      // </ReactSortable>
+        ))} */}
+      </ReactSortable>
     )
   }
 
@@ -567,18 +655,21 @@ class PivotTableUI extends React.PureComponent {
       )
       .sort(sortAs(this.state.unusedOrder))
 
-    const criterion = this.createCluster(
-      criterionCollection,
-      order => this.setState({ unusedOrder: order }),
-    )
+    const criterion = this.createClusterFuck1()
+    // const criterion = this.createClusterFuck(
+    //   criterionCollection,
+    //   order => this.setState({ unusedOrder: order }),
+    // )
 
-    const axisX = this.createCluster(
+    const axisXX = this.createClusterFuck2()
+    const axisX = this.createClusterFuck(
       this.state.fooCols,
       cols => this.setState({ fooCols: cols }),
       // this.propUpdater('cols'), // JB: REMOVE
     )
 
-    const axisY = this.createCluster(
+    const axisYY = this.createClusterFuck3()
+    const axisY = this.createClusterFuck(
       this.state.fooRows,
       rows => this.setState({ fooRows: rows }),
       // this.propUpdater('rows'), // JB: REMOVE
@@ -589,17 +680,24 @@ class PivotTableUI extends React.PureComponent {
         {this.createRendererSelector()}
 
         {this.createPlotSelector()}
-
+        
         <div className="pivot__criterion">
           {criterion}
+          <pre style={{ fontSize: '8px' }}>Foolist1 {JSON.stringify(this.state.fooList1, null, 2)}</pre>
         </div>
 
         <div className="pivot__axis pivot__axis-x">
           {axisX}
+          {axisXX}
+          <pre style={{ fontSize: '8px' }}>fooCols = {JSON.stringify(this.state.fooCols, null, 2)}</pre>
+          <pre style={{ fontSize: '8px' }}>Foolist2 = {JSON.stringify(this.state.fooList2, null, 2)}</pre>
         </div>
 
         <div className="pivot__axis pivot__axis-y">
           {axisY}
+          {axisYY}
+          <pre style={{ fontSize: '8px' }}>fooRows = {JSON.stringify(this.state.fooRows, null, 2)}</pre>
+          <pre style={{ fontSize: '8px' }}>Foolist3 = {JSON.stringify(this.state.fooList3, null, 2)}</pre>
         </div>
 
         <article className="pivot__output">

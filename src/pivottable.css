@@ -110,20 +110,23 @@ label {
   border-color: var(--palette-primary-darken);
 }
 
-.draggable {
+.sortable {
   user-select: none;
   cursor: move;
 }
 
-.dimension__list .draggable-ghost {
-  padding: 3px 15px;
-  border-radius: var(--border-radius);
-  border: 1px dashed #a2b1c6;
+/* sortable-chosen, sortable-drag */
 
-  background: cyan;
+.dimension__list .sortable-ghost,
+.dimension__list .sortable--ghost {
+  border-style: dashed;
+  opacity: 0.4;
+
+  background: #4fe8e8;
 }
 
-.dimension__list .draggable-ghost .pivot__dimension {
+.dimension__list .sortable-ghost .pivot__dimension,
+.dimension__list .sortable--ghost .pivot__dimension {
   display: none;
 }
 
