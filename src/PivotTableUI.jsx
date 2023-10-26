@@ -174,155 +174,96 @@ Dimension.propTypes = {
   menuLimit: PropTypes.number,
 }
 
-// TODO: refactor to a functional component so I can leverage useEffects and custom hooks
-class PivotTableUI extends React.PureComponent {
-  // const[activeRenderer, setActiveRenderer] = useState('Grouped Column Chart');
 
-  constructor(props) {
-    super(props)
-    console.log('props => ', props)
+export function PivotTableUI(props) {
+  const [data, setData] = useState([]) // JB: only used for caching to run comparison to prevent endless render
+  const [unusedOrder, setUnusedOrder] = useState([]) // JB: doesn't seem to serve a purpose
+  const [attrValues, setAttrValues] = useState({}) // JB: appears to get generated. related to materializeInput()
+  const [materializedInput, setMaterializedInput] = useState([])
+  const [activeRenderer, setActiveRenderer] = useState(
+    props.rendererName in props.renderers
+      ? props.rendererName
+      : Object.keys(props.renderers)[0]
+  )
+  const [activeAggregator, setActiveAggregator] = useState(props.aggregatorName)
+  const [activeDimensions, setActiveDimensions] = useState([...props.vals])
+  const [sortByRow, setSortByRow] = useState(sortBy.row[0].value)
+  const [sortByColumn, setSortByColumn] = useState(sortBy.column[0].value)
+  const [fooCriterion, setFooCriterion] = useState([]) // JB: attribute/dimension/criterion decide on naming and stick to the convention;
+  const [fooRows, setFooRows] = useState([]) // JB: row/column x/y
+  const [fooCols, setFooCols] = useState([])
+  const [temp, setTemp] = useState(false)
+  const [dimensions, setDimensions] = useState({})
+  const [newMaterializedInput, setNewMaterializedInput] = useState([])
 
-    this.state = {
-      unusedOrder: [], // JB: doesn't seem to serve a purpose
-      attrValues: {}, // JB: appears to get generated. related to materializeInput()
-      materializedInput: [], // JB: this is bizarre. this state appears to be being used as a placeholder for generated data; begs the question why? state is ephemeral // related to materializeInput() // equivalent to data
-      activeRenderer: props.rendererName in props.renderers
-        ? props.rendererName
-        : Object.keys(props.renderers)[0],
-      activeAggregator: props.aggregatorName,
-      activeDimensions: [...props.vals],
-      sortByRow: sortBy.row[0].value,
-      sortByColumn: sortBy.column[0].value,
+  useEffect(() => {
+    console.log('-- mounted --')
+  }, [])
 
-      // JB: attribute/dimension/criterion decide on naming and stick to the convention; row/column x/y
-      fooCriterion: [],
-      fooRows: [],
-      fooCols: [],
+  useEffect(() => {
+    console.log('-- data changed --')
 
-      temp: false,
-      
-      dimensions: {},
-      newMaterializedInput: [],
-    }
-  }
+    materializeInput(props.data) // JB: REMOVE
 
-  // JB: stupid. should be using props.data to initialise state upon instantiation. not the lifecycle. then reactivity to maintain state thereafter. again not the lifecycle.
-  componentDidMount() {
-    console.log('COMPONENT MOUNTED...')
-    this.materializeInput(this.props.data) // JB: REMOVE
-
-    // this.parseDimensions()
-    // this.parseData()
+    // parseDimensions()
+    // parseData()
 
     // JB: if this was a functional component this could be a useEffect bound to [data]
-    this.setState({
-      dimensions: {...this.parseDimensions()},
-      
-      newMaterializedInput: [...this.parseData()],
-    }, () => {
-      this.setState({
-        fooCriterion: Object.keys(this.state.dimensions)
-          .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
-          .filter(
-            ({ name }) =>
-              !this.props.hiddenAttributes.includes(name) &&
-              !this.props.hiddenFromDragDrop.includes(name)
-          )
-          .filter(
-            ({ name }) =>
-              !this.props.rows.includes(name) &&
-              !this.props.cols.includes(name)
-          ),
+    setDimensions({...parseDimensions()})
+    setNewMaterializedInput([...parseData()])
 
-        fooRows: Object.keys(this.state.dimensions)
-          .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
-          .filter(
-            ({ name }) =>
-              !this.props.hiddenAttributes.includes(name) &&
-              !this.props.hiddenFromDragDrop.includes(name)
-          )
-          .filter(
-            ({ name }) =>
-              this.props.rows.includes(name)
-          ),
+    setFooCriterion(
+      Object.keys(dimensions)
+        .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
+        .filter(
+          ({ name }) =>
+            !props.hiddenAttributes.includes(name) &&
+            !props.hiddenFromDragDrop.includes(name)
+        )
+        .filter(
+          ({ name }) =>
+            !props.rows.includes(name) &&
+            !props.cols.includes(name)
+        )
+    )
 
-        fooCols: Object.keys(this.state.dimensions)
-          .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
-          .filter(
-            ({ name }) =>
-              !this.props.hiddenAttributes.includes(name) &&
-              !this.props.hiddenFromDragDrop.includes(name)
-          )
-          .filter(
-            ({ name }) =>
-              this.props.cols.includes(name)
-          ),
-      })
-    })
+    setFooRows(
+      Object.keys(dimensions)
+        .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
+        .filter(
+          ({ name }) =>
+            !props.hiddenAttributes.includes(name) &&
+            !props.hiddenFromDragDrop.includes(name)
+        )
+        .filter(
+          ({ name }) =>
+            props.rows.includes(name)
+        )
+    )
+
+    setFooCols(
+      Object.keys(dimensions)
+        .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
+        .filter(
+          ({ name }) =>
+            !props.hiddenAttributes.includes(name) &&
+            !props.hiddenFromDragDrop.includes(name)
+        )
+        .filter(
+          ({ name }) =>
+            props.cols.includes(name)
+        )
+    )
 
     // fooRows: props.rows.map((item, index) => ({ id: `dimension${--index}`, name: item })),
     // fooCols: props.cols.map((item, index) => ({ id: `dimension${++index}`, name: item })),
-  }
-
-  // JB: pointless. effectively forcibly reparsing the data every time the component renders. not reactivity. Seems weird. As far as I've discerned props.data never changes anyway from it's initial state ie. not being recirculated like other props
-  componentDidUpdate() {
-    console.log('COMPONENT DID UPDATE...')
-    this.materializeInput(this.props.data) // JB: REMOVE
-
-    if (this.state.data !== this.props.data) {
-      this.setState({
-        dimensions: {...this.parseDimensions()},
-        newMaterializedInput: [...this.parseData()],
-      }, () => {
-        this.setState({
-          fooCriterion: Object.keys(this.state.dimensions)
-            .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
-            .filter(
-              ({ name }) =>
-                !this.props.hiddenAttributes.includes(name) &&
-                !this.props.hiddenFromDragDrop.includes(name)
-            )
-            .filter(
-              ({ name }) =>
-                !this.props.rows.includes(name) &&
-                !this.props.cols.includes(name)
-            ),
-
-          fooRows: Object.keys(this.state.dimensions)
-            .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
-            .filter(
-              ({ name }) =>
-                !this.props.hiddenAttributes.includes(name) &&
-                !this.props.hiddenFromDragDrop.includes(name)
-            )
-            .filter(
-              ({ name }) =>
-                this.props.rows.includes(name)
-            ),
-
-          fooCols: Object.keys(this.state.dimensions)
-            .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
-            .filter(
-              ({ name }) =>
-                !this.props.hiddenAttributes.includes(name) &&
-                !this.props.hiddenFromDragDrop.includes(name)
-            )
-            .filter(
-              ({ name }) =>
-                this.props.cols.includes(name)
-            ),
-        })
-      })
-      // this.parseDimensions()
-      // this.parseData()
-    }
-  }
+  }, [props.data])
 
   // JB: REMOVE
-  materializeInput(nextData) {
+  const materializeInput = (nextData) => {
 
     // JB: if the data is the same i.e. nothing is new dont do anything... it's to prevent recursion on componentDidUpdate and infinite loops
-    if (this.state.data === nextData) {
+    if (data === nextData) {
       return
     }
 
@@ -336,7 +277,7 @@ class PivotTableUI extends React.PureComponent {
 
     PivotData.forEachRecord(
       newState.data,
-      this.props.derivedAttributes, //  JB: derivedAttributes doesn't seem to serve any purpose. empty {}
+      props.derivedAttributes, //  JB: derivedAttributes doesn't seem to serve any purpose. empty {}
       function (record) { // JB: callback function; will be executed in the closure of PivotData utility
         
         // JB: is this some sort of masssaging of the data? I guess packaging it in the way pivottable.js understands?
@@ -364,14 +305,17 @@ class PivotTableUI extends React.PureComponent {
       }
     )
 
-    this.setState(newState) // JB: overwrite the old with the new. data; attrValues; materializedInput
+    // JB: overwrite the old with the new. data; attrValues; materializedInput
+    setData(newState.data)
+    setAttrValues(newState.attrValues)
+    setMaterializedInput(newState.materializedInput)
   }
 
-  parseDimensions() {
+  function parseDimensions() {
     const foo = {}
     let recordsProcessedTally = 0 // this is how the values are generated. by counting occurances
 
-    PivotData.forEachRecord(this.props.data, this.props.derivedAttributes, (record) => {
+    PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
 
       // examine every key of every record
       for (const attr of Object.keys(record)) {
@@ -407,48 +351,44 @@ class PivotTableUI extends React.PureComponent {
     })
 
     return foo
-    // this.setState({
-    //   dimensions: {...foo},
-    // })
+    // setDimensions({...foo})
   } // sort array??
 
-  parseData() {
+  function parseData() {
     const foo = []
 
-    PivotData.forEachRecord(this.props.data, this.props.derivedAttributes, (record) => {
+    PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
       foo.push(record)
     })
 
     return foo
-    // this.setState({
-    //   newMaterializedInput: [...foo],
-    // })
+    // setNewMaterializedInput([...foo])
   }
 
   // Have to deal with this too; propUpdater was essentially a proxy function to this
   // props.valueFilter and props.val being recirculated
   // 0/4 usages shutdown
-  sendPropUpdate(command) {
-    console.log('sendPropUpdate() :: ', this.props, ' => ', command)
-    // console.log('sendPropUpdate() :: ', update(this.props, command)) // <= confirmation it is something off with this library. https://www.npmjs.com/package/immutability-helper
+  function sendPropUpdate(command) {
+    console.log('sendPropUpdate() :: ', props, ' => ', command)
+    // console.log('sendPropUpdate() :: ', update(props, command)) // <= confirmation it is something off with this library. https://www.npmjs.com/package/immutability-helper
 
-    this.props.onChange(update(this.props, command))
+    props.onChange(update(props, command))
   }
 
   // 6/6 usages shutdown - SUNSETTED
-  propUpdater(key) {    
-    return value => this.sendPropUpdate({[key]: {$set: value}})
+  function propUpdater(key) {    
+    return value => sendPropUpdate({[key]: {$set: value}})
 
     // JB - start
-    // const test = (value) => this.sendPropUpdate({[key]: {$set: value}})
+    // const test = (value) => sendPropUpdate({[key]: {$set: value}})
     // console.log('propUpdater() => ', test('rendererName')(event.target.value))
     // propUpdater('rendererName')(event.target.value)
     // return test
     // end
   }
 
-  setValuesInFilter(attribute, values) {
-    this.sendPropUpdate({
+  function setValuesInFilter(attribute, values) {
+    sendPropUpdate({
       valueFilter: {
         [attribute]: {
           $set: values.reduce((r, v) => {
@@ -460,12 +400,12 @@ class PivotTableUI extends React.PureComponent {
     })
   }
 
-  addValuesToFilter(attribute, values) {
+  function addValuesToFilter(attribute, values) {
     console.log('up ', attribute, values)
 
     // JB: temp commented whilst troubleshoot
-    if (attribute in this.props.valueFilter) {
-      this.sendPropUpdate({
+    if (attribute in props.valueFilter) {
+      sendPropUpdate({
         valueFilter: {
           [attribute]: values.reduce((r, v) => {
             r[v] = {$set: true}
@@ -474,33 +414,33 @@ class PivotTableUI extends React.PureComponent {
         },
       })
     } else {
-      this.setValuesInFilter(attribute, values)
+      setValuesInFilter(attribute, values)
     }
   }
 
-  removeValuesFromFilter(attribute, values) {
-    // console.log('down ', this.props)
+  function removeValuesFromFilter(attribute, values) {
+    // console.log('down ', props)
     // console.log('down ', attribute, { $unset: values })
 
     // JB - start
     // const command = { valueFilter: { [attribute]: { $unset: values } }  } //$unset to remove. $set to add.
-    // console.log('COMMANDO 2 ', update(this.props, command))
+    // console.log('COMMANDO 2 ', update(props, command))
     // end
 
-    this.sendPropUpdate({
+    sendPropUpdate({
       valueFilter: { [attribute]: { $unset: values } }, // $unset = remove the list of keys in array from the target object. is this actually appropiate? for empty array.
     })
   }
 
-  createCluster(items, onSortableChangeHandler) {
+  function createCluster(items, onSortableChangeHandler) {
     return (
       <ReactSortable
         className="dimension__list"
         tag="ul"
         list={items}
         setList={onSortableChangeHandler}
-        // list={this.state.fooList1}
-        // setList={(newState) => this.setState({ fooList1: newState })}
+        // list={fooList1}
+        // setList={setFooList1}
         group="pivot__dimensions"
         ghostClass="sortable--ghost"
         chosenClass="sortable--chosen"
@@ -522,34 +462,34 @@ class PivotTableUI extends React.PureComponent {
           <Dimension
             name={item.name}
             key={`${item.id}-${index}`}
-            attrValues={this.state?.attrValues[item.name]}
-            valueFilter={this.props.valueFilter[item.name] || {}}
-            sorter={getSort(this.props.sorters, item.name)}
-            menuLimit={this.props.menuLimit}
-            setValuesInFilter={this.setValuesInFilter.bind(this)}
-            addValuesToFilter={this.addValuesToFilter.bind(this)}
-            removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
+            attrValues={attrValues[item.name]}
+            valueFilter={props.valueFilter[item.name] || {}}
+            sorter={getSort(props.sorters, item.name)}
+            menuLimit={props.menuLimit}
+            setValuesInFilter={setValuesInFilter.bind(this)}
+            addValuesToFilter={addValuesToFilter.bind(this)}
+            removeValuesFromFilter={removeValuesFromFilter.bind(this)}
           />
         ))}
       </ReactSortable>
     )
   }
 
-  createRendererSelector() {
+  function createRendererSelector() {
     return (
       <header className="pivot__renderer">
         <select
           className="ui__select"
-          value={this.state.activeRenderer}
+          value={activeRenderer}
           onChange={
-            (event) => this.setState(
-              { activeRenderer: event.target.value },
-              this.propUpdater('rendererName')(event.target.value) // JB: REMOVE
-            )
+            (event) => {
+              setActiveRenderer(event.target.value)
+              propUpdater('rendererName')(event.target.value) // JB: REMOVE
+            }
           }
         >
           {
-            Object.keys(this.props.renderers).map(
+            Object.keys(props.renderers).map(
               (item, index) => (
                 <option value={item} key={index}>{item}</option>
               )
@@ -558,47 +498,47 @@ class PivotTableUI extends React.PureComponent {
         </select>
 
         {/* <label className="ui__toggle-switch">
-          <input type="checkbox" checked={this.state.temp} onChange={(event) => this.setState({ temp: event.target.checked })} /> Table?
+          <input type="checkbox" checked={temp} onChange={(event) => setTemp(event.target.checked)} /> Table?
         </label>
-        <pre style={{ fontSize: '8px' }}>temp = {JSON.stringify(this.state.temp)}</pre> */}
+        <pre style={{ fontSize: '8px' }}>temp = {JSON.stringify(temp)}</pre> */}
 
         <p className="ui__toggle">
           <label>
-            <input type="radio" name="renderer" value="Table" checked={this.state.activeRenderer === "Table"} onChange={event => this.setState({ activeRenderer: event.target.value })} />
+            <input type="radio" name="renderer" value="Table" checked={activeRenderer === "Table"} onChange={(event) => setActiveRenderer(event.target.value)} />
             <span>Table</span>
           </label>
 
           <label>
-            <input type="radio" name="renderer" value="Chartjs Grouped Column Chart" checked={this.state.activeRenderer === "Chartjs Grouped Column Chart"} onChange={event => this.setState({ activeRenderer: event.target.value })} />
+            <input type="radio" name="renderer" value="Chartjs Grouped Column Chart" checked={activeRenderer === "Chartjs Grouped Column Chart"} onChange={(event) => setActiveRenderer(event.target.value)} />
             <span>Chart</span>
           </label>
         </p>
-        <pre style={{ fontSize: '8px' }}>Renderer = {JSON.stringify(this.state.activeRenderer)}</pre>
+        <pre style={{ fontSize: '8px' }}>Renderer = {JSON.stringify(activeRenderer)}</pre>
       </header>
     )
   }
 
-  createPlotSelector() {
-    const numValsAllowed = this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0
+  function createPlotSelector() {
+    const numValsAllowed = props.aggregators[props.aggregatorName]([])().numInputs || 0
 
-    const aggregatorCellOutlet = this.props.aggregators[this.props.aggregatorName]([])().outlet
+    const aggregatorCellOutlet = props.aggregators[props.aggregatorName]([])().outlet
 
     return (
       <aside className="pivot__aggregator">
         <select
           className="ui__select"
-          value={this.state.activeAggregator}
+          value={activeAggregator}
           onChange={
-            (event) => this.setState(
-              { activeAggregator: event.target.value },
-              this.propUpdater('aggregatorName')(event.target.value) // JB: REMOVE
-            )
+            (event) => {
+              setActiveAggregator(event.target.value)
+              propUpdater('aggregatorName')(event.target.value) // JB: REMOVE
+            }
           }
         >
           {
-            Object.keys(this.props.aggregators).map(
+            Object.keys(props.aggregators).map(
               (item, index) => (
-                <option value={item} key={index}>{item}</option>
+                <option value={item} key={`aggregator-${index}`}>{item}</option>
               )
             )
           }
@@ -606,23 +546,23 @@ class PivotTableUI extends React.PureComponent {
 
         {/* {numValsAllowed > 0 && <br />} */}
 
-        {new Array(numValsAllowed).fill().map((n, i) => [
+        {new Array(numValsAllowed).fill().map((n, index) => [
           <select
             className="ui__select"
-            value={this.state.activeDimensions[i]}
+            value={activeDimensions[index]}
             onChange={
               (event) => {
-                this.setState({ activeDimensions: this.state.activeDimensions.toSpliced(i, 1, event.target.value) })
-                this.sendPropUpdate({ vals: { $splice: [[i, 1, event.target.value]] } })
+                setActiveDimensions(activeDimensions.toSpliced(index, 1, event.target.value))
+                sendPropUpdate({ vals: { $splice: [[index, 1, event.target.value]] } })
               }
             }
-            key={i}
+            key={`dimension-${index}`}
           >
             {
-              Object.keys(this.state?.attrValues).map(
+              Object.keys(attrValues).map(
                 (item, index) => (
-                  !this.props.hiddenAttributes.includes(item) &&
-                  !this.props.hiddenFromAggregators.includes(item) &&
+                  !props.hiddenAttributes.includes(item) &&
+                  !props.hiddenFromAggregators.includes(item) &&
                   <option value={item} key={index}>{item}</option>
                 )
               )
@@ -631,18 +571,18 @@ class PivotTableUI extends React.PureComponent {
           // i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
         ])}
 
-        {aggregatorCellOutlet && aggregatorCellOutlet(this.props.data)}
+        {aggregatorCellOutlet && aggregatorCellOutlet(props.data)}
       </aside>
     )
   }
 
-  createSortBy() {
+  function createSortBy() {
     return (
       <div className="pivot__sortBy">
-        <h4>Sort {this.state.activeRenderer.toLowerCase().includes('table') ? 'by' : 'along'}</h4>
+        <h4>Sort {activeRenderer.toLowerCase().includes('table') ? 'by' : 'along'}</h4>
         <div className="sortBy__container">
           <div className="sortBy__y">
-            <h4>{this.state.activeRenderer.toLowerCase().includes('table') ? 'row' : 'y-axis'}</h4>
+            <h4>{activeRenderer.toLowerCase().includes('table') ? 'row' : 'y-axis'}</h4>
             <div style={{ gap: '2px' }}>
               {
                 sortBy.row.map((item, index) => (
@@ -651,12 +591,12 @@ class PivotTableUI extends React.PureComponent {
                       type="radio"
                       name="sort-by-row"
                       value={item.value}
-                      checked={this.state.sortByRow === item.value}
-                      onChange={event =>
-                        this.setState(
-                          { sortByRow: event.target.value },
-                          this.propUpdater('rowOrder')(this.state.sortByRow) // JB: REMOVE
-                        )
+                      checked={sortByRow === item.value}
+                      onChange={
+                        (event) => {
+                          setSortByRow(event.target.value)
+                          propUpdater('rowOrder')(sortByRow) // JB: REMOVE
+                        }
                       }
                     />
                     <span>{item.label}</span>
@@ -669,7 +609,7 @@ class PivotTableUI extends React.PureComponent {
           <hr />
 
           <div className="sortBy__x">
-            <h4>{this.state.activeRenderer.toLowerCase().includes('table') ? 'column' : 'x-axis'}</h4>
+            <h4>{activeRenderer.toLowerCase().includes('table') ? 'column' : 'x-axis'}</h4>
             <div style={{ gap: '2px' }}>
               {
                 sortBy.column.map((item, index) => (
@@ -678,12 +618,12 @@ class PivotTableUI extends React.PureComponent {
                       type="radio"
                       name="sort-by-column"
                       value={item.value}
-                      checked={this.state.sortByColumn === item.value}
-                      onChange={event =>
-                        this.setState(
-                          { sortByColumn: event.target.value },
-                          this.propUpdater('colOrder')(this.state.sortByColumn) // JB: REMOVE
-                        )
+                      checked={sortByColumn === item.value}
+                      onChange={
+                        (event) => {
+                          setSortByColumn(event.target.value)
+                          propUpdater('colOrder')(sortByColumn) // JB: REMOVE
+                        }
                       }
                     />
                     <span>{item.label}</span>
@@ -697,271 +637,262 @@ class PivotTableUI extends React.PureComponent {
     )
   }
 
-  fooCriterion() {
-    return Object.keys(this.state.dimensions)
+  function barCriterion() {
+    return Object.keys(dimensions)
       .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
       .filter(
         ({ name }) =>
-          !this.props.hiddenAttributes.includes(name) &&
-          !this.props.hiddenFromDragDrop.includes(name)
+          !props.hiddenAttributes.includes(name) &&
+          !props.hiddenFromDragDrop.includes(name)
       )
       .filter(
         ({ name }) =>
-          !this.props.rows.includes(name) &&
-          !this.props.cols.includes(name)
+          !props.rows.includes(name) &&
+          !props.cols.includes(name)
       )
   }
 
-  fooRows() {
-    return Object.keys(this.state.dimensions)
+  function barRows() {
+    return Object.keys(dimensions)
       .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
       .filter(
         ({ name }) =>
-          !this.props.hiddenAttributes.includes(name) &&
-          !this.props.hiddenFromDragDrop.includes(name)
+          !props.hiddenAttributes.includes(name) &&
+          !props.hiddenFromDragDrop.includes(name)
       )
       .filter(
         ({ name }) =>
-          this.props.rows.includes(name)
+          props.rows.includes(name)
       )
   }
 
-  fooCols() {
-    return Object.keys(this.state.dimensions)
+  function barCols() {
+    return Object.keys(dimensions)
       .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
       .filter(
         ({ name }) =>
-          !this.props.hiddenAttributes.includes(name) &&
-          !this.props.hiddenFromDragDrop.includes(name)
+          !props.hiddenAttributes.includes(name) &&
+          !props.hiddenFromDragDrop.includes(name)
       )
       .filter(
         ({ name }) =>
-          this.props.cols.includes(name)
+          props.cols.includes(name)
       )
   }
 
-  render() {
-    console.log('RENDERING...')
-    // console.log('attrValues :state: ', this.state?.attrValues)
-    // console.log('dimensions :state: ', this.state.dimensions)
-    // console.log('materializedInput :state: ', this.state?.materializedInput)
-    // console.log('derivedAttributes :prop: ', this.props.derivedAttributes)
+  // const criterionCollection = Object.keys(attrValues)
+  //   .filter(
+  //     (item) => {
+  //       return (
+  //         !props.rows.includes(item) &&
+  //         !props.cols.includes(item) &&
+  //         !props.hiddenAttributes.includes(item) &&
+  //         !props.hiddenFromDragDrop.includes(item)
+  //       )
+  //     }
+  //   )
+  //   .sort(sortAs(unusedOrder))
 
-    // const criterionCollection = Object.keys(this.state?.attrValues)
-    //   .filter(
-    //     (item) => {
-    //       return (
-    //         !this.props.rows.includes(item) &&
-    //         !this.props.cols.includes(item) &&
-    //         !this.props.hiddenAttributes.includes(item) &&
-    //         !this.props.hiddenFromDragDrop.includes(item)
-    //       )
-    //     }
-    //   )
-    //   .sort(sortAs(this.state.unusedOrder))
+  const criterion = createCluster(
+    fooCriterion,
+    // barCriterion(),
+    collection => setFooCriterion(collection),
+    // criterionCollection,
+    // order => setUnusedOrder(order),
+  )
 
-    const criterion = this.createCluster(
-      this.state.fooCriterion,
-      // this.fooCriterion(),
-      collection => this.setState({ fooCriterion: collection }),
-      // criterionCollection,
-      // order => this.setState({ unusedOrder: order }),
-    )
+  const axisX = createCluster(
+    fooCols,
+    // barCols(),
+    cols => {
+      setFooCols(cols)
+      propUpdater('cols') // JB: REMOVE
+    },
+  )
 
-    const axisX = this.createCluster(
-      this.state.fooCols,
-      // this.fooCols(),
-      cols => {
-        this.setState({ fooCols: cols })
-        this.propUpdater('cols') // JB: REMOVE
-      },
-    )
+  const axisY = createCluster(
+    fooRows,
+    // barRows(),
+    rows => {
+      setFooRows(rows)
+      propUpdater('rows') // JB: REMOVE
+    },
+  )
+  
+  return (
+    <div className="pivot__ui">
+      {createRendererSelector()}
 
-    const axisY = this.createCluster(
-      this.state.fooRows,
-      // this.fooRows(),
-      rows => {
-        this.setState({ fooRows: rows })
-        this.propUpdater('rows') // JB: REMOVE
-      },
-    )
-    
-    return (
-      <div className="pivot__ui">
-        {this.createRendererSelector()}
-
-        {this.createPlotSelector()}
-        
-        <div className="pivot__criterion">
-          {criterion}
-          {/* <pre style={{ fontSize: '8px' }}>FooCriterion {JSON.stringify(this.state.fooCriterion, null, 2)}</pre> */}
-        </div>
-
-        <div className="pivot__axis pivot__axis-x">
-          {axisX}
-          {/* <pre style={{ fontSize: '8px' }}>fooCols = {JSON.stringify(this.state.fooCols, null, 2)}</pre> */}
-        </div>
-
-        <div className="pivot__axis pivot__axis-y">
-          {axisY}
-          {/* <pre style={{ fontSize: '8px' }}>fooRows = {JSON.stringify(this.state.fooRows, null, 2)}</pre> */}
-        </div>
-
-        {this.createSortBy()}
-
-        <article className="pivot__output">
-          {/* <pre style={{ fontSize: '10px' }}>
-            original :rendererName: {
-              JSON.stringify(
-                {
-                  ...update(this.props, { data: { $set: this.state.materializedInput } })
-                }.rendererName,
-              null, 2)
-            }
-            <br/>
-            original :aggregatorName: {
-              JSON.stringify(
-                {
-                  ...update(this.props, { data: { $set: this.state.materializedInput } })
-                }.aggregatorName,
-                null, 2)
-            }
-            <br/>
-            original :rowOrder: {
-              JSON.stringify(
-                {
-                  ...update(this.props, { data: { $set: this.state.materializedInput } })
-                }.rowOrder,
-                null, 2)
-            }
-            <br />
-            original :colOrder: {
-              JSON.stringify(
-                {
-                  ...update(this.props, { data: { $set: this.state.materializedInput } })
-                }.colOrder,
-                null, 2)
-            }
-            <br />
-            original :rows: {
-              JSON.stringify(
-                {
-                  ...update(this.props, { data: { $set: this.state.materializedInput } })
-                }.rows,
-                null, 2)
-            }
-            <br />
-            original :cols: {
-              JSON.stringify(
-                {
-                  ...update(this.props, { data: { $set: this.state.materializedInput } })
-                }.cols,
-                null, 2)
-            }
-          </pre> */}
-
-          {/* <pre style={{ fontSize: '10px' }}>
-            props being passed from parent :: {
-              JSON.stringify(
-                Object.keys(this.props).filter((item) => item !== 'data'),
-                null, 2)
-            }
-          </pre> */}
-
-          {/* <pre style={{ fontSize: '10px' }}>
-            state :activeRenderer => rendererName: {
-              JSON.stringify(
-                this.state.activeRenderer,
-                null, 2)
-            }
-            <br/>
-            state :activeAggregator => aggregatorName: {
-              JSON.stringify(
-                this.state.activeAggregator,
-                null, 2)
-            }
-            <br />
-            state :sortByRow => rowOrder: {
-              JSON.stringify(
-                this.state.sortByRow,
-                null, 2)
-            }
-            <br />
-            state :sortByColumn => colOrder: {
-              JSON.stringify(
-                this.state.sortByColumn,
-                null, 2)
-            }
-          </pre> */}
-
-          {/* <pre style={{ fontSize: '10px' }}>
-            {JSON.stringify(this.props.rows, null, 2)}
-          </pre> */}
-
-          {/* Confirmed what is being done. props are being recirculated for the purpose to then pump them into the <PivotTable /> business end. */}
-          
-          <figure class="ui__pane">
-            <tablecaption></tablecaption>
-            <figcaption></figcaption>
-
-            <PivotTable
-              data={this.state.newMaterializedInput} // not really options // separated from props // this.state.materializedInput
-              renderers={this.props.renderers} // not really options
-              aggregators={this.props.aggregators} // not really options
-              rendererName={this.state.activeRenderer} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
-              aggregatorName={this.state.activeAggregator} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
-              rowOrder={this.state.sortByRow} // unused // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
-              colOrder={this.state.sortByColumn} // unused // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
-              rows={this.state.fooRows.map(({name}) => name)} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE this.props.rows
-              cols={this.state.fooCols.map(({ name }) => name)} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE this.props.cols
-              vals={this.props.vals} // sendPropUpdate YES // keep track of the dimension available against the aggregator in the dynamic dropdowns
-              sorters={this.props.sorters}
-              valueFilter={this.props.valueFilter} // sendPropUpdate YES // doesn't actually exist; used by filters component
-              derivedAttributes={this.props.derivedAttributes} // unused
-              menuLimit={this.props.menuLimit} // unused
-              plotlyOptions={this.props.plotlyOptions}
-              plotlyConfig={this.props.plotlyConfig} // empty
-              tableOptions={this.props.tableOptions} // empty
-              // tableColorScaleGenerator={this.props.tableColorScaleGenerator} // unused
-            />
-          </figure>
-
-          {/* 
-          Unused Props
-          ===========
-          onChange
-          hiddenAttributes
-          hiddenFromAggregators
-          hiddenFromDragDrop
-          menuLimit
-
-          USED ONLY BY UI. Arguably there are more props that could be included rows? cols? vals? valueFilter?
-
-          we still need to spread props however in combination with state ...{...this.props, data: this.state.data, renderName: this.state.activeRenderer}
-          */}
-
-          <figure class="ui__pane">
-            {/* JB: whats going on here with this silly update() method?? should be passing state as props not spreading props!! */}
-            <PivotTable
-              {...update(this.props, {
-                data: { $set: this.state.materializedInput },
-              })}
-            />
-          </figure>
-
-          {/* <pre style={{ fontSize: '10px' }}>{JSON.stringify(this.state.materializedInput, null, 2)}</pre> */}
-        </article>
-
-        <div className="pivot__filters">
-          <h4 style={{ fontWeight: '400', marginTop: '0px' }}>Filter</h4>
-          <ul>
-            <li>Needs to select/target a dimension and then display the answered values available for filtering(turning on and off) here</li>
-            <li>the UI is a challenge. I thinking multi-select paradigm but presented in a dropdown with checkboxes for each entry</li>
-          </ul>
-        </div>
+      {createPlotSelector()}
+      
+      <div className="pivot__criterion">
+        {criterion}
+        {/* <pre style={{ fontSize: '8px' }}>FooCriterion {JSON.stringify(fooCriterion, null, 2)}</pre> */}
       </div>
-    )
-  }
+
+      <div className="pivot__axis pivot__axis-x">
+        {axisX}
+        {/* <pre style={{ fontSize: '8px' }}>fooCols = {JSON.stringify(fooCols, null, 2)}</pre> */}
+      </div>
+
+      <div className="pivot__axis pivot__axis-y">
+        {axisY}
+        {/* <pre style={{ fontSize: '8px' }}>fooRows = {JSON.stringify(fooRows, null, 2)}</pre> */}
+      </div>
+
+      {createSortBy()}
+
+      <article className="pivot__output">
+        {/* <pre style={{ fontSize: '10px' }}>
+          original :rendererName: {
+            JSON.stringify(
+              {
+                ...update(props, { data: { $set: materializedInput } })
+              }.rendererName,
+            null, 2)
+          }
+          <br/>
+          original :aggregatorName: {
+            JSON.stringify(
+              {
+                ...update(props, { data: { $set: materializedInput } })
+              }.aggregatorName,
+              null, 2)
+          }
+          <br/>
+          original :rowOrder: {
+            JSON.stringify(
+              {
+                ...update(props, { data: { $set: materializedInput } })
+              }.rowOrder,
+              null, 2)
+          }
+          <br />
+          original :colOrder: {
+            JSON.stringify(
+              {
+                ...update(props, { data: { $set: materializedInput } })
+              }.colOrder,
+              null, 2)
+          }
+          <br />
+          original :rows: {
+            JSON.stringify(
+              {
+                ...update(props, { data: { $set: materializedInput } })
+              }.rows,
+              null, 2)
+          }
+          <br />
+          original :cols: {
+            JSON.stringify(
+              {
+                ...update(props, { data: { $set: materializedInput } })
+              }.cols,
+              null, 2)
+          }
+        </pre> */}
+
+        {/* <pre style={{ fontSize: '10px' }}>
+          props being passed from parent :: {
+            JSON.stringify(
+              Object.keys(props).filter((item) => item !== 'data'),
+              null, 2)
+          }
+        </pre> */}
+
+        {/* <pre style={{ fontSize: '10px' }}>
+          state :activeRenderer => rendererName: {
+            JSON.stringify(
+              activeRenderer,
+              null, 2)
+          }
+          <br/>
+          state :activeAggregator => aggregatorName: {
+            JSON.stringify(
+              activeAggregator,
+              null, 2)
+          }
+          <br />
+          state :sortByRow => rowOrder: {
+            JSON.stringify(
+              sortByRow,
+              null, 2)
+          }
+          <br />
+          state :sortByColumn => colOrder: {
+            JSON.stringify(
+              sortByColumn,
+              null, 2)
+          }
+        </pre> */}
+
+        {/* <pre style={{ fontSize: '10px' }}>
+          {JSON.stringify(props.rows, null, 2)}
+        </pre> */}
+
+        {/* Confirmed what is being done. props are being recirculated for the purpose to then pump them into the <PivotTable /> business end. */}
+        
+        <figure className="ui__pane">
+          <figcaption></figcaption>
+
+          <PivotTable
+            data={newMaterializedInput} // not really options // separated from props // materializedInput
+            renderers={props.renderers} // not really options
+            aggregators={props.aggregators} // not really options
+            rendererName={activeRenderer} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            aggregatorName={activeAggregator} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            rowOrder={sortByRow} // unused // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            colOrder={sortByColumn} // unused // propUpdater:sendPropUpdate YES // REPLACED WITH STATE
+            rows={fooRows.map(({name}) => name)} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE props.rows
+            cols={fooCols.map(({ name }) => name)} // propUpdater:sendPropUpdate YES // REPLACED WITH STATE props.cols
+            vals={props.vals} // sendPropUpdate YES // keep track of the dimension available against the aggregator in the dynamic dropdowns
+            sorters={props.sorters}
+            valueFilter={props.valueFilter} // sendPropUpdate YES // doesn't actually exist; used by filters component
+            derivedAttributes={props.derivedAttributes} // unused
+            menuLimit={props.menuLimit} // unused
+            plotlyOptions={props.plotlyOptions}
+            plotlyConfig={props.plotlyConfig} // empty
+            tableOptions={props.tableOptions} // empty
+            // tableColorScaleGenerator={props.tableColorScaleGenerator} // unused
+          />
+        </figure>
+
+        {/* 
+        Unused Props
+        ===========
+        onChange
+        hiddenAttributes
+        hiddenFromAggregators
+        hiddenFromDragDrop
+        menuLimit
+
+        USED ONLY BY UI. Arguably there are more props that could be included rows? cols? vals? valueFilter?
+
+        we still need to spread props however in combination with state ...{...props, data: data, renderName: activeRenderer}
+        */}
+
+        <figure className="ui__pane">
+          {/* JB: whats going on here with this silly update() method?? should be passing state as props not spreading props!! */}
+          <PivotTable
+            {...update(props, {
+              data: { $set: materializedInput },
+            })}
+          />
+        </figure>
+
+        {/* <pre style={{ fontSize: '10px' }}>{JSON.stringify(materializedInput, null, 2)}</pre> */}
+      </article>
+
+      <div className="pivot__filters">
+        <h4 style={{ fontWeight: '400', marginTop: '0px' }}>Filter</h4>
+        <ul>
+          <li>Needs to select/target a dimension and then display the answered values available for filtering(turning on and off) here</li>
+          <li>the UI is a challenge. I thinking multi-select paradigm but presented in a dropdown with checkboxes for each entry</li>
+        </ul>
+      </div>
+    </div>
+  )
 }
 
 PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
