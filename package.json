@@ -46,6 +46,7 @@
   "homepage": "https://github.com/plotly/react-pivottable#readme",
   "dependencies": {
     "immutability-helper": "^3.1.1",
+    "papaparse": "^5.4.1",
     "prop-types": "^15.8.1",
     "react-chartjs-2": "^5.2.0",
     "react-plotly.js": "^2.6.0",
