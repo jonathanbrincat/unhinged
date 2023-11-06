@@ -55,6 +55,8 @@ function redColorScaleGenerator(values) {
 function makeRenderer(opts = {}) {
   class TableRenderer extends React.PureComponent {
     render() {
+      // console.log('TableRenderer')
+
       const pivotData = new PivotData(this.props);
       const colAttrs = pivotData.props.cols;
       const rowAttrs = pivotData.props.rows;
@@ -65,6 +67,7 @@ function makeRenderer(opts = {}) {
       let valueCellColors = () => {};
       let rowTotalColors = () => {};
       let colTotalColors = () => {};
+
       if (opts.heatmapMode) {
         const colorScaleGenerator = this.props.tableColorScaleGenerator;
         const rowTotalValues = colKeys.map(x =>

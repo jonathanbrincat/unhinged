@@ -1,14 +1,15 @@
 import React, { useState, useEffect }from 'react'
 import Papa from 'papaparse'
-import PivotTableUI from '../src/PivotTableUI'
+// import PivotTableUI from '../src/PivotTableUI' // JB: the reactivity is broken in the original version because it was never implemented correctly
+import PivotTableUI from '../src/PivotTableUIBasic'
 import TableRenderers from '../src/TableRenderers'
 import { aggregators } from '../src/Utilities'
 import createPlotlyComponent from 'react-plotly.js/factory'
 // import { Chart } from 'react-chartjs-2'
 import createPlotlyRenderers from '../src/PlotlyRenderers'
-import createMyRenderers from '../src/MyRenderers'
+import createChartjsRenderers from '../src/ChartjsRenderers'
 import {sortAs} from '../src/Utilities'
-import tips from './tips'
+import MOCK, { ARRAY_OF_OBJECTS, ARRAY_OF_ARRAYS } from './tips'
 import '../src/pivottable.css'
 import '../src/styles.css'
 
@@ -20,8 +21,8 @@ const PlotlyComponent = createPlotlyComponent(window.Plotly) // JB: create insta
 const options = {
   // rendererName: 'Grouped Column Chart',
   // aggregatorName: 'Sum over Sum',
-  // rows: ['Payer Gender'],
-  // cols: ['Party Size'],
+  rows: ['Payer Gender'], // semi-required; if nothing assigned there is nothing to display
+  cols: ['Party Size'],  // semi-required; if nothing assigned there is nothing to display
   // vals: ['Tip', 'Total Bill'],
   // sorters: {
   //   Meal: sortAs(['Lunch', 'Dinner']),
@@ -39,26 +40,32 @@ const options = {
 }
 
 export default function App(props) {
-  const [data, setData] = useState(tips)
+  const [data, setData] = useState(MOCK)
   const [pivotState, setPivotState] = useState({})
 
-  useEffect(() => {
-    fetch(API)
-      .then((response) => response.text())
-      .then((csv) => {
-        Papa.parse(csv, {
-          complete: (parsed) => setData(parsed.data),
-          error: (error) => console.log(error),
-        })
-      })
-      .catch((error) => {
-        console.log('Something went wrong retrieving the csv data from Google Docs :: ', error)
-      })
-  }, [])
+  console.log('hello ', {
+    ...TableRenderers,
+    ...createPlotlyRenderers(PlotlyComponent),
+    ...createChartjsRenderers(),
+  })
+
+  // useEffect(() => {
+  //   fetch(API)
+  //     .then((response) => response.text())
+  //     .then((csv) => {
+  //       Papa.parse(csv, {
+  //         complete: (parsed) => setData(parsed.data),
+  //         error: (error) => console.log(error),
+  //       })
+  //     })
+  //     .catch((error) => {
+  //       console.log('Something went wrong retrieving the csv data from Google Docs :: ', error)
+  //     })
+  // }, [])
 
   return (
     <>
-      <p>CSV Dataset</p>
+      <p>Dataset</p>
       <pre style={{ fontSize: '10px' }}>{JSON.stringify(data)}</pre>
 
       <div style={{ display: 'flex', gap: '24px' }}>
@@ -81,11 +88,11 @@ export default function App(props) {
 
       {/* there really needs to be a way to declare a primary_key field in the imported csv data; for 2 reasons. 1) to allow custom aggregators to known what field is the unique identifier 2) so that the primary_key can be excluded from the available dimensions., */}
       <PivotTableUI
-        data={data}
+        data={data} // REQUIRED - everything else is optional
         renderers={{
           ...TableRenderers,
           ...createPlotlyRenderers(PlotlyComponent),
-          ...createMyRenderers(),
+          ...createChartjsRenderers(),
         }}
         aggregators={{
           ...aggregators,
@@ -93,10 +100,10 @@ export default function App(props) {
         {...options}
         
         // JB: REMOVE
-        onChange={(state) => {
-          setPivotState(state)
-        }}
-        {...pivotState}
+        // onChange={(state) => {
+        //   setPivotState(state)
+        // }}
+        // {...pivotState}
       />
     </>
   )

@@ -7,10 +7,10 @@ import { PivotData } from './Utilities'
 // eslint can't see inherited propTypes!
 
 // ERROR in ./node_modules/chart.js/dist/chart.js Module parse failed: Unexpected token(567: 17). You may need an appropriate loader to handle this file type.
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, LineElement, BarElement, PointElement, LineController, BarController } from 'chart.js';
-import { Chart, Pie, Bar, Line } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, LineElement, BarElement, PointElement, LineController, BarController } from 'chart.js'
+import { Chart, Pie, Bar, Line } from 'react-chartjs-2'
 
-ChartJS.register(ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, LineElement, BarElement, PointElement, LineController, BarController);
+ChartJS.register(ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, LineElement, BarElement, PointElement, LineController, BarController)
 
 function makeRenderer(
   PlotlyComponent,
@@ -51,7 +51,7 @@ function makeRenderer(
             borderWidth: 1,
           },
         ],
-      };
+      }
 
       const mockLineData = {
         labels,
@@ -69,7 +69,7 @@ function makeRenderer(
             backgroundColor: 'rgba(53, 162, 235, 0.5)',
           },
         ],
-      };
+      }
 
       const mockChartData = {
         labels,
@@ -91,7 +91,7 @@ function makeRenderer(
             borderWidth: 2,
           },
         ],
-      };
+      }
 
       console.log('testing ', labels.map(() => faker.number.int({ min: -1000, max: 1000 })))
 
@@ -109,9 +109,7 @@ function makeRenderer(
             backgroundColor: 'rgba(53, 162, 235, 0.5)',
           },
         ],
-      };
-      //
-
+      }
 
       const pivotData = new PivotData(this.props)
       const rowKeys = pivotData.getRowKeys()
@@ -280,7 +278,6 @@ function makeRenderer(
       }
 
       return (
-        
         <>
           <p>Chart type = {foobar}</p>
           {
@@ -395,7 +392,7 @@ function makeScatterRenderer(PlotlyComponent) {
   return Renderer;
 }
 
-export default function createMyRenderers(PlotlyComponent) {
+export default function createChartjsRenderers(PlotlyComponent) {
   return {
     'Chartjs Grouped Column Chart': makeRenderer(PlotlyComponent, {}, {}, null, 'bar'),
 
