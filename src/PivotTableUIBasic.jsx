@@ -1,9 +1,17 @@
 import React, { useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
 import { ReactSortable } from 'react-sortablejs'
-import { PivotData } from './Utilities'
+import Dimension from './Dimension'
+import { PivotData, sortAs, getSort } from './Utilities'
 import PivotTable from './PivotTable'
 import { sortBy } from './constants'
+
+/*
+TODO:
+broken: aggregator by dimensions
+broken: filtering; setValuesInFilter, addValuesToFilter, removeValuesFromFilter + look at menuLimit, sorter, valueFilter, attrValues
+broken: sortAs on criterion
+*/
 
 export default function PivotTableUI(props) {
   // const [data, setData] = useState([])
@@ -47,6 +55,7 @@ export default function PivotTableUI(props) {
             !props.rows.includes(name) &&
             !props.cols.includes(name)
         )
+        // .sort(sortAs(unusedOrder))
     )
 
     setAxisX(
@@ -142,12 +151,31 @@ export default function PivotTableUI(props) {
         list={items}
         setList={onSortableChangeHandler}
         group="pivot__dimension"
+        ghostClass="sortable--ghost"
+        chosenClass="sortable--chosen"
+        dragClass="sortable--drag"
+        filter=".criterion__filters-pane"
+        preventOnFilter={false}
       >
         {
           items.map(
             (item, index) => {
               return (
-                <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
+                // <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
+                
+                <Dimension
+                  name={item.name}
+                  key={`${item.id}-${index}`}
+                  attrValues={attrValues[item.name]}
+                  valueFilter={props.valueFilter[item.name] || {}}
+                  sorter={getSort(props.sorters, item.name)}
+                  menuLimit={props.menuLimit}
+
+                  // JB: Missed this. Needs work to decouple from the prop recirculating nonesense
+                  setValuesInFilter={() => {}} // setValuesInFilter.bind(this)
+                  addValuesToFilter={() => {}} // addValuesToFilter.bind(this)
+                  removeValuesFromFilter={() => {}} // removeValuesFromFilter.bind(this)
+                />
               )
             }
           )
