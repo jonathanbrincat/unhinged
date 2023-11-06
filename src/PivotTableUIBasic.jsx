@@ -14,6 +14,12 @@ export default function PivotTableUI(props) {
   const [axisX, setAxisX] = useState([])
   const [axisY, setAxisY] = useState([])
 
+  const [activeRenderer, setActiveRenderer] = useState(
+    props.rendererName in props.renderers
+      ? props.rendererName
+      : Object.keys(props.renderers)[0]
+  )
+
   useEffect(() => {
     console.log('-- incoming data changed --')
 
@@ -145,6 +151,7 @@ export default function PivotTableUI(props) {
   console.log('-- Render -- ')
   return (
     <>
+      {/* DEV ONLY */}
       {/* <div>
         <p>Props data</p>
         <pre style={{ fontSize: '10px' }}>
@@ -171,6 +178,51 @@ export default function PivotTableUI(props) {
           }
         </pre>
       </div> */}
+
+      <header className="pivot__renderer">
+        <select
+          className="ui__select"
+          value={activeRenderer}
+          onChange={
+            (event) => setActiveRenderer(event.target.value)
+          }
+        >
+          {
+            Object.keys(props.renderers).map(
+              (item, index) => (
+                <option value={item} key={index}>{item}</option>
+              )
+            )
+          }
+        </select>
+
+        <p className="ui__toggle">
+          <label>
+            <input
+              type="radio"
+              name="renderer"
+              value="Table"
+              checked={activeRenderer === "Table"}
+              onChange={(event) => setActiveRenderer(event.target.value)}
+            />
+            <span>Table</span>
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="renderer"
+              value="Chartjs Grouped Column Chart"
+              checked={activeRenderer === "Chartjs Grouped Column Chart"}
+              onChange={(event) => setActiveRenderer(event.target.value)}
+            />
+            <span>Chart</span>
+          </label>
+        </p>
+      </header>
+
+      {/* DEV ONLY */}
+      <pre style={{ fontSize: '8px' }}>Renderer = {JSON.stringify(activeRenderer)}</pre>
 
       <div className="pivot__ui">
         <div className="pivot__criterion">
@@ -206,7 +258,8 @@ export default function PivotTableUI(props) {
             // data={data}
             renderers={props.renderers}
             aggregators={props.aggregators}
-            rendererName="Table"
+            // rendererName="Table"
+            rendererName={activeRenderer}
             aggregatorName="Count"
             rows={axisX.map(({ name }) => name)}
             cols={axisY.map(({ name }) => name)}

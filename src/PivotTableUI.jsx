@@ -727,6 +727,7 @@ export default function PivotTableUI(props) {
         */}
 
         <figure className="ui__pane">
+          {/* LEGACY IMPLEMENTATION: retained for reference */}
           {/* JB: whats going on here with this silly update() method?? should be passing state as props not spreading props!! */}
           <PivotTable
             {...update(props, {
