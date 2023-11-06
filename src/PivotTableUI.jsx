@@ -703,8 +703,8 @@ export default function PivotTableUI(props) {
             vals={props.vals} // sendPropUpdate YES // keep track of the dimension available against the aggregator in the dynamic dropdowns
             sorters={props.sorters}
             valueFilter={props.valueFilter} // sendPropUpdate YES // doesn't actually exist; used by filters component
-            derivedAttributes={props.derivedAttributes} // unused
-            menuLimit={props.menuLimit} // unused
+            derivedAttributes={props.derivedAttributes} // used in data parsing
+            menuLimit={props.menuLimit} // used in Dimensions; filters
             plotlyOptions={props.plotlyOptions}
             plotlyConfig={props.plotlyConfig} // empty
             tableOptions={props.tableOptions} // empty

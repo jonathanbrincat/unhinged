@@ -20,19 +20,19 @@ const PlotlyComponent = createPlotlyComponent(window.Plotly) // JB: create insta
 
 const options = {
   // rendererName: 'Grouped Column Chart',
-  // aggregatorName: 'Sum over Sum',
+  aggregatorName: 'Sum over Sum',
   cols: ['Party Size'],  // semi-required; if nothing assigned there is nothing to display //axisX
   rows: ['Payer Gender'], // semi-required; if nothing assigned there is nothing to display // axisY
-  // vals: ['Tip', 'Total Bill'],
-  // sorters: {
-  //   Meal: sortAs(['Lunch', 'Dinner']),
-  //   'Day of Week': sortAs([
-  //     'Thursday',
-  //     'Friday',
-  //     'Saturday',
-  //     'Sunday',
-  //   ]),
-  // },
+  vals: ['Tip', 'Total Bill'],
+  sorters: {
+    Meal: sortAs(['Lunch', 'Dinner']),
+    'Day of Week': sortAs([
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ]),
+  },
   plotlyOptions: { width: 900, height: 500 },
   plotlyConfig: {},
   tableOptions: {},
@@ -41,13 +41,7 @@ const options = {
 
 export default function App(props) {
   const [data, setData] = useState(MOCK)
-  const [pivotState, setPivotState] = useState({})
-
-  console.log('hello ', {
-    ...TableRenderers,
-    ...createPlotlyRenderers(PlotlyComponent),
-    ...createChartjsRenderers(),
-  })
+  // const [pivotState, setPivotState] = useState({})
 
   // useEffect(() => {
   //   fetch(API)

@@ -19,6 +19,8 @@ export default function PivotTableUI(props) {
       ? props.rendererName
       : Object.keys(props.renderers)[0]
   )
+  const [activeAggregator, setActiveAggregator] = useState(props.aggregatorName ?? 'Count') // JB: needs default??
+  const [activeDimensions, setActiveDimensions] = useState([...props.vals])
   const [sortByRow, setSortByRow] = useState(sortBy.row[0].value)
   const [sortByColumn, setSortByColumn] = useState(sortBy.column[0].value)
 
@@ -118,15 +120,19 @@ export default function PivotTableUI(props) {
     return results
   } // sort array??
 
-  function parseData() {
-    const results = []
+  // function parseData() {
+  //   const results = []
 
-    PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
-      results.push(record)
-    })
+  //   PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
+  //     results.push(record)
+  //   })
 
-    return results
-  }
+  //   return results
+  // }
+
+  const numValsAllowed = props.aggregators[props.aggregatorName]([])().numInputs || 0
+
+  const aggregatorCellOutlet = props.aggregators[props.aggregatorName]([])().outlet
 
   function createCluster(items, onSortableChangeHandler) {
     return (
@@ -226,6 +232,50 @@ export default function PivotTableUI(props) {
       {/* DEV ONLY */}
       <pre style={{ fontSize: '10px' }}>Renderer = {JSON.stringify(activeRenderer)}</pre>
 
+      <aside className="pivot__aggregator">
+        <select
+          className="ui__select"
+          value={activeAggregator}
+          onChange={
+            (event) => setActiveAggregator(event.target.value)
+          }
+        >
+          {
+            Object.keys(props.aggregators).map(
+              (item, index) => (
+                <option value={item} key={`aggregator-${index}`}>{item}</option>
+              )
+            )
+          }
+        </select>
+
+        {/* {numValsAllowed > 0 && <br />} */}
+
+        {new Array(numValsAllowed).fill().map((n, index) => [
+          <select
+            className="ui__select"
+            value={activeDimensions[index]}
+            onChange={
+              (event) => setActiveDimensions(activeDimensions.toSpliced(index, 1, event.target.value))
+            }
+            key={`dimension-${index}`}
+          >
+            {
+              Object.keys(attrValues).map(
+                (item, index) => (
+                  !props.hiddenAttributes.includes(item) &&
+                  !props.hiddenFromAggregators.includes(item) &&
+                  <option value={item} key={index}>{item}</option>
+                )
+              )
+            }
+          </select>,
+          // i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
+        ])}
+
+        {aggregatorCellOutlet && aggregatorCellOutlet(props.data)}
+      </aside>
+
       <div className="pivot__ui">
         <div className="pivot__criterion">
           {
@@ -314,10 +364,10 @@ export default function PivotTableUI(props) {
             rows={axisY.map(({ name }) => name)}
             cols={axisX.map(({ name }) => name)}
             rendererName={activeRenderer}
-            aggregatorName="Count"
+            aggregatorName={activeAggregator}
             rowOrder={sortByRow}
             colOrder={sortByColumn} 
-            // vals={props.vals}
+            vals={props.vals}
             // sorters={props.sorters}
             // plotlyOptions={{}}
             // plotlyConfig={{}}
