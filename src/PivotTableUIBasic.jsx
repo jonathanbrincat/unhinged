@@ -19,6 +19,8 @@ export default function PivotTableUI(props) {
       ? props.rendererName
       : Object.keys(props.renderers)[0]
   )
+  const [sortByRow, setSortByRow] = useState(sortBy.row[0].value)
+  const [sortByColumn, setSortByColumn] = useState(sortBy.column[0].value)
 
   useEffect(() => {
     console.log('-- incoming data changed --')
@@ -252,19 +254,69 @@ export default function PivotTableUI(props) {
           }
         </div>
 
+        <div className="pivot__sortBy">
+          <h4>Sort {activeRenderer.toLowerCase().includes('table') ? 'by' : 'along'}</h4>
+          <div className="sortBy__container">
+            <div className="sortBy__y">
+              <h4>{activeRenderer.toLowerCase().includes('table') ? 'row' : 'y-axis'}</h4>
+              <div style={{ gap: '2px' }}>
+                {
+                  sortBy.row.map((item, index) => (
+                    <label key={index}>
+                      <input
+                        type="radio"
+                        name="sort-by-row"
+                        value={item.value}
+                        checked={sortByRow === item.value}
+                        onChange={
+                          (event) => setSortByRow(event.target.value)
+                        }
+                      />
+                      <span>{item.label}</span>
+                    </label>
+                  ))
+                }
+              </div>
+            </div>
+
+            <hr />
+
+            <div className="sortBy__x">
+              <h4>{activeRenderer.toLowerCase().includes('table') ? 'column' : 'x-axis'}</h4>
+              <div style={{ gap: '2px' }}>
+                {
+                  sortBy.column.map((item, index) => (
+                    <label key={index}>
+                      <input
+                        type="radio"
+                        name="sort-by-column"
+                        value={item.value}
+                        checked={sortByColumn === item.value}
+                        onChange={
+                          (event) => setSortByColumn(event.target.value)
+                        }
+                      />
+                      <span>{item.label}</span>
+                    </label>
+                  ))
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
         <article className="pivot__output">
           <PivotTable
             data={props.data} // JB: will happily work either way with props.data or data; don't really understand why author felt it necessary to pass 'newMaterializedInput'. The clue might be in the name. Think was struggling with the concept of reactivity.
             // data={data}
             renderers={props.renderers}
             aggregators={props.aggregators}
-            // rendererName="Table"
-            rendererName={activeRenderer}
-            aggregatorName="Count"
             rows={axisY.map(({ name }) => name)}
             cols={axisX.map(({ name }) => name)}
-            // rowOrder={sortBy.row[0].value}
-            // colOrder={sortBy.column[0].value}
+            rendererName={activeRenderer}
+            aggregatorName="Count"
+            rowOrder={sortByRow}
+            colOrder={sortByColumn} 
             // vals={props.vals}
             // sorters={props.sorters}
             // plotlyOptions={{}}
