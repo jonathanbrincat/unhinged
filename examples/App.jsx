@@ -68,24 +68,6 @@ export default function App(props) {
       <p>Dataset</p>
       <pre style={{ fontSize: '10px' }}>{JSON.stringify(data)}</pre>
 
-      <div style={{ display: 'flex', gap: '24px' }}>
-        <p style={{ margin: '1em 0', display: 'flex', flexDirection: 'column', flexBasis: '50%', gap: '6px' }}>
-          <label htmlFor="field-data-to-explore">Select a question to analyse</label>
-          <select id="field-data-to-explore" className="ui__select">
-            <option value="q1">Where do you buy ice-cream?</option>
-            <option value="q2">Are you considering buying an electric car next year?</option>
-          </select>
-        </p>
-
-        <p style={{ margin: '1em 0', display: 'flex', flexDirection: 'column', flexBasis: '50%', gap: '6px' }}>
-          <label htmlFor="field-key-variable-to-apply">Select a key variable</label>
-          <select id="field-key-variable-to-apply" className="ui__select">
-            <option value="q1">Would you buy a Tesla?</option>
-            <option value="q2">What are the key features you look for in a dog product (treats/toys) used in a bonding moment</option>
-          </select>
-        </p>
-      </div>
-
       {/* there really needs to be a way to declare a primary_key field in the imported csv data; for 2 reasons. 1) to allow custom aggregators to known what field is the unique identifier 2) so that the primary_key can be excluded from the available dimensions., */}
       <PivotTableUI
         data={data} // REQUIRED - everything else is optional
