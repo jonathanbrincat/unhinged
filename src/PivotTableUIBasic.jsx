@@ -55,7 +55,7 @@ export default function PivotTableUI(props) {
         )
         .filter(
           ({ name }) =>
-            props.rows.includes(name)
+            props.cols.includes(name)
         )
     )
 
@@ -69,7 +69,7 @@ export default function PivotTableUI(props) {
         )
         .filter(
           ({ name }) =>
-            props.cols.includes(name)
+            props.rows.includes(name)
         )
     )
 
@@ -222,7 +222,7 @@ export default function PivotTableUI(props) {
       </header>
 
       {/* DEV ONLY */}
-      <pre style={{ fontSize: '8px' }}>Renderer = {JSON.stringify(activeRenderer)}</pre>
+      <pre style={{ fontSize: '10px' }}>Renderer = {JSON.stringify(activeRenderer)}</pre>
 
       <div className="pivot__ui">
         <div className="pivot__criterion">
@@ -237,8 +237,8 @@ export default function PivotTableUI(props) {
         <div className="pivot__axis pivot__axis-x">
           {
             createCluster(
-              axisY,
-              (collection) => setAxisY(collection),
+              axisX,
+              (collection) => setAxisX(collection),
             )
           }
         </div>
@@ -246,8 +246,8 @@ export default function PivotTableUI(props) {
         <div className="pivot__axis pivot__axis-y">
           {
             createCluster(
-              axisX,
-              (collection) => setAxisX(collection),
+              axisY,
+              (collection) => setAxisY(collection),
             )
           }
         </div>
@@ -261,8 +261,8 @@ export default function PivotTableUI(props) {
             // rendererName="Table"
             rendererName={activeRenderer}
             aggregatorName="Count"
-            rows={axisX.map(({ name }) => name)}
-            cols={axisY.map(({ name }) => name)}
+            rows={axisY.map(({ name }) => name)}
+            cols={axisX.map(({ name }) => name)}
             // rowOrder={sortBy.row[0].value}
             // colOrder={sortBy.column[0].value}
             // vals={props.vals}

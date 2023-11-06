@@ -21,8 +21,8 @@ const PlotlyComponent = createPlotlyComponent(window.Plotly) // JB: create insta
 const options = {
   // rendererName: 'Grouped Column Chart',
   // aggregatorName: 'Sum over Sum',
-  rows: ['Payer Gender'], // semi-required; if nothing assigned there is nothing to display
-  cols: ['Party Size'],  // semi-required; if nothing assigned there is nothing to display
+  cols: ['Party Size'],  // semi-required; if nothing assigned there is nothing to display //axisX
+  rows: ['Payer Gender'], // semi-required; if nothing assigned there is nothing to display // axisY
   // vals: ['Tip', 'Total Bill'],
   // sorters: {
   //   Meal: sortAs(['Lunch', 'Dinner']),
