@@ -6,7 +6,7 @@ import PivotTable from './PivotTable'
 import { sortBy } from './constants'
 
 export default function PivotTableUI(props) {
-  const [data, setData] = useState([])
+  // const [data, setData] = useState([])
   const [unusedOrder, setUnusedOrder] = useState([]) // JB: doesn't seem to serve a purpose
   const [attrValues, setAttrValues] = useState({}) // JB: appears to get generated. related to materializeInput(); now called simply 'data'
   const [dimensions, setDimensions] = useState({})
@@ -18,7 +18,7 @@ export default function PivotTableUI(props) {
     console.log('-- incoming data changed --')
 
     setDimensions({...parseDimensions()})
-    setData([...parseData()])
+    // setData([...parseData()])
   }, [props.data])
 
   useEffect(() => {
@@ -202,8 +202,8 @@ export default function PivotTableUI(props) {
 
         <article className="pivot__output">
           <PivotTable
-            // data={props.data} // JB: will happily work either way with props.data or data; don't really understand why author felt it necessary to pass 'newMaterializedInput'. The clue might be in the name. Think was struggling with the concept of reactivity.
-            data={data}
+            data={props.data} // JB: will happily work either way with props.data or data; don't really understand why author felt it necessary to pass 'newMaterializedInput'. The clue might be in the name. Think was struggling with the concept of reactivity.
+            // data={data}
             renderers={props.renderers}
             aggregators={props.aggregators}
             rendererName="Table"
