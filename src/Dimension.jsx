@@ -9,7 +9,7 @@ export default function Dimension(props) {
   const [ filterText, setFilterText ] = useState('')
   const [isAllFilters, setIsAllFilters ] = useState(true)
 
-  // JB: This is ultimately being used to update the valueFilter:[] prop on root node <App />. This should be a custom hook with setValueFilter({ ...valueFilter, [props.name]: Object.keys(props?.attrValues).filter(matchesFilter) })
+  // JB: This is ultimately being used to update the valueFilter:{} prop on root node <App />. This should be a custom hook with setValueFilter({ ...valueFilter, [props.name]: Object.keys(props?.attrValues).filter(matchesFilter) })
   useEffect(() => {
     // console.log('hello ', isAllFilters, props?.attrValues)
 
@@ -59,7 +59,7 @@ export default function Dimension(props) {
   }
 
   function createFilterPane() {
-    const isMenu = Object.keys(props?.attrValues).length < props.menuLimit
+    const isMenuLimit = Object.keys(props?.attrValues).length < props.menuLimit
 
     const shown = Object.keys(props?.attrValues)
                     .filter(matchesFilter.bind(this))
@@ -73,11 +73,12 @@ export default function Dimension(props) {
           <h4>{props.name}</h4>
         </header>
 
-        {isMenu || <p>(too many values to show)</p>}
+        {isMenuLimit || <p>(too many values to show)</p>}
 
-        {isMenu && (
+        {/* JB: temporarily turned off; not a priority feature */}
+        {isMenuLimit && (
           <div className="controls">
-            <input
+            {/* <input
               type="text"
               className="filter__search pvtSearch"
               placeholder="Filter values"
@@ -88,7 +89,7 @@ export default function Dimension(props) {
             <label className="filter__select-all-toggle">
               <input type="checkbox" checked={isAllFilters} onChange={(event) => setIsAllFilters(event.target.checked)} />
               <span>Select All</span>
-            </label>
+            </label> */}
 
             <button
               onClick={() =>
@@ -114,7 +115,7 @@ export default function Dimension(props) {
           </div>
         )}
 
-        {isMenu && (
+        {isMenuLimit && (
           <ul className="pvtCheckContainer">
             {shown.map(x => (
               <li

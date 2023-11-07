@@ -12,7 +12,7 @@ import { sortBy } from './constants'
 export function Dimension(props) {
   const [ isOpen, setIsOpen ] = useState(false)
   const [ filterText, setFilterText ] = useState('')
-  const [isAllFilters, setIsAllFilters ] = useState(true)
+  const [ isAllFilters, setIsAllFilters ] = useState(true)
 
   // JB: This is ultimately being used to update the valueFilter:[] prop on root node <App />. This should be a custom hook with setValueFilter({ ...valueFilter, [props.name]: Object.keys(props?.attrValues).filter(matchesFilter) })
   useEffect(() => {

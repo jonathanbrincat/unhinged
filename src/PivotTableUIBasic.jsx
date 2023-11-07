@@ -15,9 +15,9 @@ broken: sortAs on criterion
 
 export default function PivotTableUI(props) {
   // const [data, setData] = useState([])
-  const [unusedOrder, setUnusedOrder] = useState([]) // JB: doesn't seem to serve a purpose
-  const [attrValues, setAttrValues] = useState({}) // JB: appears to get generated. related to materializeInput(); now called simply 'data'
+  const [attrValues, setAttrValues] = useState({}) // JB: appears to get generated. related to materializeInput(); now called simply 'data' // JB: I reckon all ooccurances of this can be subsituted for 'dimensions' state. they appear to be identical
   const [dimensions, setDimensions] = useState({})
+  const [unusedOrder, setUnusedOrder] = useState([]) // JB: doesn't seem to serve a purpose
   const [criterion, setCriterion] = useState([]) // JB: attribute/dimension/criterion decide on naming and stick to the convention;
   const [axisX, setAxisX] = useState([])
   const [axisY, setAxisY] = useState([])
@@ -32,11 +32,23 @@ export default function PivotTableUI(props) {
   const [sortByRow, setSortByRow] = useState(sortBy.row[0].value)
   const [sortByColumn, setSortByColumn] = useState(sortBy.column[0].value)
 
+  const [filters, setFilters] = useState(props.valueFilter ?? {})
+  /*
+  Authored schema
+  {
+    {"Party Size": {"1": true, "3": true, "4": true, "5": true, "6": true }}
+    {"Payer Gender": {"Male": true }}
+  }
+  Should be a Map()
+  */
+
   useEffect(() => {
     console.log('-- incoming data changed --')
 
-    setDimensions({...parseDimensions()})
     // setData([...parseData()])
+    setDimensions({...parseDimensions()})
+    setAttrValues({...parseValues()})
+
   }, [props.data])
 
   useEffect(() => {
@@ -88,6 +100,16 @@ export default function PivotTableUI(props) {
 
   }, [dimensions])
 
+  function parseData() {
+    const results = []
+
+    PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
+      results.push(record)
+    })
+
+    return results
+  }
+
   function parseDimensions() {
     const results = {}
     let recordsProcessedTally = 0 // this is how the values are generated. by counting occurances
@@ -129,15 +151,132 @@ export default function PivotTableUI(props) {
     return results
   } // sort array??
 
-  // function parseData() {
-  //   const results = []
+  // JB: appears to achieve exactly the same as parseDimensions(). created objects are identical.
+  function parseValues() {
+    const _attrValues = {}
+    let recordsProcessedTally = 0
 
-  //   PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
-  //     results.push(record)
-  //   })
+    PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
+      for (const attr of Object.keys(record)) {
+        if (!(attr in _attrValues)) {
+          _attrValues[attr] = {}
 
-  //   return results
-  // }
+          if (recordsProcessedTally > 0) {
+            _attrValues[attr].null = recordsProcessedTally
+          }
+        }
+      }
+
+      for (const attr in _attrValues) {
+        const value = attr in record ? record[attr] : 'null'
+
+        if (!(value in _attrValues[attr])) {
+          _attrValues[attr][value] = 0
+        }
+
+        _attrValues[attr][value]++
+      }
+
+      recordsProcessedTally++
+    })
+
+    console.log('OUTPUT = ', _attrValues)
+    return _attrValues
+  }
+
+  // used on select only value
+  function setValuesInFilter(attribute, values) {
+    console.log('setValuesInFilter ', attribute, values)
+
+    // OLD LOGIC
+    // const test = values.reduce((r, v) => {
+    //   r[v] = true
+    //   return r
+    // }, {})
+    // console.log('test => ', test)
+
+    // setFilters({
+    //   ...filters,
+    //   ...{
+    //     [attribute]: values.reduce((r, v) => {
+    //       r[v] = true
+    //       return r
+    //     }, {})
+    //   }
+    // })
+  }
+
+  // JB: whats the difference between set and add?
+  // used on deselect all and toggle value
+  function addValuesToFilter(attribute, values) {
+    console.log('addValuesToFilter ', attribute, values)
+
+    const test = values.reduce((acc, obj) => {
+      if(acc[attribute]) {
+        acc[attribute][obj] = true
+      } else {
+        acc[attribute] = {[obj]: true}
+      }
+
+      return acc
+
+      // const curGroup = acc[attribute] ?? []
+      // console.log('jb ', curGroup)
+      // return { ...acc, [attribute]: [...curGroup, obj] }
+    }, filters)
+    console.log('test ', test)
+
+    setFilters({ ...filters, ...test})
+
+    // OLD LOGIC
+    // if dimension for filters already exists; yeh this is pretty smelly stuff
+    // if (attribute in filters) {
+    //   console.log(attribute, 'already declared on filters', (attribute in filters))
+    //   // const test = values.reduce((r, v) => {
+    //   //   r[v] = true
+    //   //   return r
+    //   // }, {})
+
+    //   // console.log('test => ', test)
+
+    //   setFilters({
+    //     ...filters,
+    //     ...{
+    //       [attribute]: values.reduce((r, v) => {
+    //         r[v] = true
+    //         return r
+    //       }, {})
+    //     }
+    //   })
+    // } else {
+    //   setValuesInFilter(attribute, values)
+    // }
+  }
+
+  // used on select all and toggle value
+  // 'Payer Gender', ['Female']
+  function removeValuesFromFilter(attribute, values) {
+    console.log('removeValuesFromFilter ', attribute, values)
+
+    const test = values.reduce((acc, obj) => {
+      // Method 1
+      delete acc[attribute][obj]
+
+      // Method 2
+      // const {[obj]: foo, ...rest} = acc[attribute]
+      // acc[attribute] = rest
+
+      return acc
+    }, filters)
+    console.log('test ', test)
+
+    setFilters({ ...filters, ...test })
+
+    // OLD LOGIC
+    // setFilters({
+    //   [attribute]: { $unset: values }
+    // })
+  }
 
   const numValsAllowed = props.aggregators[props.aggregatorName]([])().numInputs || 0
 
@@ -162,19 +301,20 @@ export default function PivotTableUI(props) {
             (item, index) => {
               return (
                 // <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
-                
                 <Dimension
                   name={item.name}
                   key={`${item.id}-${index}`}
-                  attrValues={attrValues[item.name]}
-                  valueFilter={props.valueFilter[item.name] || {}}
+
+                  // JB: what does this lot do?
+                  attrValues={attrValues[item.name]} // Object of the dimensions and their applicables values + tally of occurances; same as 'dimension' state
+                  valueFilter={filters[item.name] || {}} // a record of enabled filters; if dimension value = true then the filter is applied(entry removed). if the object is empty, no filters are applied. strange its not just an Array/Set of valid keys
                   sorter={getSort(props.sorters, item.name)}
                   menuLimit={props.menuLimit}
 
                   // JB: Missed this. Needs work to decouple from the prop recirculating nonesense
-                  setValuesInFilter={() => {}} // setValuesInFilter.bind(this)
-                  addValuesToFilter={() => {}} // addValuesToFilter.bind(this)
-                  removeValuesFromFilter={() => {}} // removeValuesFromFilter.bind(this)
+                  setValuesInFilter={setValuesInFilter} // setValuesInFilter.bind(this)
+                  addValuesToFilter={addValuesToFilter} // addValuesToFilter.bind(this)
+                  removeValuesFromFilter={removeValuesFromFilter} // removeValuesFromFilter.bind(this)
                 />
               )
             }
@@ -188,8 +328,8 @@ export default function PivotTableUI(props) {
   return (
     <>
       {/* DEV ONLY */}
-      {/* <div>
-        <p>Props data</p>
+      <div>
+        {/* <p>Props data</p>
         <pre style={{ fontSize: '10px' }}>
           {JSON.stringify(props.data, null, 2)}
         </pre>
@@ -213,98 +353,113 @@ export default function PivotTableUI(props) {
               null, 2)
           }
         </pre>
-      </div> */}
 
-      <header className="pivot__renderer">
-        <select
-          className="ui__select"
-          value={activeRenderer}
-          onChange={
-            (event) => setActiveRenderer(event.target.value)
-          }
-        >
-          {
-            Object.keys(props.renderers).map(
-              (item, index) => (
-                <option value={item} key={index}>{item}</option>
-              )
-            )
-          }
-        </select>
+        <p>props.valueFilter</p>
+        <pre style={{ fontSize: '10px' }}>
+          {JSON.stringify(props.valueFilter, null, 2)}
+        </pre>
+        
+        <p>props.sorters</p>
+        <pre style={{ fontSize: '10px' }}>
+          {JSON.stringify(props.sorters, null, 2)}
+        </pre> */}
 
-        <p className="ui__toggle">
-          <label>
-            <input
-              type="radio"
-              name="renderer"
-              value="Table"
-              checked={activeRenderer === "Table"}
-              onChange={(event) => setActiveRenderer(event.target.value)}
-            />
-            <span>Table</span>
-          </label>
+        <p>Filters</p>
+        <pre style={{ fontSize: '10px' }}>
+          {JSON.stringify(filters, null, 2)}
+        </pre>
+      </div>
 
-          <label>
-            <input
-              type="radio"
-              name="renderer"
-              value="Chartjs Grouped Column Chart"
-              checked={activeRenderer === "Chartjs Grouped Column Chart"}
-              onChange={(event) => setActiveRenderer(event.target.value)}
-            />
-            <span>Chart</span>
-          </label>
-        </p>
-      </header>
-
-      {/* DEV ONLY */}
-      <pre style={{ fontSize: '10px' }}>Renderer = {JSON.stringify(activeRenderer)}</pre>
-
-      <aside className="pivot__aggregator">
-        <select
-          className="ui__select"
-          value={activeAggregator}
-          onChange={
-            (event) => setActiveAggregator(event.target.value)
-          }
-        >
-          {
-            Object.keys(props.aggregators).map(
-              (item, index) => (
-                <option value={item} key={`aggregator-${index}`}>{item}</option>
-              )
-            )
-          }
-        </select>
-
-        {/* {numValsAllowed > 0 && <br />} */}
-
-        {new Array(numValsAllowed).fill().map((n, index) => [
+      <div className="pivot__ui">
+        <header className="pivot__renderer">
           <select
             className="ui__select"
-            value={activeDimensions[index]}
+            value={activeRenderer}
             onChange={
-              (event) => setActiveDimensions(activeDimensions.toSpliced(index, 1, event.target.value))
+              (event) => setActiveRenderer(event.target.value)
             }
-            key={`dimension-${index}`}
           >
             {
-              Object.keys(attrValues).map(
+              Object.keys(props.renderers).map(
                 (item, index) => (
-                  !props.hiddenAttributes.includes(item) &&
-                  !props.hiddenFromAggregators.includes(item) &&
                   <option value={item} key={index}>{item}</option>
                 )
               )
             }
-          </select>,
-          // i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
-        ])}
+          </select>
 
-        {aggregatorCellOutlet && aggregatorCellOutlet(props.data)}
-      </aside>
+          <p className="ui__toggle">
+            <label>
+              <input
+                type="radio"
+                name="renderer"
+                value="Table"
+                checked={activeRenderer === "Table"}
+                onChange={(event) => setActiveRenderer(event.target.value)}
+              />
+              <span>Table</span>
+            </label>
 
-      <div className="pivot__ui">
+            <label>
+              <input
+                type="radio"
+                name="renderer"
+                value="Chartjs Grouped Column Chart"
+                checked={activeRenderer === "Chartjs Grouped Column Chart"}
+                onChange={(event) => setActiveRenderer(event.target.value)}
+              />
+              <span>Chart</span>
+            </label>
+          </p>
+        </header>
+
+        {/* DEV ONLY */}
+        <pre style={{ fontSize: '10px' }}>Renderer = {JSON.stringify(activeRenderer)}</pre>
+
+        <aside className="pivot__aggregator">
+          <select
+            className="ui__select"
+            value={activeAggregator}
+            onChange={
+              (event) => setActiveAggregator(event.target.value)
+            }
+          >
+            {
+              Object.keys(props.aggregators).map(
+                (item, index) => (
+                  <option value={item} key={`aggregator-${index}`}>{item}</option>
+                )
+              )
+            }
+          </select>
+
+          {/* {numValsAllowed > 0 && <br />} */}
+
+          {new Array(numValsAllowed).fill().map((n, index) => [
+            <select
+              className="ui__select"
+              value={activeDimensions[index]}
+              onChange={
+                (event) => setActiveDimensions(activeDimensions.toSpliced(index, 1, event.target.value))
+              }
+              key={`dimension-${index}`}
+            >
+              {
+                // Object.keys(attrValues).map(
+                //   (item, index) => (
+                //     !props.hiddenAttributes.includes(item) &&
+                //     !props.hiddenFromAggregators.includes(item) &&
+                //     <option value={item} key={index}>{item}</option>
+                //   )
+                // )
+              }
+            </select>,
+            // i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
+          ])}
+
+          {aggregatorCellOutlet && aggregatorCellOutlet(props.data)}
+        </aside>
+
         <div className="pivot__criterion">
           {
             createCluster(
@@ -395,8 +550,12 @@ export default function PivotTableUI(props) {
             aggregatorName={activeAggregator}
             rowOrder={sortByRow}
             colOrder={sortByColumn} 
-            vals={props.vals}
-            // sorters={props.sorters}
+
+            vals={props.vals} // JB: what is this?
+
+            // sorters={props.sorters} // used by Filters UI, unsure why it would need to also be passed down
+            valueFilter={filters}
+
             // plotlyOptions={{}}
             // plotlyConfig={{}}
             // tableOptions={{}}
@@ -418,7 +577,7 @@ PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
   hiddenAttributes: [],
 //   hiddenFromAggregators: [],
   hiddenFromDragDrop: [],
-//   menuLimit: 500,
+  menuLimit: 500,
   rows: [],
   cols: [],
 })
