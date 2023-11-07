@@ -9,7 +9,7 @@ import { sortBy } from './constants'
 /*
 TODO:
 broken: aggregator by dimensions
-broken: filtering; setValuesInFilter, addValuesToFilter, removeValuesFromFilter + look at menuLimit, sorter, valueFilter, attrValues
+broken: filtering; setValuesInFilter, addValuesToFilter, removeValuesFromFilter + look at menuLimit, sorter, valueFilter, attrValues DONE
 broken: sortAs on criterion
 */
 
@@ -33,14 +33,6 @@ export default function PivotTableUI(props) {
   const [sortByColumn, setSortByColumn] = useState(sortBy.column[0].value)
 
   const [filters, setFilters] = useState(props.valueFilter ?? {})
-  /*
-  Authored schema
-  {
-    {"Party Size": {"1": true, "3": true, "4": true, "5": true, "6": true }}
-    {"Payer Gender": {"Male": true }}
-  }
-  Should be a Map()
-  */
 
   useEffect(() => {
     console.log('-- incoming data changed --')
@@ -184,34 +176,28 @@ export default function PivotTableUI(props) {
     return _attrValues
   }
 
-  // used on select only value
-  function setValuesInFilter(attribute, values) {
-    console.log('setValuesInFilter ', attribute, values)
+  function setAllValuesInFilter(attribute, values) {
+    // console.log('setAllValuesInFilter ', attribute, values)
 
-    // OLD LOGIC
-    // const test = values.reduce((r, v) => {
-    //   r[v] = true
-    //   return r
-    // }, {})
-    // console.log('test => ', test)
+    const { [attribute]: discard, ...rest } = filters
+    const collection = values.reduce((acc, obj) => {
+      if (acc[attribute]) {
+        acc[attribute][obj] = true
+      } else {
+        acc[attribute] = { [obj]: true }
+      }
 
-    // setFilters({
-    //   ...filters,
-    //   ...{
-    //     [attribute]: values.reduce((r, v) => {
-    //       r[v] = true
-    //       return r
-    //     }, {})
-    //   }
-    // })
+      return acc
+    }, rest)
+
+    setFilters({ ...filters, ...collection })
   }
 
-  // JB: whats the difference between set and add?
-  // used on deselect all and toggle value
   function addValuesToFilter(attribute, values) {
-    console.log('addValuesToFilter ', attribute, values)
+    // console.log('addValuesToFilter ', attribute, values)
 
-    const test = values.reduce((acc, obj) => {
+    const collection = values.reduce((acc, obj) => {
+      // Method 1
       if(acc[attribute]) {
         acc[attribute][obj] = true
       } else {
@@ -220,62 +206,31 @@ export default function PivotTableUI(props) {
 
       return acc
 
-      // const curGroup = acc[attribute] ?? []
-      // console.log('jb ', curGroup)
-      // return { ...acc, [attribute]: [...curGroup, obj] }
+      // Method 2
+      // const curGroup = acc[attribute] ?? {}
+      // return { ...acc, [attribute]: { ...curGroup, ...{[obj]: true} } }
     }, filters)
-    console.log('test ', test)
 
-    setFilters({ ...filters, ...test})
-
-    // OLD LOGIC
-    // if dimension for filters already exists; yeh this is pretty smelly stuff
-    // if (attribute in filters) {
-    //   console.log(attribute, 'already declared on filters', (attribute in filters))
-    //   // const test = values.reduce((r, v) => {
-    //   //   r[v] = true
-    //   //   return r
-    //   // }, {})
-
-    //   // console.log('test => ', test)
-
-    //   setFilters({
-    //     ...filters,
-    //     ...{
-    //       [attribute]: values.reduce((r, v) => {
-    //         r[v] = true
-    //         return r
-    //       }, {})
-    //     }
-    //   })
-    // } else {
-    //   setValuesInFilter(attribute, values)
-    // }
+    setFilters({ ...filters, ...collection })
   }
 
-  // used on select all and toggle value
-  // 'Payer Gender', ['Female']
   function removeValuesFromFilter(attribute, values) {
-    console.log('removeValuesFromFilter ', attribute, values)
+    // console.log('removeValuesFromFilter ', attribute, values)
 
-    const test = values.reduce((acc, obj) => {
-      // Method 1
-      delete acc[attribute][obj]
-
-      // Method 2
-      // const {[obj]: foo, ...rest} = acc[attribute]
-      // acc[attribute] = rest
+    const collection = values.reduce((acc, obj) => {
+      if (acc[attribute]) {
+        // Method 1
+        delete acc[attribute][obj]
+        
+        // Method 2
+        // const {[obj]: discard, ...rest} = acc[attribute]
+        // acc[attribute] = rest
+      }
 
       return acc
     }, filters)
-    console.log('test ', test)
 
-    setFilters({ ...filters, ...test })
-
-    // OLD LOGIC
-    // setFilters({
-    //   [attribute]: { $unset: values }
-    // })
+    setFilters({ ...filters, ...collection })
   }
 
   const numValsAllowed = props.aggregators[props.aggregatorName]([])().numInputs || 0
@@ -311,10 +266,9 @@ export default function PivotTableUI(props) {
                   sorter={getSort(props.sorters, item.name)}
                   menuLimit={props.menuLimit}
 
-                  // JB: Missed this. Needs work to decouple from the prop recirculating nonesense
-                  setValuesInFilter={setValuesInFilter} // setValuesInFilter.bind(this)
-                  addValuesToFilter={addValuesToFilter} // addValuesToFilter.bind(this)
-                  removeValuesFromFilter={removeValuesFromFilter} // removeValuesFromFilter.bind(this)
+                  setAllValuesInFilter={setAllValuesInFilter}
+                  addValuesToFilter={addValuesToFilter}
+                  removeValuesFromFilter={removeValuesFromFilter}
                 />
               )
             }
@@ -444,15 +398,15 @@ export default function PivotTableUI(props) {
               }
               key={`dimension-${index}`}
             >
-              {
-                // Object.keys(attrValues).map(
-                //   (item, index) => (
-                //     !props.hiddenAttributes.includes(item) &&
-                //     !props.hiddenFromAggregators.includes(item) &&
-                //     <option value={item} key={index}>{item}</option>
-                //   )
-                // )
-              }
+              {/* {
+                Object.keys(attrValues).map(
+                  (item, index) => (
+                    !props.hiddenAttributes.includes(item) &&
+                    !props.hiddenFromAggregators.includes(item) &&
+                    <option value={item} key={index}>{item}</option>
+                  )
+                )
+              } */}
             </select>,
             // i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
           ])}
@@ -566,12 +520,12 @@ export default function PivotTableUI(props) {
   )
 }
 
-// PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
-//   hiddenAttributes: PropTypes.arrayOf(PropTypes.string),
-//   hiddenFromAggregators: PropTypes.arrayOf(PropTypes.string),
-//   hiddenFromDragDrop: PropTypes.arrayOf(PropTypes.string),
-//   menuLimit: PropTypes.number,
-// })
+PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
+  hiddenAttributes: PropTypes.arrayOf(PropTypes.string),
+  // hiddenFromAggregators: PropTypes.arrayOf(PropTypes.string),
+  hiddenFromDragDrop: PropTypes.arrayOf(PropTypes.string),
+  menuLimit: PropTypes.number,
+})
 
 PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
   hiddenAttributes: [],

@@ -9,26 +9,22 @@ export default function Dimension(props) {
   const [ filterText, setFilterText ] = useState('')
   const [isAllFilters, setIsAllFilters ] = useState(true)
 
-  // JB: This is ultimately being used to update the valueFilter:{} prop on root node <App />. This should be a custom hook with setValueFilter({ ...valueFilter, [props.name]: Object.keys(props?.attrValues).filter(matchesFilter) })
   useEffect(() => {
-    // console.log('hello ', isAllFilters, props?.attrValues)
+    if (props?.attrValues) {
 
-    // if (props?.attrValues) {
-    //   // console.log('should not be here ', Object.keys(props?.attrValues).filter(matchesFilter))
-
-    //   if (isAllFilters) {
-    //     props.removeValuesFromFilter(
-    //       props.name,
-    //       Object.keys(props?.attrValues).filter(matchesFilter)
-    //     )
-    //   }
-    //   else {
-    //     props.addValuesToFilter(
-    //       props.name,
-    //       Object.keys(props?.attrValues).filter(matchesFilter)
-    //     )
-    //   }
-    // }
+      if (isAllFilters) {
+        props.removeValuesFromFilter(
+          props.name,
+          Object.keys(props?.attrValues).filter(matchesFilter)
+        )
+      }
+      else {
+        props.addValuesToFilter(
+          props.name,
+          Object.keys(props?.attrValues).filter(matchesFilter)
+        )
+      }
+    }
   }, [isAllFilters])
 
   function toggleValue(value) {
@@ -48,7 +44,7 @@ export default function Dimension(props) {
 
   function selectOnly(event, value) {
     event.stopPropagation()
-    props.setValuesInFilter(
+    props.setAllValuesInFilter(
       props.name,
       Object.keys(props?.attrValues).filter(y => y !== value)
     )
@@ -75,10 +71,9 @@ export default function Dimension(props) {
 
         {isMenuLimit || <p>(too many values to show)</p>}
 
-        {/* JB: temporarily turned off; not a priority feature */}
         {isMenuLimit && (
           <div className="controls">
-            {/* <input
+            <input
               type="text"
               className="filter__search pvtSearch"
               placeholder="Filter values"
@@ -89,7 +84,7 @@ export default function Dimension(props) {
             <label className="filter__select-all-toggle">
               <input type="checkbox" checked={isAllFilters} onChange={(event) => setIsAllFilters(event.target.checked)} />
               <span>Select All</span>
-            </label> */}
+            </label>
 
             <button
               onClick={() =>
@@ -162,6 +157,7 @@ Dimension.defaultProps = {
 
 Dimension.propTypes = {
   name: PropTypes.string.isRequired,
+  setAllValuesInFilter: PropTypes.func.isRequired,
   addValuesToFilter: PropTypes.func.isRequired,
   removeValuesFromFilter: PropTypes.func.isRequired,
   attrValues: PropTypes.objectOf(PropTypes.number),
