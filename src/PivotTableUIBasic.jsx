@@ -15,7 +15,7 @@ broken: sortAs on criterion
 
 export default function PivotTableUI(props) {
   // const [data, setData] = useState([])
-  const [attrValues, setAttrValues] = useState({}) // JB: appears to get generated. related to materializeInput(); now called simply 'data' // JB: I reckon all ooccurances of this can be subsituted for 'dimensions' state. they appear to be identical
+  // const [attrValues, setAttrValues] = useState({}) // JB: appears to get generated. related to materializeInput(); now called simply 'data' // JB: I reckon all ooccurances of this can be subsituted for 'dimensions' state. they appear to be identical
   const [dimensions, setDimensions] = useState({})
   const [unusedOrder, setUnusedOrder] = useState([]) // JB: doesn't seem to serve a purpose
   const [criterion, setCriterion] = useState([]) // JB: attribute/dimension/criterion decide on naming and stick to the convention;
@@ -39,7 +39,7 @@ export default function PivotTableUI(props) {
 
     // setData([...parseData()])
     setDimensions({...parseDimensions()})
-    setAttrValues({...parseValues()})
+    // setAttrValues({...parseValues()})
 
   }, [props.data])
 
@@ -144,37 +144,37 @@ export default function PivotTableUI(props) {
   } // sort array??
 
   // JB: appears to achieve exactly the same as parseDimensions(). created objects are identical.
-  function parseValues() {
-    const _attrValues = {}
-    let recordsProcessedTally = 0
+  // function parseValues() {
+  //   const _attrValues = {}
+  //   let recordsProcessedTally = 0
 
-    PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
-      for (const attr of Object.keys(record)) {
-        if (!(attr in _attrValues)) {
-          _attrValues[attr] = {}
+  //   PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
+  //     for (const attr of Object.keys(record)) {
+  //       if (!(attr in _attrValues)) {
+  //         _attrValues[attr] = {}
 
-          if (recordsProcessedTally > 0) {
-            _attrValues[attr].null = recordsProcessedTally
-          }
-        }
-      }
+  //         if (recordsProcessedTally > 0) {
+  //           _attrValues[attr].null = recordsProcessedTally
+  //         }
+  //       }
+  //     }
 
-      for (const attr in _attrValues) {
-        const value = attr in record ? record[attr] : 'null'
+  //     for (const attr in _attrValues) {
+  //       const value = attr in record ? record[attr] : 'null'
 
-        if (!(value in _attrValues[attr])) {
-          _attrValues[attr][value] = 0
-        }
+  //       if (!(value in _attrValues[attr])) {
+  //         _attrValues[attr][value] = 0
+  //       }
 
-        _attrValues[attr][value]++
-      }
+  //       _attrValues[attr][value]++
+  //     }
 
-      recordsProcessedTally++
-    })
+  //     recordsProcessedTally++
+  //   })
 
-    console.log('OUTPUT = ', _attrValues)
-    return _attrValues
-  }
+  //   console.log('OUTPUT = ', _attrValues)
+  //   return _attrValues
+  // }
 
   function setAllValuesInFilter(attribute, values) {
     // console.log('setAllValuesInFilter ', attribute, values)
@@ -261,7 +261,7 @@ export default function PivotTableUI(props) {
                   key={`${item.id}-${index}`}
 
                   // JB: what does this lot do?
-                  attrValues={attrValues[item.name]} // Object of the dimensions and their applicables values + tally of occurances; same as 'dimension' state
+                  attrValues={dimensions[item.name]} // {attrValues[item.name]} // Object of the dimensions and their applicables values + tally of occurances; same as 'dimension' state
                   valueFilter={filters[item.name] || {}} // a record of enabled filters; if dimension value = true then the filter is applied(entry removed). if the object is empty, no filters are applied. strange its not just an Array/Set of valid keys
                   sorter={getSort(props.sorters, item.name)}
                   menuLimit={props.menuLimit}
@@ -399,7 +399,8 @@ export default function PivotTableUI(props) {
               key={`dimension-${index}`}
             >
               {/* {
-                Object.keys(attrValues).map(
+                // Object.keys(attrValues).map(
+                Object.keys(dimensions).map(
                   (item, index) => (
                     !props.hiddenAttributes.includes(item) &&
                     !props.hiddenFromAggregators.includes(item) &&
