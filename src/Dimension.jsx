@@ -86,25 +86,11 @@ export default function Dimension(props) {
               <span>Select All</span>
             </label>
 
-            <button
-              onClick={() =>
-                props.removeValuesFromFilter(
-                  props.name,
-                  Object.keys(props?.attrValues).filter(matchesFilter)
-                )
-              }
-            >
+            <button onClick={() => setIsAllFilters(true)}>
               Select All
             </button>
 
-            <button
-              onClick={() =>
-                props.addValuesToFilter(
-                  props.name,
-                  Object.keys(props?.attrValues).filter(matchesFilter)
-                )
-              }
-            >
+            <button onClick={() => setIsAllFilters(false)}>
               Deselect All
             </button>
           </div>
