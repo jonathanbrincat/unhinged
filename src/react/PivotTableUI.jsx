@@ -15,7 +15,6 @@ broken: sortAs on criterion
 
 export default function PivotTableUI(props) {
   // const [data, setData] = useState([])
-  // const [attrValues, setAttrValues] = useState({}) // JB: appears to get generated. related to materializeInput(); now called simply 'data' // JB: I reckon all ooccurances of this can be subsituted for 'dimensions' state. they appear to be identical
   const [dimensions, setDimensions] = useState({})
   const [unusedOrder, setUnusedOrder] = useState([]) // JB: doesn't seem to serve a purpose
   const [criterion, setCriterion] = useState([])
@@ -40,7 +39,6 @@ export default function PivotTableUI(props) {
 
     // setData([...parseData()])
     setDimensions({...parseDimensions()})
-    // setAttrValues({...parseValues()})
 
   }, [props.data])
 
@@ -121,7 +119,6 @@ export default function PivotTableUI(props) {
     let recordsProcessedTally = 0 // this is how the values are generated. by counting occurances
 
     PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
-
       // examine every key of every record
       for (const attr of Object.keys(record)) {
 
@@ -156,39 +153,6 @@ export default function PivotTableUI(props) {
 
     return results
   } // sort array??
-
-  // JB: appears to achieve exactly the same as parseDimensions(). created objects are identical.
-  // function parseValues() {
-  //   const _attrValues = {}
-  //   let recordsProcessedTally = 0
-
-  //   PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
-  //     for (const attr of Object.keys(record)) {
-  //       if (!(attr in _attrValues)) {
-  //         _attrValues[attr] = {}
-
-  //         if (recordsProcessedTally > 0) {
-  //           _attrValues[attr].null = recordsProcessedTally
-  //         }
-  //       }
-  //     }
-
-  //     for (const attr in _attrValues) {
-  //       const value = attr in record ? record[attr] : 'null'
-
-  //       if (!(value in _attrValues[attr])) {
-  //         _attrValues[attr][value] = 0
-  //       }
-
-  //       _attrValues[attr][value]++
-  //     }
-
-  //     recordsProcessedTally++
-  //   })
-
-  //   console.log('OUTPUT = ', _attrValues)
-  //   return _attrValues
-  // }
 
   const numValsAllowed = props.aggregators[activeAggregator]([])().numInputs || 0
 
@@ -271,13 +235,11 @@ export default function PivotTableUI(props) {
           items.map(
             (item, index) => {
               return (
-                // <li className="ui__button sortable" key={`${item.id}-${index}`}>{item.name}</li>
                 <Dimension
                   name={item.name}
                   key={`${item.id}-${index}`}
 
-                  // JB: what does this lot do?
-                  attrValues={dimensions[item.name]} // {attrValues[item.name]} // Object of the dimensions and their applicables values + tally of occurances; same as 'dimension' state
+                  attrValues={dimensions[item.name]} // Object of the dimensions and their applicables values + tally of occurances; same as 'dimension' state
                   valueFilter={filters[item.name] || {}} // a record of enabled filters; if dimension value = true then the filter is applied(entry removed). if the object is empty, no filters are applied. strange its not just an Array/Set of valid keys
                   sorter={getSort(props.sorters, item.name)}
                   menuLimit={props.menuLimit}
@@ -410,7 +372,6 @@ export default function PivotTableUI(props) {
               key={`dimension-${index}`}
             >
               {
-                // Object.keys(attrValues).map(
                 Object.keys(dimensions).map(
                   (item, index) => (
                     !props.hiddenAttributes.includes(item) &&
@@ -506,7 +467,7 @@ export default function PivotTableUI(props) {
         <article className="pivot__output">
           <PivotTable
             data={props.data} // JB: will happily work either way with props.data or data; don't really understand why author felt it necessary to pass 'newMaterializedInput'. The clue might be in the name. Think was struggling with the concept of reactivity.
-            // data={data}
+            // data={data} // JB: transfering data to state doesn't serve any purpose
             renderers={props.renderers}
             aggregators={props.aggregators}
             rows={axisY.map(({ name }) => name)}
@@ -518,12 +479,11 @@ export default function PivotTableUI(props) {
 
             vals={props.vals} // JB: what is this?
 
-            // sorters={props.sorters} // used by Filters UI, unsure why it would need to also be passed down
             valueFilter={filters}
 
-            // plotlyOptions={{}}
-            // plotlyConfig={{}}
-            // tableOptions={{}}
+            plotlyOptions={props.plotlyOptions}
+            plotlyConfig={props.plotlyConfig}
+            tableOptions={props.tableOptions}
           />
         </article>
       </div>
