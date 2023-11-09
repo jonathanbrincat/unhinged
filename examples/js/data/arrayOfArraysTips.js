@@ -245,32 +245,3 @@ export default [
 [17.82,1.75,"Male","Non-Smoker","Saturday","Dinner",2],
 [18.78,3,"Female","Non-Smoker","Thursday","Dinner",2]
 ]
-
-export const ARRAY_OF_OBJECTS = [
-  {
-    Gender: 'Male',
-    Age: '>35',
-    'What are the reasons you would not choose Mars treats or areas in which they could be improved': 'Never Used',
-  },
-  {
-    Gender: 'Female',
-    Age: '<=35"',
-    'What are the reasons you would not choose Mars treats or areas in which they could be improved': 'Negative Brand Image',
-  },
-  {
-    Gender: 'Female',
-    Age: '>35"',
-    'What are the reasons you would not choose Mars treats or areas in which they could be improved': 'Never Used',
-  },
-  {
-    Gender: 'Female',
-    Age: '>35"',
-    'What are the reasons you would not choose Mars treats or areas in which they could be improved': 'Better Alternatives"',
-  },
-]
-
-export const ARRAY_OF_ARRAYS = [
-  ['Gender', 'Age'],
-  ['Male', '>35'],
-  ['Female', '<=35'],
-]
