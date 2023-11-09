@@ -1,7 +1,7 @@
 :root {
-  --palette-primary: #bd0e85;
-  --palette-primary-lighten: #ec60c0;
-  --palette-primary-darken: #a01b66;
+  --palette-primary: #FDC612;
+  --palette-primary-lighten: #fded12;
+  --palette-primary-darken: #fdb612;
   --palette-secondary: #27374D;
   --palette-dark: #526D82;
   --palette-neutral: #9DB2BF;
@@ -10,10 +10,14 @@
   --border-radius: 6px;
 }
 
+/* 
+* Base/ Reboot / Form controls
+*/
 label {
   cursor: pointer;
 }
 
+select,
 .ui__select {
   border: 1px solid var(--palette-primary-darken);
   border-radius: var(--border-radius);
@@ -27,18 +31,18 @@ label {
   appearance: none;
   transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
-
+  select,
   .ui__select:focus {
-    border-color: #86b7fe;
+    border-color: var(--palette-primary-lighten);
     outline: 0;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
   }
 
+button,
 .ui__button {
   background-color: var(--palette-primary-lighten);
   border: 1px solid var(--palette-primary-darken);
   border-radius: var(--border-radius);
-  color: #FFF;
   display: inline-flex;
   justify-content: space-between;
   align-items: center;
@@ -75,8 +79,8 @@ label {
 
 .ui__toggle input[type="radio"]:checked + span {
   background-color: var(--palette-primary);
+  color: rgba(0, 0, 0);
   box-shadow: none;
-  color: #FFF;
 }
 
 .ui__toggle > label:first-of-type > span {
@@ -87,8 +91,9 @@ label {
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
-/**/
-
+/*
+* Pivot Table UI
+*/
 .pivot__ui {
   display: grid;
   grid-template-areas:
@@ -96,7 +101,7 @@ label {
     'aggregator axisX'
     'axisY sortBy'
     'axisY output';
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: auto;
   width: 100%;
   max-width: 100%;
@@ -104,7 +109,6 @@ label {
 
   background: var(--palette-light);
 }
-
   .pivot__renderer {
     grid-area: renderer;
 
@@ -118,7 +122,6 @@ label {
     gap: 6px;
     grid-area: aggregator;
   }
-
     .pivot__aggregator .ui__select:not(:first-of-type) {
       margin-left: 18px;
     }
@@ -142,7 +145,13 @@ label {
     min-width: 100px;
   }
 
-/**/
+  .pivot__output {
+    grid-area: output;
+  }
+
+/*
+* Pivot Table UI / Dimensions collections
+*/
 .dimension__list {
   list-style-type: none;
   display: flex;
@@ -152,14 +161,14 @@ label {
   margin: 0;
   min-height: 1em;
 }
-    .pivot__criterion .dimension__list,
-    .pivot__axis-x .dimension__list {      
-      flex-direction: row;
-    }
-  
-    .pivot__axis-y .dimension__list {
-      flex-direction: column;
-    }
+  .pivot__criterion .dimension__list,
+  .pivot__axis-x .dimension__list {      
+    flex-direction: row;
+  }
+
+  .pivot__axis-y .dimension__list {
+    flex-direction: column;
+  }
 
 .dimension__list-item {
   position: relative;
@@ -169,7 +178,6 @@ label {
   background-color: var(--palette-primary-lighten);
   border: 1px solid var(--palette-primary-darken);
   border-radius: var(--border-radius);
-  color: #FFF;
   display: inline-flex;
   gap: 6px;
   justify-content: space-between;
@@ -177,43 +185,38 @@ label {
   white-space: nowrap;
   padding: 6px 0 6px 6px;
 }
+  .pivot__axis .pivot__dimension {
+    background-color: var(--palette-primary);
+    border-color: var(--palette-primary-darken);
+  }
 
-.pivot__dimension--filter {
-  font-style: italic;
-}
-    .pivot__dimension > span {
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  .pivot__dimension--filter {
+    font-style: italic;
+  }
 
-.pivot__axis .pivot__dimension {
-  background-color: var(--palette-primary);
-  border-color: var(--palette-primary-darken);
-}
-
-.pivot__axis .dropdown-toggle {
-  border-color: var(--palette-primary-darken);
+.pivot__dimension > span {
+  line-height: 1;
+  display: block;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
 }
 
 .sortable {
   user-select: none;
   cursor: move;
 }
+  .sortable--ghost {
+    border-style: dashed;
+    opacity: 0.4;
 
-/* sortable-chosen, sortable-drag */
+    background-color: #4fe8e8;
+  }
 
-.dimension__list .sortable--ghost {
-  border-style: dashed;
-  opacity: 0.4;
-
-  background-color: #4fe8e8;
-}
-
-.dropdown-toggle {
+.dimension__dropdown-toggle {
   background: none transparent;
   border-width: 0;
   border-left: 1px solid var(--palette-primary-darken);
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
   font-size: 20px;
   line-height: 1;
   color: inherit;
@@ -226,6 +229,13 @@ label {
   cursor: pointer;
 }
 
+.pivot__axis .dimension__dropdown-toggle {
+  border-color: var(--palette-primary-darken);
+}
+
+/*
+* Pivot Table UI / SortBy
+*/
 .pivot__sortBy {
   display: flex;
   gap: 6px;
@@ -237,7 +247,6 @@ label {
     border: 1px solid var(--palette-primary-darken);
     border-radius: var(--border-radius);
     background-color: var(--palette-primary-lighten);
-    color: #FFF;
     display: flex;
     flex-wrap: wrap;
     padding: 2px 6px;
@@ -276,9 +285,8 @@ label {
 
   .pivot__sortBy label input[type="radio"] + span {
     border-radius: var(--border-radius);
-    /* border: 1px solid var(--palette-primary-darken); */
     border-right-width: 0;
-    /* background-color: var(--palette-primary-lighten); */
+    color: rgba(0,0,0, 0.5);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -287,26 +295,19 @@ label {
     padding: 0;
   }
 
-  /* .pivot__sortBy label:first-of-type input[type="radio"] + span {
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
-  } */
-
-  /* .pivot__sortBy label:last-of-type input[type="radio"] + span {
-    border-right-width: 1px;
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-  } */
-
   .pivot__sortBy label input[type="radio"]:checked + span {
     background-color: var(--palette-primary);
+    color: rgba(0, 0, 0, 1);
   }
 
-/* filters UI */
-.criterion__filters-pane {
+/*
+* Pivot Table UI / Value Filters
+*/
+.dimension__dropdown{
   border: 1px solid var(--palette-primary-darken);
   border-radius: var(--border-radius);
   border-top-left-radius: 0;
   background-color: var(--palette-primary-lighten);
-  color: #FFF;
   min-height: 100px;
   min-width: 360px;
   max-width: 500px;
@@ -314,18 +315,16 @@ label {
   z-index: 1;
   user-select: none;
 }
+  .sortable-chosen .dimension__dropdown {
+    display: none !important;
+  }
 
-.sortable-chosen .criterion__filters-pane {
-  display: none !important;
-}
-
-.criterion__filters-pane header {
+.dimension__dropdown header {
   padding: 6px 26px 0;
   position: relative;
 }
 
-.pvtCloseX {
-  /* font-size: 20px; */
+.dimension__dropdown-close {
   line-height: 1;
   position: absolute;
   top: 0px;
@@ -339,33 +338,29 @@ label {
   cursor: pointer;
 }
 
-.criterion__filters-pane h4 {}
-
-.criterion__filters-pane .controls {
+.dimension__filters-toolbar {
   display: flex;
   gap: 6px;
   padding: 0.5rem 12px 0.5rem 30px;
 }
 
-.criterion__filters-pane input[type='text'] {}
+.dimension__filters-toolbar label {
+  font-size: 0.75em;
+}
 
-.criterion__filters-pane input {
+.dimension__filters-toolbar input[type='text'] {}
+
+.dimension__filters-toolbar input {
   border: 1px solid #c8d4e3;
   border-radius: var(--border-radius);
   padding: 6px;
 }
+  .dimension__filters-toolbar input:focus {
+    border-color: var(--palette-primary);
+    outline: none;
+  }
 
-.criterion__filters-pane input:focus {
-  border-color: var(--palette-primary);
-  outline: none;
-}
-
-/* should be toggle switch UI + checkbox */
-.controls label {
-  font-size: 0.75em;
-}
-
-.controls button {
+.dimension__filters-toolbar button {
   background: none transparent;
   border-width: 0;
   font-size: 0.75em;
@@ -374,14 +369,13 @@ label {
   white-space: nowrap;
   cursor: pointer;
 }
+  .dimension__filters-toolbar button:hover,
+  .dimension__filters-toolbar button:focus {
+    background-color: transparent;
+    text-decoration: underline;
+  }
 
-.controls button:hover,
-.controls button:focus {
-  background-color: transparent;
-  text-decoration: underline;
-}
-
-.pvtCheckContainer {
+.filters__list {
   font-size: 0.75em;
   list-style-type: none;
   max-height: 30vh;
@@ -390,11 +384,11 @@ label {
   overflow-y: scroll;
 }
 
-.pvtCheckContainer li {
+.filters__list-item {
   border-radius: 24px;
   border: 2px solid var(--palette-primary);
   background-color: transparent;
-  color: var(--palette-primary);
+  color: rgba(0, 0, 0, 0.5);
   margin: 6px 0;
   padding: 6px;
   padding: 6px 18px 6px 12px;
@@ -402,46 +396,29 @@ label {
   cursor: default;
 }
 
-.pvtCheckContainer li.selected {
+.filters__list-item--selected {
   background: var(--palette-primary);
-  color: #FFF;
+  color: rgba(0, 0, 0, 1);
 }
 
-.pvtOnly {
+.filter__toggle-only {
   display: inline-block;
   text-decoration: none;
   margin-right: 6px;
   visibility: hidden;
   cursor: pointer;
 }
-
-.pvtOnly:hover {
-  text-decoration: underline;
-}
-
-.pvtCheckContainer li:hover .pvtOnly {
-  visibility: visible;
-}
-
-.pivot__output {
-  grid-area: output;
-}
-  .ui__pane {
-    background-color: #FFF;
-    border: 1px solid var(--palette-primary);
-    border-radius: var(--border-radius);
-    box-shadow: 0 1 1 1 rgba(13, 110, 253, .25);
-    margin: 1rem 0 0 1rem;
-    padding: 6px 18px;
-    overflow: hidden;
+  .filter__toggle-only:hover {
+    text-decoration: underline;
   }
 
-.pvtRendererArea {
-  padding: 5px;
-}
+  .filters__list-item:hover .filter__toggle-only {
+    visibility: visible;
+  }
 
-/**/
-
+/*
+* Pivot Table UI / Renderer(Table)
+*/
 table.pvtTable {
   border-collapse: collapse;
 }

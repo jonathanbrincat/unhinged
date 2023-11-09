@@ -1,59 +1,40 @@
+/*
+* THEMED Pivot Table UI
+*/
+.pivot__ui {
+  grid-template-areas:
+    'renderer criterion'
+    'aggregator axisX'
+    'axisY sortBy'
+    'axisY output';
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
 .pivot__dimension,
 .ui__button {
   max-width: 200px;
-  /* display: block; */
-  overflow: hidden;
+}
+
+.ui__button {
+  overflow-x: hidden;
   text-overflow: ellipsis;
 }
 
-.pivot__ui {
-  grid-template-areas:
-    'renderer criterion filter'
-    'aggregator axisX filter'
-    'axisY sortBy filter'
-    'axisY output filter';
-  grid-template-columns: auto 3fr 1fr;
-}
-
-.pivot__filters {
-  grid-area: filter;
-}
-
-/* .pvtAxisContainer li span.pvtAttr {
-  background-color: #FDBF13;
-  border-color: #FDBF13;
-} */
-
-.pvtAxisLabel {
-  max-width: 240px;
-}
-
-.pvtCheckContainer {
+.filters__list {
   padding: 0.5rem 12px 0.5rem 30px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-.pvtCheckContainer p:hover .pvtOnly {
-  display: inline-block;
-  visibility: visible;
-}
-
-/**/
-
+/*
+* THEMED Pivot Table UI / Renderer(Table)
+*/
 table.pvtTable {
   font-family: inherit;
   font-size: inherit;
   min-width: 100%;
   margin: 0;
-}
-
-.pvtAxisContainer,
-.pvtVals {
-  background-color: #F6F4F1;
-  border-color: #DEE2E6;
-  padding: 3px;
 }
 
 table.pvtTable thead tr th,
@@ -96,4 +77,15 @@ table.pvtTable tbody tr:nth-child(even) td {
   border-color: #FBFAF8;
   color: #fff;
   font-weight: 300;
+}
+
+.pvtAxisContainer,
+.pvtVals {
+  background-color: #F6F4F1;
+  border-color: #DEE2E6;
+  padding: 3px;
+}
+
+.pvtAxisLabel {
+  max-width: 240px;
 }

@@ -64,9 +64,9 @@ export default function Dimension(props) {
                     .sort(props.sorter)
 
     return (
-      <div className="criterion__filters-pane">
+      <div className="dimension__dropdown">
         <header>
-          <button onClick={() => setIsOpen(false)} className="pvtCloseX">&#10799;</button>
+          <button onClick={() => setIsOpen(false)} className="dimension__dropdown-close">&#10799;</button>
           
           <h4>{props.name}</h4>
         </header>
@@ -74,16 +74,16 @@ export default function Dimension(props) {
         {isMenuLimit || <p>(too many values to show)</p>}
 
         {isMenuLimit && (
-          <div className="controls">
+          <div className="dimension__filters-toolbar">
             <input
               type="text"
-              className="filter__search pvtSearch"
+              className="control__filters-search"
               placeholder="Filter values"
               value={filterText}
               onChange={event => setFilterText(event.target.value)}
             />
 
-            <label className="filter__select-all-toggle">
+            <label className="control__filters-all-toggle">
               <input type="checkbox" checked={isAllFilters} onChange={(event) => setIsAllFilters(event.target.checked)} />
               <span>Select All</span>
             </label>
@@ -99,18 +99,20 @@ export default function Dimension(props) {
         )}
 
         {isMenuLimit && (
-          <ul className="pvtCheckContainer">
+          <ul className="filters__list">
             {shown.map(x => (
               <li
                 key={x}
                 onClick={() => toggleValue(x)}
-                className={x in props.valueFilter ? '' : 'selected'}
+                className={`filters__list-item ${x in props.valueFilter ? '' : 'filters__list-item--selected'}`}
               >
-                <a className="pvtOnly" onClick={e => selectOnly(e, x)}>
-                  only
-                </a>
+                <div className="pivot__filter">
+                  <a className="filter__toggle-only" onClick={e => selectOnly(e, x)}>
+                    only
+                  </a>
 
-                {x === '' ? <em>null</em> : x}
+                  {x === '' ? <em>null</em> : x}
+                </div>
               </li>
             ))}
           </ul>
@@ -128,7 +130,7 @@ export default function Dimension(props) {
       <div className={`pivot__dimension ${filteredClass}`}>
         <span>{props.name}</span>
         <button
-          className="dropdown-toggle"
+          className="dimension__dropdown-toggle"
           onClick={toggleFilterPane.bind(this)}
         >&#9662;</button>
       </div>

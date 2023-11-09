@@ -249,7 +249,7 @@ export default function PivotTableUI(props) {
         ghostClass="sortable--ghost"
         chosenClass="sortable--chosen"
         dragClass="sortable--drag"
-        filter=".criterion__filters-pane"
+        filter=".dimension__dropdown"
         preventOnFilter={false}
       >
         {
