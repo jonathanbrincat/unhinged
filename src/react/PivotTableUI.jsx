@@ -290,11 +290,6 @@ export default function PivotTableUI(props) {
         <pre style={{ fontSize: '10px' }}>
           {JSON.stringify(props.valueFilter, null, 2)}
         </pre>
-        
-        <p>props.sorters</p>
-        <pre style={{ fontSize: '10px' }}>
-          {JSON.stringify(props.sorters, null, 2)}
-        </pre>
 
         <p>Filters</p>
         <pre style={{ fontSize: '10px' }}>
@@ -362,7 +357,7 @@ export default function PivotTableUI(props) {
             }
           </select>
 
-          {new Array(numValsAllowed).fill().map((dimension, index) => [
+          {new Array(numValsAllowed).fill().map((n, index) => [
             <select
               className="ui__select"
               value={activeDimensions[index]}
