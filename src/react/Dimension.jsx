@@ -15,13 +15,15 @@ export default function Dimension(props) {
       if (isAllFilters) {
         props.removeValuesFromFilter(
           props.name,
-          Object.keys(props?.attrValues).filter(matchesFilter)
+          // Object.keys(props?.attrValues).filter(matchesFilter)
+          Object.keys(props?.attrValues)
         )
       }
       else {
         props.addValuesToFilter(
           props.name,
-          Object.keys(props?.attrValues).filter(matchesFilter)
+          // Object.keys(props?.attrValues).filter(matchesFilter) // JB: I think the idea of this is to make the select/deselect all functionality elastic to what is entered in the text input. It's very counter-intuitive.
+          Object.keys(props?.attrValues)
         )
       }
     }
@@ -39,7 +41,7 @@ export default function Dimension(props) {
     return x
       .toLowerCase()
       .trim()
-      .includes(filterText.toLowerCase().trim())
+      .includes(filterText.toLowerCase().trim()) // JB: matched against filterText?? this is silly. doesn't make sense. what is it trying to achieve?
   }
 
   function selectOnly(event, value) {

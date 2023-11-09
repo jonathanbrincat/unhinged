@@ -1,7 +1,7 @@
 import React, { useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
 import update from 'immutability-helper' // JB: candidate for deletion now that I've identified what it is used for
-import { PivotData, sortAs, getSort } from './Utilities'
+import { PivotData, sortAs, getSort } from './js/Utilities'
 import PivotTable from './PivotTable'
 import { ReactSortable } from 'react-sortablejs'
 import { sortBy } from './constants'

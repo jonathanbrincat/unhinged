@@ -1,17 +1,16 @@
 import React, { useState, useEffect }from 'react'
 import Papa from 'papaparse'
-// import PivotTableUI from '../src/PivotTableUI' // JB: the reactivity is broken in the original version because it was never implemented correctly
-import PivotTableUI from '../src/PivotTableUIBasic'
-import TableRenderers from '../src/TableRenderers'
-import { aggregators } from '../src/Utilities'
+import PivotTableUI from '../src/react/PivotTableUI'
+import TableRenderers from '../src/renderers/TableRenderers'
+import createPlotlyRenderers from '../src/renderers/PlotlyRenderers'
+import createChartjsRenderers from '../src/renderers/ChartjsRenderers'
 import createPlotlyComponent from 'react-plotly.js/factory'
 // import { Chart } from 'react-chartjs-2'
-import createPlotlyRenderers from '../src/PlotlyRenderers'
-import createChartjsRenderers from '../src/ChartjsRenderers'
-import {sortAs} from '../src/Utilities'
+import { aggregators, sortAs } from '../src/js/Utilities'
 import MOCK, { ARRAY_OF_OBJECTS, ARRAY_OF_ARRAYS } from './tips'
-import '../src/pivottable.css'
-import '../src/styles.css'
+
+import '../src/css/styles.css'
+import '../src/css/additions.css'
 
 const API = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfobphpVMblTtx5LpBV9EZYqP7LAXrhSNiW7tf--x4MzESavX5O7Ad8IQ95RyjBkSAX46HBw-esJzd/pub?output=csv'
 
@@ -37,6 +36,11 @@ const options = {
   plotlyConfig: {},
   tableOptions: {},
   unusedOrientationCutoff: Infinity,
+
+  // JB: undocumented feature - specify filters
+  valueFilter: {
+    'Payer Gender': { 'Male': true },
+  },
 }
 
 export default function App(props) {

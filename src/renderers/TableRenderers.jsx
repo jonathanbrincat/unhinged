@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {PivotData} from './Utilities';
+import {PivotData} from '../js/Utilities';
 
 // helper function for setting row/col-span in pivotTableRenderer
 const spanSize = function(arr, i, j) {

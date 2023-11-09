@@ -2,14 +2,13 @@ import React, { useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
 import { ReactSortable } from 'react-sortablejs'
 import Dimension from './Dimension'
-import { PivotData, sortAs, getSort } from './Utilities'
 import PivotTable from './PivotTable'
-import { sortBy } from './constants'
+import { PivotData, sortAs, getSort } from '../js/Utilities'
+import { sortBy } from '../js/constants'
 
 /*
 TODO:
 broken: aggregator by dimensions
-broken: filtering; setValuesInFilter, addValuesToFilter, removeValuesFromFilter + look at menuLimit, sorter, valueFilter, attrValues DONE
 broken: sortAs on criterion
 */
 
@@ -215,7 +214,7 @@ export default function PivotTableUI(props) {
   }
 
   function removeValuesFromFilter(attribute, values) {
-    // console.log('removeValuesFromFilter ', attribute, values)
+    console.log('removeValuesFromFilter ', attribute, values)
 
     const collection = values.reduce((acc, obj) => {
       if (acc[attribute]) {
@@ -230,6 +229,8 @@ export default function PivotTableUI(props) {
       return acc
     }, filters)
 
+    // JB: BUG. getting called on mount and reseting props.valueFilter
+    // CAUSE = useEffect hook in Dimension.jsx
     setFilters({ ...filters, ...collection })
   }
 
@@ -366,9 +367,6 @@ export default function PivotTableUI(props) {
             </label>
           </p>
         </header>
-
-        {/* DEV ONLY */}
-        <pre style={{ fontSize: '10px' }}>Renderer = {JSON.stringify(activeRenderer)}</pre>
 
         <aside className="pivot__aggregator">
           <select
