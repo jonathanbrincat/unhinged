@@ -10,7 +10,6 @@ import './pivotTableUI.css'
 
 /*
 TODO:
-broken: aggregator by dimensions
 broken: sortAs on criterion
 */
 
@@ -19,7 +18,7 @@ export default function PivotTableUI(props) {
   // const [attrValues, setAttrValues] = useState({}) // JB: appears to get generated. related to materializeInput(); now called simply 'data' // JB: I reckon all ooccurances of this can be subsituted for 'dimensions' state. they appear to be identical
   const [dimensions, setDimensions] = useState({})
   const [unusedOrder, setUnusedOrder] = useState([]) // JB: doesn't seem to serve a purpose
-  const [criterion, setCriterion] = useState([]) // JB: attribute/dimension/criterion decide on naming and stick to the convention;
+  const [criterion, setCriterion] = useState([])
   const [axisX, setAxisX] = useState([])
   const [axisY, setAxisY] = useState([])
 
@@ -37,7 +36,7 @@ export default function PivotTableUI(props) {
   const [isIndeterminate, setIsIndeterminate] = useState(false)
 
   useEffect(() => {
-    console.log('-- incoming data changed --')
+    // console.log('-- incoming data changed --')
 
     // setData([...parseData()])
     setDimensions({...parseDimensions()})
@@ -191,6 +190,10 @@ export default function PivotTableUI(props) {
   //   return _attrValues
   // }
 
+  const numValsAllowed = props.aggregators[activeAggregator]([])().numInputs || 0
+
+  const aggregatorCellOutlet = props.aggregators[activeAggregator]([])().outlet
+
   function setAllValuesInFilter(attribute, values) {
     // console.log('setAllValuesInFilter ', attribute, values)
 
@@ -250,10 +253,6 @@ export default function PivotTableUI(props) {
     setFilters({ ...filters, ...collection })
   }
 
-  const numValsAllowed = props.aggregators[props.aggregatorName]([])().numInputs || 0
-
-  const aggregatorCellOutlet = props.aggregators[props.aggregatorName]([])().outlet
-
   function createCluster(items, onSortableChangeHandler) {
     return (
       <ReactSortable
@@ -296,12 +295,11 @@ export default function PivotTableUI(props) {
     )
   }
   
-  console.log('-- Render -- ')
   return (
     <>
       {/* DEV ONLY */}
-      {/* <div>
-        <p>Props data</p>
+      <div>
+        {/* <p>Props data</p>
         <pre style={{ fontSize: '10px' }}>
           {JSON.stringify(props.data, null, 2)}
         </pre>
@@ -339,8 +337,8 @@ export default function PivotTableUI(props) {
         <p>Filters</p>
         <pre style={{ fontSize: '10px' }}>
           {JSON.stringify(filters, null, 2)}
-        </pre>
-      </div> */}
+        </pre> */}
+      </div>
 
       <div className="pivot__ui">
         <header className="pivot__renderer">
@@ -402,9 +400,7 @@ export default function PivotTableUI(props) {
             }
           </select>
 
-          {/* {numValsAllowed > 0 && <br />} */}
-
-          {new Array(numValsAllowed).fill().map((n, index) => [
+          {new Array(numValsAllowed).fill().map((dimension, index) => [
             <select
               className="ui__select"
               value={activeDimensions[index]}
@@ -413,7 +409,7 @@ export default function PivotTableUI(props) {
               }
               key={`dimension-${index}`}
             >
-              {/* {
+              {
                 // Object.keys(attrValues).map(
                 Object.keys(dimensions).map(
                   (item, index) => (
@@ -422,9 +418,8 @@ export default function PivotTableUI(props) {
                     <option value={item} key={index}>{item}</option>
                   )
                 )
-              } */}
-            </select>,
-            // i + 1 !== numValsAllowed ? <br key={`br${i}`} /> : null,
+              }
+            </select>
           ])}
 
           {aggregatorCellOutlet && aggregatorCellOutlet(props.data)}
@@ -538,14 +533,14 @@ export default function PivotTableUI(props) {
 
 PivotTableUI.propTypes = Object.assign({}, PivotTable.propTypes, {
   hiddenAttributes: PropTypes.arrayOf(PropTypes.string),
-  // hiddenFromAggregators: PropTypes.arrayOf(PropTypes.string),
+  hiddenFromAggregators: PropTypes.arrayOf(PropTypes.string),
   hiddenFromDragDrop: PropTypes.arrayOf(PropTypes.string),
   menuLimit: PropTypes.number,
 })
 
 PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
   hiddenAttributes: [],
-//   hiddenFromAggregators: [],
+  hiddenFromAggregators: [],
   hiddenFromDragDrop: [],
   menuLimit: 500,
   rows: [],
