@@ -65,7 +65,7 @@ export default function Dimension(props) {
 
     return (
       <div className="dimension__dropdown">
-        <header>
+        <header className="dimension__dropdown-header">
           <button onClick={() => setIsOpen(false)} className="dimension__dropdown-close">&#10799;</button>
           
           <h4>{props.name}</h4>
@@ -87,14 +87,6 @@ export default function Dimension(props) {
               <input type="checkbox" checked={isAllFilters} onChange={(event) => setIsAllFilters(event.target.checked)} />
               <span>Select All</span>
             </label>
-
-            <button onClick={() => setIsAllFilters(true)}>
-              Select All
-            </button>
-
-            <button onClick={() => setIsAllFilters(false)}>
-              Deselect All
-            </button>
           </div>
         )}
 

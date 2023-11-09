@@ -17,6 +17,19 @@ label {
   cursor: pointer;
 }
 
+input,
+.ui__input {
+  border: 1px solid #c8d4e3;
+  border-radius: var(--border-radius);
+  padding: 6px;
+}
+
+input:focus,
+.ui__input {
+  border-color: var(--palette-primary);
+  outline: none;
+}
+
 select,
 .ui__select {
   border: 1px solid var(--palette-primary-darken);
@@ -319,67 +332,50 @@ button,
     display: none !important;
   }
 
-.dimension__dropdown header {
-  padding: 6px 26px 0;
-  position: relative;
+.dimension__dropdown-header {
+  padding: 6px 12px 0 12px;
+  display: flex;
+  flex-direction:row-reverse;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dimension__dropdown-header h4 {
+  margin: 0.5em 0;
 }
 
 .dimension__dropdown-close {
+  font-size: 20px;
   line-height: 1;
-  position: absolute;
-  top: 0px;
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  right: 0px;
   cursor: pointer;
 }
 
 .dimension__filters-toolbar {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 6px;
-  padding: 0.5rem 12px 0.5rem 30px;
+  padding: 0.5rem 12px;
 }
 
 .dimension__filters-toolbar label {
   font-size: 0.75em;
 }
 
-.dimension__filters-toolbar input[type='text'] {}
-
-.dimension__filters-toolbar input {
-  border: 1px solid #c8d4e3;
-  border-radius: var(--border-radius);
-  padding: 6px;
-}
-  .dimension__filters-toolbar input:focus {
-    border-color: var(--palette-primary);
-    outline: none;
-  }
-
-.dimension__filters-toolbar button {
-  background: none transparent;
-  border-width: 0;
-  font-size: 0.75em;
-  color: inherit;
-  padding: 3px 6px;
-  white-space: nowrap;
-  cursor: pointer;
-}
-  .dimension__filters-toolbar button:hover,
-  .dimension__filters-toolbar button:focus {
-    background-color: transparent;
-    text-decoration: underline;
-  }
-
 .filters__list {
   font-size: 0.75em;
   list-style-type: none;
   max-height: 30vh;
-  padding-left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0.5rem 12px;
   margin: 0;
   overflow-y: scroll;
 }

@@ -20,13 +20,6 @@
   text-overflow: ellipsis;
 }
 
-.filters__list {
-  padding: 0.5rem 12px 0.5rem 30px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
 /*
 * THEMED Pivot Table UI / Renderer(Table)
 */
