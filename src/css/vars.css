@@ -1,0 +1,11 @@
+:root {
+  --palette-primary: #FDC612;
+  --palette-primary-lighten: #fded12;
+  --palette-primary-darken: #fdb612;
+  --palette-secondary: #27374D;
+  --palette-dark: #526D82;
+  --palette-neutral: #9DB2BF;
+  --palette-light: #DDE6ED;
+
+  --border-radius: 6px;
+}

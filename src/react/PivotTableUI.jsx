@@ -6,6 +6,8 @@ import PivotTable from './PivotTable'
 import { PivotData, sortAs, getSort } from '../js/Utilities'
 import { sortBy } from '../js/constants'
 
+import './pivotTableUI.css'
+
 /*
 TODO:
 broken: aggregator by dimensions
@@ -32,6 +34,7 @@ export default function PivotTableUI(props) {
   const [sortByColumn, setSortByColumn] = useState(sortBy.column[0].value)
 
   const [filters, setFilters] = useState(props.valueFilter ?? {})
+  const [isIndeterminate, setIsIndeterminate] = useState(false)
 
   useEffect(() => {
     console.log('-- incoming data changed --')
@@ -43,7 +46,7 @@ export default function PivotTableUI(props) {
   }, [props.data])
 
   useEffect(() => {
-    console.log('-- dimensions changed --', dimensions)
+    // console.log('-- dimensions changed --', dimensions)
 
     setCriterion(
       Object.keys(dimensions)
@@ -91,15 +94,28 @@ export default function PivotTableUI(props) {
 
   }, [dimensions])
 
-  function parseData() {
-    const results = []
+  useEffect(() => {
+    // console.log('a filter changed')
 
-    PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
-      results.push(record)
-    })
+    // which filter changed?
+    // if (!foo) return
 
-    return results
-  }
+    // setIsIndeterminate(
+    //   !!filtersNamed.length &&
+    //   (filtersNamed.length !== filters[foo].themes.length)
+    // )
+
+  }, [filters])
+
+  // function parseData() {
+  //   const results = []
+
+  //   PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
+  //     results.push(record)
+  //   })
+
+  //   return results
+  // }
 
   function parseDimensions() {
     const results = {}
@@ -214,7 +230,7 @@ export default function PivotTableUI(props) {
   }
 
   function removeValuesFromFilter(attribute, values) {
-    console.log('removeValuesFromFilter ', attribute, values)
+    // console.log('removeValuesFromFilter ', attribute, values)
 
     const collection = values.reduce((acc, obj) => {
       if (acc[attribute]) {
@@ -270,6 +286,7 @@ export default function PivotTableUI(props) {
                   setAllValuesInFilter={setAllValuesInFilter}
                   addValuesToFilter={addValuesToFilter}
                   removeValuesFromFilter={removeValuesFromFilter}
+                  isIndeterminate={isIndeterminate}
                 />
               )
             }
@@ -283,8 +300,8 @@ export default function PivotTableUI(props) {
   return (
     <>
       {/* DEV ONLY */}
-      <div>
-        {/* <p>Props data</p>
+      {/* <div>
+        <p>Props data</p>
         <pre style={{ fontSize: '10px' }}>
           {JSON.stringify(props.data, null, 2)}
         </pre>
@@ -317,13 +334,13 @@ export default function PivotTableUI(props) {
         <p>props.sorters</p>
         <pre style={{ fontSize: '10px' }}>
           {JSON.stringify(props.sorters, null, 2)}
-        </pre> */}
+        </pre>
 
         <p>Filters</p>
         <pre style={{ fontSize: '10px' }}>
           {JSON.stringify(filters, null, 2)}
         </pre>
-      </div>
+      </div> */}
 
       <div className="pivot__ui">
         <header className="pivot__renderer">

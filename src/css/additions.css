@@ -15,70 +15,11 @@
   max-width: 200px;
 }
 
-.ui__button {
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-}
-
 /*
 * THEMED Pivot Table UI / Renderer(Table)
 */
-table.pvtTable {
-  font-family: inherit;
-  font-size: inherit;
-  min-width: 100%;
-  margin: 0;
-}
-
-table.pvtTable thead tr th,
-table.pvtTable tbody tr th {
-  font-size: inherit;
-  border-color: #FBFAF8;
-}
-
-table.pvtTable thead tr th,
-table.pvtTable tbody tr th,
-table.pvtTable tbody tr td {
-  color: inherit;
-  padding: 6px;
-}
-
-table.pvtTable tbody tr:nth-child(odd) th {
-  background-color: #e6eaee;
-}
-
-table.pvtTable tbody tr:nth-child(even) th {
-  background-color: #ebf0f8;
-}
-
-table.pvtTable tbody tr td {
-  border-color: #FBFAF8;
-}
-
-table.pvtTable tbody tr:nth-child(odd) td {
-  background-color: #F6F4F1;
-}
-
-table.pvtTable tbody tr:nth-child(even) td {
-  background-color: #FBFAF8;
-}
-
-.pvtTable tbody tr:last-child .pvtTotalLabel,
-.pvtTable tbody tr:last-child .pvtTotal,
-.pvtTable tbody tr:last-child .pvtGrandTotal {
-  background: #000;
-  border-color: #FBFAF8;
-  color: #fff;
-  font-weight: 300;
-}
-
-.pvtAxisContainer,
-.pvtVals {
-  background-color: #F6F4F1;
-  border-color: #DEE2E6;
-  padding: 3px;
-}
-
 .pvtAxisLabel {
   max-width: 240px;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
 }

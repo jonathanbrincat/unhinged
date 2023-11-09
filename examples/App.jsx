@@ -9,9 +9,6 @@ import createPlotlyComponent from 'react-plotly.js/factory'
 import { aggregators, sortAs } from '../src/js/Utilities'
 import MOCK, { ARRAY_OF_OBJECTS, ARRAY_OF_ARRAYS } from './tips'
 
-import '../src/css/styles.css'
-import '../src/css/additions.css'
-
 const API = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfobphpVMblTtx5LpBV9EZYqP7LAXrhSNiW7tf--x4MzESavX5O7Ad8IQ95RyjBkSAX46HBw-esJzd/pub?output=csv'
 
 const PlotlyComponent = createPlotlyComponent(window.Plotly) // JB: create instance of Plotly

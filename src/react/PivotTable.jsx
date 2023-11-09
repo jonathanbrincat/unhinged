@@ -8,15 +8,11 @@ import TableRenderers from '../renderers/TableRenderers'
 
 class PivotTable extends React.PureComponent {
   render() {
-    // console.log('PivotTable ', this.props)
-
     const Renderer = this.props.renderers[
       this.props.rendererName in this.props.renderers
         ? this.props.rendererName
         : Object.keys(this.props.renderers)[0]
     ]
-
-    // console.log('Renderer ', Renderer)
 
     return <Renderer {...this.props} />
   }

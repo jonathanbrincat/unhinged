@@ -5,9 +5,9 @@ import PropTypes from 'prop-types'
 // eslint can't see inherited propTypes!
 
 export default function Dimension(props) {
-  const [ isOpen, setIsOpen ] = useState(false)
-  const [ filterText, setFilterText ] = useState('')
-  const [isAllFilters, setIsAllFilters ] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
+  const [filterText, setFilterText] = useState('')
+  const [isAllFilters, setIsAllFilters] = useState(true)
 
   useEffect(() => {
     if (props?.attrValues) {
@@ -29,6 +29,13 @@ export default function Dimension(props) {
     }
   }, [isAllFilters])
 
+  function matchesFilter(filters) {
+    return filters
+      .toLowerCase()
+      .trim()
+      .includes(filterText.toLowerCase().trim()) // JB: matched against filterText?? this is silly. doesn't make sense. what is it trying to achieve?
+  }
+
   function toggleValue(value) {
     if (value in props.valueFilter) {
       props.removeValuesFromFilter(props.name, [value])
@@ -37,18 +44,11 @@ export default function Dimension(props) {
     }
   }
 
-  function matchesFilter(x) {
-    return x
-      .toLowerCase()
-      .trim()
-      .includes(filterText.toLowerCase().trim()) // JB: matched against filterText?? this is silly. doesn't make sense. what is it trying to achieve?
-  }
-
   function selectOnly(event, value) {
     event.stopPropagation()
     props.setAllValuesInFilter(
       props.name,
-      Object.keys(props?.attrValues).filter(y => y !== value)
+      Object.keys(props?.attrValues).filter(item => item !== value)
     )
   }
 
@@ -84,7 +84,12 @@ export default function Dimension(props) {
             />
 
             <label className="control__filters-all-toggle">
-              <input type="checkbox" checked={isAllFilters} onChange={(event) => setIsAllFilters(event.target.checked)} />
+              <input
+                type="checkbox"
+                ref={($input) => { if ($input) $input.indeterminate = props.isIndeterminate }}
+                checked={isAllFilters}
+                onChange={(event) => setIsAllFilters(event.target.checked)}
+              />
               <span>Select All</span>
             </label>
           </div>
@@ -92,18 +97,18 @@ export default function Dimension(props) {
 
         {isMenuLimit && (
           <ul className="filters__list">
-            {shown.map(x => (
+            {shown.map(item => (
               <li
-                key={x}
-                onClick={() => toggleValue(x)}
-                className={`filters__list-item ${x in props.valueFilter ? '' : 'filters__list-item--selected'}`}
+                key={item}
+                onClick={() => toggleValue(item)}
+                className={`filters__list-item ${item in props.valueFilter ? '' : 'filters__list-item--selected'}`}
               >
                 <div className="pivot__filter">
-                  <a className="filter__toggle-only" onClick={e => selectOnly(e, x)}>
+                  <a className="filter__toggle-only" onClick={event => selectOnly(event, item)}>
                     only
                   </a>
 
-                  {x === '' ? <em>null</em> : x}
+                  {item === '' ? <em>null</em> : item}
                 </div>
               </li>
             ))}
@@ -135,6 +140,7 @@ export default function Dimension(props) {
 Dimension.defaultProps = {
   attrValues: {},
   valueFilter: {},
+  isIndeterminate: false,
 }
 
 Dimension.propTypes = {
@@ -146,4 +152,5 @@ Dimension.propTypes = {
   valueFilter: PropTypes.objectOf(PropTypes.bool),
   sorter: PropTypes.func.isRequired,
   menuLimit: PropTypes.number,
+  isIndeterminate: PropTypes.bool
 }
