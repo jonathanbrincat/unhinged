@@ -1,7 +1,7 @@
 /*
 * Pivot Table UI / Renderer(Table)
 */
-table.pvtTable {
+.pvtTable {
   border-collapse: collapse;
   font-family: inherit;
   font-size: inherit;
@@ -9,45 +9,53 @@ table.pvtTable {
   margin: 0;
 }
 
-table.pvtTable thead tr th,
-table.pvtTable tbody tr th,
-table.pvtTable tbody tr td {
+.pvtTable thead tr th,
+.pvtTable tbody tr th,
+.pvtTable tbody tr td {
   border: 1px solid #FBFAF8;
   font-size: inherit;
   color: inherit;
   padding: 6px;
 }
 
-table.pvtTable tbody tr th {
-  text-align: right;
-}
-
-table.pvtTable tbody tr td {
-  text-align: left;
-}
-
-table.pvtTable tbody tr:nth-child(odd) th {
+.pvtTable tbody tr:nth-child(odd) th {
   background-color: #e6eaee;
 }
 
-table.pvtTable tbody tr:nth-child(even) th {
+.pvtTable tbody tr:nth-child(even) th {
   background-color: #ebf0f8;
 }
 
-table.pvtTable tbody tr:nth-child(odd) td {
+.pvtTable tbody tr:nth-child(odd) td {
   background-color: #F6F4F1;
 }
 
-table.pvtTable tbody tr:nth-child(even) td {
+.pvtTable tbody tr:nth-child(even) td {
   background-color: #FBFAF8;
 }
 
-table.pvtTable .pvtColLabel {
+.pvtColLabel,
+.pvtVal,
+.pvtTable tbody tr:last-child .pvtTotal {
   text-align: center;
 }
 
-table.pvtTable .pvtTotalLabel {
+.pvtRowLabel,
+.pvtTable tbody tr:last-child .pvtTotalLabel {
   text-align: right;
+}
+
+.pvtTotalLabel,
+.pvtTotal,
+.pvtTable tbody tr:last-child .pvtGrandTotal {
+  text-align: left;
+}
+
+.pvtAxisContainer,
+.pvtVals {
+  background-color: #F6F4F1;
+  border-color: #DEE2E6;
+  padding: 3px;
 }
 
 .pvtTable tbody tr:last-child .pvtTotalLabel,
@@ -57,11 +65,4 @@ table.pvtTable .pvtTotalLabel {
   border-color: #FBFAF8;
   color: #fff;
   font-weight: 300;
-}
-
-.pvtAxisContainer,
-.pvtVals {
-  background-color: #F6F4F1;
-  border-color: #DEE2E6;
-  padding: 3px;
 }

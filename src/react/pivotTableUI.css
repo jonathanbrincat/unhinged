@@ -54,6 +54,7 @@
 
   .pivot__output {
     grid-area: output;
+    overflow-x: auto;
   }
 
 /*
