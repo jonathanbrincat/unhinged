@@ -8,8 +8,11 @@ import { sortBy } from '../js/constants'
 
 import './pivotTableUI.css'
 
+/*
+Not crucial but would be nice to have; set indeterminate state on filters select all checkbox
+*/
+
 export default function PivotTableUI(props) {
-  // const [data, setData] = useState([])
   const [dimensions, setDimensions] = useState({})
   const [criterion, setCriterion] = useState([])
   const [axisX, setAxisX] = useState([])
@@ -29,16 +32,10 @@ export default function PivotTableUI(props) {
   const [isIndeterminate, setIsIndeterminate] = useState(false)
 
   useEffect(() => {
-    // console.log('-- incoming data changed --')
-
-    // setData([...parseData()])
     setDimensions({...parseDimensions()})
-
   }, [props.data])
 
   useEffect(() => {
-    // console.log('-- dimensions changed --', dimensions)
-
     setCriterion(
       Object.keys(dimensions)
         .map((item, index) => ({ id: `dimension-${++index}`, name: item }))
@@ -86,7 +83,7 @@ export default function PivotTableUI(props) {
   }, [dimensions])
 
   useEffect(() => {
-    // console.log('a filter changed')
+    // console.log('A filter changed')
 
     // which filter changed?
     // if (!foo) return
@@ -97,16 +94,6 @@ export default function PivotTableUI(props) {
     // )
 
   }, [filters])
-
-  // function parseData() {
-  //   const results = []
-
-  //   PivotData.forEachRecord(props.data, props.derivedAttributes, (record) => {
-  //     results.push(record)
-  //   })
-
-  //   return results
-  // }
 
   function parseDimensions() {
     const results = {}
@@ -124,8 +111,6 @@ export default function PivotTableUI(props) {
           if (recordsProcessedTally > 0) {
             results[attr].null = recordsProcessedTally
           }
-
-          // console.log(attr)
         }
       }
 
@@ -255,31 +240,6 @@ export default function PivotTableUI(props) {
     <>
       {/* DEV ONLY */}
       {/* <div>
-        <p>Props data</p>
-        <pre style={{ fontSize: '10px' }}>
-          {JSON.stringify(props.data, null, 2)}
-        </pre>
-
-        <p>Data</p>
-        <pre style={{ fontSize: '10px' }}>
-          {JSON.stringify(data, null, 2)}
-        </pre>
-
-        <p>Dimensions</p>
-        <pre style={{ fontSize: '10px' }}>
-          {JSON.stringify(dimensions, null, 2)}
-        </pre>
-        
-        <p>Criterion</p>
-        <pre style={{ fontSize: '10px' }}>
-          {
-            JSON.stringify(
-              Object.keys(dimensions)
-              .map((item, index) => ({ id: `dimension-${++index}`, name: item })),
-              null, 2)
-          }
-        </pre>
-
         <p>props.valueFilter</p>
         <pre style={{ fontSize: '10px' }}>
           {JSON.stringify(props.valueFilter, null, 2)}
@@ -455,8 +415,7 @@ export default function PivotTableUI(props) {
 
         <article className="pivot__output">
           <PivotTable
-            data={props.data} // JB: will happily work either way with props.data or data; don't really understand why author felt it necessary to pass 'newMaterializedInput'. The clue might be in the name. Think was struggling with the concept of reactivity.
-            // data={data} // JB: transfering data to state doesn't serve any purpose
+            data={props.data}
             renderers={props.renderers}
             aggregators={props.aggregators}
             rows={axisY.map(({ name }) => name)}
