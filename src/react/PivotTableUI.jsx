@@ -8,15 +8,9 @@ import { sortBy } from '../js/constants'
 
 import './pivotTableUI.css'
 
-/*
-TODO:
-broken: sortAs on criterion
-*/
-
 export default function PivotTableUI(props) {
   // const [data, setData] = useState([])
   const [dimensions, setDimensions] = useState({})
-  const [unusedOrder, setUnusedOrder] = useState([]) // JB: doesn't seem to serve a purpose
   const [criterion, setCriterion] = useState([])
   const [axisX, setAxisX] = useState([])
   const [axisY, setAxisY] = useState([])
@@ -58,7 +52,7 @@ export default function PivotTableUI(props) {
             !props.rows.includes(name) &&
             !props.cols.includes(name)
         )
-        // .sort(sortAs(unusedOrder))
+        .toSorted(sortAs([]))
     )
 
     setAxisX(
@@ -152,7 +146,7 @@ export default function PivotTableUI(props) {
     })
 
     return results
-  } // sort array??
+  }
 
   const numValsAllowed = props.aggregators[activeAggregator]([])().numInputs || 0
 
@@ -260,8 +254,8 @@ export default function PivotTableUI(props) {
   return (
     <>
       {/* DEV ONLY */}
-      <div>
-        {/* <p>Props data</p>
+      {/* <div>
+        <p>Props data</p>
         <pre style={{ fontSize: '10px' }}>
           {JSON.stringify(props.data, null, 2)}
         </pre>
@@ -294,8 +288,8 @@ export default function PivotTableUI(props) {
         <p>Filters</p>
         <pre style={{ fontSize: '10px' }}>
           {JSON.stringify(filters, null, 2)}
-        </pre> */}
-      </div>
+        </pre>
+      </div> */}
 
       <div className="pivot__ui">
         <header className="pivot__renderer">
@@ -385,7 +379,7 @@ export default function PivotTableUI(props) {
           {
             createCluster(
               criterion,
-              (collection) => setCriterion(collection),
+              (collection) => setCriterion(collection)
             )
           }
         </div>
@@ -472,7 +466,7 @@ export default function PivotTableUI(props) {
             rowOrder={sortByRow}
             colOrder={sortByColumn} 
 
-            vals={props.vals} // JB: what is this?
+            vals={props.vals} // JB: what is this? // used to specify aggregator/dimensions ['Tip', 'Total Bill']
 
             valueFilter={filters}
 

@@ -121,6 +121,7 @@ const naturalSort = (as, bs) => {
   return a.length - b.length;
 };
 
+// JB: note 'order' is an sort order override as definable by options
 const sortAs = function(order) {
   const mapping = {};
 
@@ -128,12 +129,18 @@ const sortAs = function(order) {
   const l_mapping = {};
   for (const i in order) {
     const x = order[i];
+
     mapping[x] = i;
     if (typeof x === 'string') {
       l_mapping[x.toLowerCase()] = i;
     }
   }
+
   return function(a, b) {
+    // JB: patch provides coverage for sortable.js usage; API breaking change meant the comparator that was formerly a primitive string is now the 'name' property of an Object
+    if (typeof a === 'object' && a !== null && Object.hasOwn(a, 'name')) ({ name: a } = a)
+    if (typeof b === 'object' && b !== null && Object.hasOwn(b, 'name')) ({ name: b } = b)
+
     if (a in mapping && b in mapping) {
       return mapping[a] - mapping[b];
     } else if (a in mapping) {

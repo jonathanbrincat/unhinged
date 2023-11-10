@@ -34,7 +34,7 @@ const options = {
   cols: ['Party Size'],  // semi-required; if nothing assigned there is nothing to display //axisX
   rows: ['Payer Gender'], // semi-required; if nothing assigned there is nothing to display // axisY
   vals: ['Tip', 'Total Bill'],
-  sorters: {
+  sorters: { // sorts the filters; these are overrides to natural sort order which must be default
     Meal: sortAs(['Lunch', 'Dinner']),
     'Day of Week': sortAs([
       'Thursday',
