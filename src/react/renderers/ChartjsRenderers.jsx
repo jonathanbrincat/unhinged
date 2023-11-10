@@ -1,8 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { PivotData } from '../js/Utilities'
+import { PivotData } from '../../js/Utilities'
 
-import MOCK, { palette } from '../js/data/chartjs'
+import MOCK, { palette } from '../../js/data/chartjs'
 
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!

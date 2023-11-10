@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {PivotData} from '../js/Utilities'
+import {PivotData} from '../../js/Utilities'
 
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!

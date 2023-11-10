@@ -1,9 +1,9 @@
-import React, { useState, useEffect }from 'react'
+import React, { useState, useEffect/*, useCallback*/ } from 'react'
 import Papa from 'papaparse'
 import PivotTableUI from '../src/react/PivotTableUI'
-import TableRenderers from '../src/renderers/TableRenderers'
-import createPlotlyRenderers from '../src/renderers/PlotlyRenderers'
-import createChartjsRenderers from '../src/renderers/ChartjsRenderers'
+import TableRenderers from '../src/react/renderers/TableRenderers'
+import createPlotlyRenderers from '../src/react/renderers/PlotlyRenderers'
+import createChartjsRenderers from '../src/react/renderers/ChartjsRenderers'
 import createPlotlyComponent from 'react-plotly.js/factory'
 // import { Chart } from 'react-chartjs-2'
 import { aggregators, sortAs } from '../src/js/Utilities'
@@ -12,6 +12,8 @@ import ARRAY_OF_ARRAYS from './js/data/arrayOfArraysTips'
 import ARRAY_OF_OBJECTS from './js/data/arrayOfObjectsTips'
 import MOCK from './js/data/arrayOfObjectsSample'
 // import sample from './csv/sample.csv'
+
+import './app.css' 
 
 const API = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfobphpVMblTtx5LpBV9EZYqP7LAXrhSNiW7tf--x4MzESavX5O7Ad8IQ95RyjBkSAX46HBw-esJzd/pub?output=csv'
 
@@ -25,15 +27,16 @@ const STATICS = {
   },
   AGGREGATOR: {
     sumOverSum: 'Sum over Sum',
+    count: 'Count',
   },
 }
 
 const options = {
   // rendererName: STATICS.RENDERER.chart,
   aggregatorName: STATICS.AGGREGATOR.sumOverSum,
-  cols: ['Party Size'],  // semi-required; if nothing assigned there is nothing to display //axisX
-  rows: ['Payer Gender'], // semi-required; if nothing assigned there is nothing to display // axisY
-  vals: ['Tip', 'Total Bill'],
+  cols: ['Party Size'],  // semi-required; //axisX
+  rows: ['Payer Gender'], // semi-required; // axisY
+  vals: ['Tip', 'Total Bill'], // used by aggregator/dimension overlays
   sorters: { // sorts the filters; these are overrides to natural sort order which must be default
     Meal: sortAs(['Lunch', 'Dinner']),
     'Day of Week': sortAs([
@@ -48,9 +51,9 @@ const options = {
   tableOptions: {},
   unusedOrientationCutoff: Infinity,
 
-  valueFilter: {
-    'Payer Gender': { 'Male': true },
-  },
+  // valueFilter: {
+  //   'Payer Gender': { 'Male': true },
+  // },
 }
 
 // JB: there really needs to be a way to declare a primary_key field in the imported csv data; for 2 reasons. 1) to allow custom aggregators to known what field is the unique identifier 2) so that the primary_key can be excluded from the available dimensions.

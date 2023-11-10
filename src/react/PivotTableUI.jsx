@@ -9,8 +9,28 @@ import { sortBy } from '../js/constants'
 import './pivotTableUI.css'
 
 /*
-Not crucial but would be nice to have; set indeterminate state on filters select all checkbox
+TODO
+
+1) Address and finalise mapping/massaging of data to bridge incompatibilities between API and pivottable js
+1) hardcoded mapping - id Vs name conundrum.
+UPDATE: spoken to James and agreement that rather than than this hybrid half in, half out solution we assert the distinction. this is client and is v1 of the API. it will be succeeded by v2 of the API with the compute on the server in due course.
+
+2) Not crucial but would be nice to have; set indeterminate state on filters select all checkbox / address UI hierarchy amongst component in implementation
+2) what to do with the filters and controls and should they live inside pivottable ui component?
+UPDATE: discussed with James; in addition the x-axis dimension needs filtering
+
+3) review and overhaul the custom chartjs extension
+
+4) Evaluate + completely upgrade/overhaul of ux and design
+5) DONE
 */
+
+const STATICS = {
+  RENDERER: {
+    table: 'Table',
+    chart: 'Chartjs Grouped Column Chart',
+  },
+}
 
 export default function PivotTableUI(props) {
   const [dimensions, setDimensions] = useState({})
@@ -274,8 +294,8 @@ export default function PivotTableUI(props) {
               <input
                 type="radio"
                 name="renderer"
-                value="Table"
-                checked={activeRenderer === "Table"}
+                value={STATICS.RENDERER.table}
+                checked={activeRenderer === STATICS.RENDERER.table}
                 onChange={(event) => setActiveRenderer(event.target.value)}
               />
               <span>Table</span>
@@ -285,8 +305,8 @@ export default function PivotTableUI(props) {
               <input
                 type="radio"
                 name="renderer"
-                value="Chartjs Grouped Column Chart"
-                checked={activeRenderer === "Chartjs Grouped Column Chart"}
+                value={STATICS.RENDERER.chart}
+                checked={activeRenderer === STATICS.RENDERER.chart}
                 onChange={(event) => setActiveRenderer(event.target.value)}
               />
               <span>Chart</span>
@@ -339,7 +359,7 @@ export default function PivotTableUI(props) {
           {
             createCluster(
               criterion,
-              (collection) => setCriterion(collection)
+              (collection) => setCriterion(collection),
             )
           }
         </div>
@@ -423,7 +443,7 @@ export default function PivotTableUI(props) {
             rendererName={activeRenderer}
             aggregatorName={activeAggregator}
             rowOrder={sortByRow}
-            colOrder={sortByColumn} 
+            colOrder={sortByColumn}
 
             vals={props.vals} // JB: what is this? // used to specify aggregator/dimensions ['Tip', 'Total Bill']
 

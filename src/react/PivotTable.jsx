@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { PivotData } from '../js/Utilities'
-import TableRenderers from '../renderers/TableRenderers'
+import TableRenderers from './renderers/TableRenderers'
 
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!

@@ -5,7 +5,7 @@ import App from './App'
 import '../src/css/main.css'
 
 ReactDOM
-  .createRoot(document.getElementById('root'))
+  .createRoot(document.getElementById('app'))
   .render(
     <React.StrictMode>
       <App />

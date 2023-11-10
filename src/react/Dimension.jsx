@@ -1,6 +1,8 @@
 import React, { useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
 
+import './dimension.css'
+
 /* eslint-disable react/prop-types */
 // eslint can't see inherited propTypes!
 
